@@ -43,7 +43,6 @@ body:not(.advanced-tools) .view-head{justify-content:flex-end}
 #viewPreset{width:172px;flex-shrink:0;margin:0;font-size:11px;min-height:28px;padding:4px 8px;background:#22252a;border:1px solid #353940;color:#dce2eb}
 .view-head button,.view-head .toggle{white-space:nowrap;flex-shrink:0}
 body.advanced-tools #viewPreset{display:none}
-body:not(.advanced-tools):not(.has-segments) .timeline-head :is(#splitAction,#trimLeft,#trimRight,#timelineAll,#timelineNone,#selectionCount,#timelineRemove,#newAction,.timeline-hint){display:none}
 body:not(.advanced-tools) .view-head .icon-button{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:6px}
 body:not(.advanced-tools) .view-head .icon-button svg{width:17px;height:17px}
 body:not(.advanced-tools){--accent:#72b7ff;--line:#2b2e33;--muted:#969aa3;color:#ebedf2;background:#121416;font-family:"DengXian","Microsoft YaHei UI",sans-serif;-webkit-font-smoothing:antialiased}
@@ -51,12 +50,20 @@ body:not(.advanced-tools) button,body:not(.advanced-tools) select{transition:bac
 body:not(.advanced-tools) button:focus-visible,body:not(.advanced-tools) select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 body:not(.advanced-tools) button:disabled,body:not(.advanced-tools) select:disabled{opacity:.35}
 body:not(.advanced-tools) .top{background:#191b1f;border-color:#2a2d32}
-body:not(.advanced-tools) .top>div{gap:16px}
-body:not(.advanced-tools) .brand{color:#a1a5ad;font-size:13px;letter-spacing:.4px}
-body:not(.advanced-tools) .divider{color:#535862}
-body:not(.advanced-tools) .top strong{font-size:13px;font-weight:600;letter-spacing:.3px}
-body:not(.advanced-tools) #status{color:#8b909a}
-body:not(.advanced-tools) #replaceModel{background:#22252a;border-color:#353940;color:#e0e3ea;min-height:30px;width:220px}
+/* 深色底板上的独立面板：留缝划分区域，编排工具栏归属底部面板。 */
+body:not(.advanced-tools) main{padding:8px;gap:8px;background:#0c0e10}
+body:not(.advanced-tools) .library,body:not(.advanced-tools) .viewport,body:not(.advanced-tools) .timeline{border:1px solid #2b2e33;border-radius:8px}
+body:not(.advanced-tools) .viewport{overflow:hidden;background:#121416}
+.brand{display:inline-flex;align-items:center;gap:9px;white-space:nowrap}
+.brand-mark{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;flex-shrink:0;color:#72b7ff}
+.brand-mark svg{width:21px;height:21px}
+.titlebar-divider{height:22px;border-left:1px solid #353940;flex-shrink:0}
+.model-control{display:flex;align-items:center;gap:8px;min-width:0}
+body:not(.advanced-tools) .top .titlebar-main{gap:18px;flex-shrink:0}
+body:not(.advanced-tools) .brand{color:#e8edf5;font-size:16px;font-weight:650;letter-spacing:.15px}
+body:not(.advanced-tools) #status{color:#8b909a;min-width:0;max-width:none;flex:1;text-align:right;font-size:11px}
+body:not(.advanced-tools) #replaceModel{background:#22252a;border-color:#353940;color:#d7dde6;min-height:30px;width:176px;font-size:12px;padding:4px 10px}
+@media(max-width:760px){body:not(.advanced-tools) .top{gap:12px}body:not(.advanced-tools) .top .titlebar-main{gap:12px}body:not(.advanced-tools) .brand{font-size:14px;gap:7px}body:not(.advanced-tools) #replaceModel{width:132px}}
 body:not(.advanced-tools) .library{background:#1b1d21;border-color:#2b2e33;padding:20px 14px 14px;gap:14px}
 body:not(.advanced-tools) .section-head{padding:0 8px}
 body:not(.advanced-tools) .section-head h2{font-size:13px;letter-spacing:.5px;font-weight:600}
@@ -83,7 +90,7 @@ body:not(.advanced-tools) .transition-library .motion-source-card{background:#22
 body:not(.advanced-tools) .transition-library .motion-source-card:hover[aria-disabled=false]{border-color:#6c93bd;background:#263140}
 body:not(.advanced-tools) .transition-library span{font-size:12px;color:#d5dde8}
 body:not(.advanced-tools) .transition-library small{font-size:10px;color:#8995a5}
-body:not(.advanced-tools) .view-head,body:not(.advanced-tools) .player{background:#121416}
+body:not(.advanced-tools) .view-head,body:not(.advanced-tools) .player{background:#191c20}
 body:not(.advanced-tools) .view-head{padding:8px 20px}
 body:not(.advanced-tools) .view-head>span{color:#737b87;font-size:11px}
 body:not(.advanced-tools) .view-head button{font-size:11px;color:#a5abb6;padding:4px 8px}
@@ -105,8 +112,24 @@ body:not(.advanced-tools) .player #clock{color:#939eaf;font-size:11px}
 body:not(.advanced-tools) #previewSeek{appearance:none;-webkit-appearance:none;background:transparent;height:12px}
 body:not(.advanced-tools) #previewSeek::-webkit-slider-runnable-track{height:2px;background:#343a43;border-radius:2px}
 body:not(.advanced-tools) #previewSeek::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-top:-3px}
-body:not(.advanced-tools) .timeline{background:#1b1d21;border-color:#34373d;padding:12px 20px}
-body:not(.advanced-tools) .timeline-head{gap:8px}
+/* 工具横条与刻度/轨道分层，保持时间轴左右对齐及总高度预算。 */
+body:not(.advanced-tools) .timeline{background:#15181c;border-color:#34373d;padding:0;overflow:hidden}
+body:not(.advanced-tools) .timeline-head{gap:8px;padding:8px 20px;background:#202328;border-bottom:1px solid #353941}
+body:not(.advanced-tools) #timelineScroll{margin:0 20px;padding:12px 6px 8px}
+.timeline-zoom{display:flex;align-items:center;gap:3px;margin-left:auto;flex-shrink:0}
+.timeline-head .timeline-zoom button{min-height:28px;padding:3px 7px;font-size:11px}
+.timeline-head .timeline-zoom input{width:70px;height:16px;margin:0;accent-color:var(--accent)}
+.timeline-zoom output{min-width:42px;text-align:center;font:10px Consolas,monospace;color:var(--muted)}
+.timeline-head #timelineRemove{margin-left:0}
+#timeRuler{overflow:hidden}
+#timeRuler span.minor{height:5px;top:4px;border-color:#343b45;padding:0}
+#timeRuler span.major{height:10px;top:0}
+#timeRuler span:last-child{transform:none;border-right:0;border-left:1px solid #46515c;padding-right:0}
+/* 工具栏始终保留；禁用仅改变状态，不改变工具位置或页面高度。 */
+/* 落点反馈仅限插入位置，不给整个时间轴加选框或文字标签。 */
+body:not(.advanced-tools) #timelineScroll.drop-ready{background:transparent;outline:none}
+body:not(.advanced-tools) #timelineScroll.drop-ready #segments .empty{visibility:hidden}
+body:not(.advanced-tools) .timeline-drop.adding::before{content:'';width:0;height:0;left:-4px;bottom:100%;padding:0;background:transparent;border:5px solid transparent;border-top-color:var(--accent);border-bottom:0}
 #actionTitle,#total{display:none}
 #appendClips,.library .file-button[hidden]{display:none!important}
 #viewportPoseTools[hidden]{display:none!important}

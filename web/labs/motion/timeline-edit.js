@@ -9,8 +9,9 @@ export function bindTimelineEdit({container,scroll,track,select,resize,move,remo
  }
  tools.append(modes);container.closest('.timeline').querySelector('.timeline-head').prepend(tools);
  function syncTools(){
-  tools.hidden=!container.querySelector('button.action.selected');
-  for(const mode of modes.children){mode.setAttribute('aria-pressed',String(mode.dataset.mode===edgeMode));mode.disabled=!canEdit();}
+  tools.hidden=false;
+  const available=!!container.querySelector('button.action.selected')&&canEdit();
+  for(const mode of modes.children){mode.setAttribute('aria-pressed',String(mode.dataset.mode===edgeMode));mode.disabled=!available;}
   container.dataset.edgeMode=edgeMode;
   for(const action of container.querySelectorAll('button.action'))for(const handle of action.querySelectorAll('.resize-handle'))handle.title=edgeMode==='trim'?'裁剪：拖动裁掉部分动作；Alt拖动临时变速':'变速：拖动调整时长，保留完整源范围';
  }
@@ -58,7 +59,7 @@ export function bindTimelineEdit({container,scroll,track,select,resize,move,remo
  }
  function finish(cancel=false){
   if(!drag)return;
-  const current=drag,positions=new Map([...container.children].map(b=>[b.dataset.key,b.getBoundingClientRect()]));drag=null;marker.hidden=true;container.classList.remove('editing');clearPreview();current.ghost?.remove();container.querySelectorAll('.drag-source').forEach(b=>b.classList.remove('drag-source'));current.button.classList.remove('dragging');
+  const current=drag,positions=new Map([...container.children].map(b=>[b.dataset.key,b.getBoundingClientRect()]));drag=null;document.body.classList.remove('timeline-resizing');marker.hidden=true;container.classList.remove('editing');clearPreview();current.ghost?.remove();container.querySelectorAll('.drag-source').forEach(b=>b.classList.remove('drag-source'));current.button.classList.remove('dragging');
   if(current.resize){if(cancel)restore(current.key,current.snapshot);scale(null);refresh();}
   else if(current.moved&&!cancel&&current.target)move(current.key,current.target,current.after,current.swap);
   if(!current.moved&&!current.modified&&!current.resize)select(current.button,{},false);
@@ -78,6 +79,8 @@ export function bindTimelineEdit({container,scroll,track,select,resize,move,remo
   if(!isResize&&button.classList.contains('transition'))return;
   const pps=track.clientWidth/Number(document.getElementById('seek').max);
   document.querySelectorAll('.timeline-settle').forEach(n=>n.remove());begin();drag={button,key:button.dataset.key,offset:event.clientX-button.getBoundingClientRect().left,modified:event.ctrlKey||event.metaKey||event.shiftKey,resize:isResize,side:event.target.closest('.resize-left')?'left':'right',resizeMode:event.altKey?'duration':edgeMode,snapshot:snapshot(button.dataset.key),duration:Number(button.dataset.duration),x:event.clientX,scroll:scroll.scrollLeft,pps,pointerId:event.pointerId,moved:false};
+  // 捕获目标是片段按钮，按下即固定调整光标，避免被按钮的抓手覆盖。
+  if(isResize)document.body.classList.add('timeline-resizing');
   button.setPointerCapture(event.pointerId);event.preventDefault();if(isResize)scale(pps);
  });
  container.addEventListener('pointermove',event=>{
