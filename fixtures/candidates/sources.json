@@ -1,0 +1,14 @@
+{
+  "quaternius": {
+    "page": "https://quaternius.itch.io/universal-animation-library-2",
+    "uploadId": "17958478",
+    "license": "CC0",
+    "edition": "Standard"
+  },
+  "mesh2motion": {
+    "repository": "Mesh2Motion/mesh2motion-app",
+    "commit": "653a9698f5f315523072f1c3ff3496100401317b",
+    "license": "CC0",
+    "excluded": "human-mocap-animations.glb 尚未核对上游许可"
+  }
+}

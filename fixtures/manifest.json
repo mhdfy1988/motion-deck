@@ -1,0 +1,92 @@
+[
+  {
+    "path": "fixtures/quaternius/AnimationLibrary_Godot_Standard.gltf",
+    "bytes": 2459987,
+    "sha256": "0ff075c7ad6855c5c2c37a171592ee8f0d6ab2f58259e2be77a9b63dd8027765"
+  },
+  {
+    "path": "fixtures/quaternius/AnimationLibrary_Godot_Standard.bin",
+    "bytes": 1587224,
+    "sha256": "6e65377d81558333c4093dbb144a48fd19019343d82b1a3a7992a98ec0e0543c"
+  },
+  {
+    "path": "fixtures/quaternius/LICENSE",
+    "bytes": 7048,
+    "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+  },
+  {
+    "path": "fixtures/poses/MakeHumanPoses.glb",
+    "bytes": 3174076,
+    "sha256": "58a1975a260edde6e217b8d1b0af4194d06ada365a192c7623a6e6a0be4ffbcc"
+  },
+  {
+    "path": "fixtures/poses/MakeHumanPoses.json",
+    "bytes": 105879,
+    "sha256": "3e0d48c0c6e7f9e844cf6c58ece171c07e7faa165da76fc25b93c1c3f6078bfb"
+  },
+  {
+    "path": "fixtures/candidates/m2m-human-base-animations.glb",
+    "bytes": 5656648,
+    "sha256": "406eb0a8dc4ab366e623b79b6e3005a4951392e1bda78ae39c1099d31147733c"
+  },
+  {
+    "path": "fixtures/candidates/m2m-human-addon-animations.glb",
+    "bytes": 5292804,
+    "sha256": "a0d64d555e0d492026b72d58bf8e16c5e86779295f9093e376dcc001915c2c95"
+  },
+  {
+    "path": "fixtures/candidates/m2m-model-human.glb",
+    "bytes": 364868,
+    "sha256": "8766a46e82c63c947f7eff70c9d72d6ef0661e2280928048559f8975dcd1086d"
+  },
+  {
+    "path": "fixtures/candidates/m2m-rig-human.glb",
+    "bytes": 21184,
+    "sha256": "3f7ad51c9471458a920dbe373755c3a7223e3672bb572406fa7d2e65deb8f593"
+  },
+  {
+    "path": "fixtures/candidates/m2m-LICENSE-CC0.MD",
+    "bytes": 294,
+    "sha256": "52fec1c484df708c16b4c27b2bf0d7f0d3994105c57adc4b9e6f95bcfd9de65f"
+  },
+  {
+    "path": "fixtures/candidates/sources.json",
+    "bytes": 396,
+    "sha256": "292153ecda1a91140ca0f951e1bbb1eb10c98030d5041a02a9f12320fa1dbda2"
+  },
+  {
+    "path": "fixtures/RobotExpressive.glb",
+    "bytes": 463988,
+    "sha256": "047f5e5fb3bb6d378bd1df16ca6137f2a596c99b3a1b5690b4020c05aaf6f319"
+  },
+  {
+    "path": "fixtures/candidates/ual1/Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb",
+    "bytes": 7618436,
+    "sha256": "69591853d817488edaa8fd9bf8fc1d821eaeaf789f8627b3cd23b41c4ed67997"
+  },
+  {
+    "path": "fixtures/candidates/ual1/Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+    "bytes": 7620504,
+    "sha256": "be684571ed655a1b892c2c07e6e2aeca053b606c442d34004adaf1d944090d01"
+  },
+  {
+    "path": "fixtures/candidates/ual1/Universal Animation Library[Standard]/License.txt",
+    "bytes": 332,
+    "sha256": "6d01f55c6e4c49a2c9963e147e561945ae2c83958c8ca667d90a6bffdbfac061"
+  },
+  {
+    "path": "fixtures/candidates/ual2/Universal Animation Library 2[Standard]/Unreal-Godot/UAL2_Standard.glb",
+    "bytes": 8091444,
+    "sha256": "8cee20ab1bc55130092447e810e26df22dd2803eccc54f52137a7d54d7ab88a8"
+  },
+  {
+    "path": "fixtures/candidates/ual2/Universal Animation Library 2[Standard]/Unreal-Godot/UAL2_Standard_RM.glb",
+    "bytes": 8095936,
+    "sha256": "814eee878f82934992d3ea746c539df25e981487109c591f5efbb8dd03286f99"
+  },
+  {
+    "path": "fixtures/candidates/ual2/Universal Animation Library 2[Standard]/License.txt",
+    "bytes": 332,
+    "sha256": "6d01f55c6e4c49a2c9963e147e561945ae2c83958c8ca667d90a6bffdbfac061"
+  }
+]

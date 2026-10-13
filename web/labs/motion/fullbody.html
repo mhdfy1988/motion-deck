@@ -1,0 +1,7 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>全身联动试摆 · 动作工坊</title><link rel="stylesheet" href="fullbody.css"></head><body>
+<header><a href="index.html">← 返回动作编排</a><strong>全身联动试摆</strong><select id="model" aria-label="模型"><option value="mesh2motion">Mesh2Motion</option><option value="quaternius">Quaternius</option></select><span>独立试验 · 不写素材库</span></header>
+<main id="stage"><canvas id="canvas"></canvas><div id="points"></div>
+<div class="toolbar"><select id="part" aria-label="身体部位"></select><button id="move" class="active">拖动</button><button id="rotate">旋转</button><i></i><label><input id="pinPosition" type="checkbox">保持位置</label><label><input id="pinRotation" type="checkbox">保持朝向</label><i></i><button id="undo">撤销</button><button id="reset">重置</button></div>
+<div class="views"><button id="fit">适合视图</button><select id="view" aria-label="视角"><option value="perspective">透视</option><option value="front">正面</option><option value="side">侧面</option></select></div>
+<div class="hint">拖身体点联动 · 蓝点为保持点 · 右键＋WASD 自由观看 · Esc 取消</div>
+</main><footer><span id="status" role="status">载入中</span><span>尚无人体限位、碰撞和平衡判断</span></footer><script type="module" src="fullbody.bundle.js"></script></body></html>

@@ -1,0 +1,13 @@
+import {test,expect} from '@playwright/test';
+import {handleConfirmation} from './confirm-helper.js';
+test('简版默认姿势编辑副本，保存只入自定义，取消覆盖及刷新原姿势不变',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.locator('#replaceModel').selectOption('quaternius');await expect(page.locator('#status')).toContainText('99 姿势');await page.locator('#library-pose').click();
+ const builtin=page.locator('#clips [data-pose-id^="builtin:"]').first(),name=await builtin.locator('span').textContent();
+ const read=()=>page.evaluate(async()=>{const {getImage}=await import('/motion-store.js'),pointer=await getImage('motion-library-last-v1'),data=(await getImage('motion-library-v1:'+pointer.modelKey)).data;return {defaults:data.poses.filter(p=>p.id.startsWith('builtin:')),custom:data.poses.filter(p=>!p.id.startsWith('builtin:'))};});const before=await read();
+ await builtin.dblclick();await expect(page.locator('.settings')).toBeHidden();await expect(page.locator('#editPose')).toHaveText('退出编辑');await page.locator('#poseFineTune').click();await expect(page.locator('#posePanel')).toBeVisible();await page.locator('#bone').selectOption('1');await page.locator('#rx').fill('35');await page.locator('#rx').dispatchEvent('change');
+ await page.locator('#capturePose').click();await page.locator('#poseName').fill(name);await page.locator('#confirmPoseSave').click();await expect(page.locator('#status')).toContainText('自定义姿势库');let after=await read();expect(after.defaults).toEqual(before.defaults);expect(after.custom).toHaveLength(1);expect(after.custom[0].pose).not.toEqual(before.defaults[0].pose);
+ await expect(page.locator('#pose-library-default')).toContainText('99');await expect(page.locator('#pose-library-custom')).toContainText('1');
+ await page.locator('#capturePose').click();await page.locator('#poseName').fill(name);await handleConfirmation(page,false);await page.locator('#confirmPoseSave').click();await expect(page.locator('#savePoseDialog')).toBeVisible();expect((await read()).custom).toEqual(after.custom);await page.locator('#cancelPoseSave').click();
+ await page.setViewportSize({width:1280,height:600});await expect(page.locator('#capturePose')).toBeInViewport();await expect(page.locator('#savePose')).toBeHidden();await page.screenshot({path:'output/acceptance/motion-pose-edit-copy.png'});
+ await page.locator('#editPose').click();await expect(page.locator('.settings')).toBeHidden();await page.reload();await expect(page.locator('#status')).toContainText('已恢复');await page.locator('#library-pose').click();expect((await read()).defaults).toEqual(before.defaults);expect((await read()).custom).toEqual(after.custom);expect(errors).toEqual([]);
+});

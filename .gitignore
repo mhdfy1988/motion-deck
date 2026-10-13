@@ -1,0 +1,10 @@
+node_modules/
+output/
+test-results/
+playwright-report/
+*.log
+.env
+.env.*
+!.env.example
+web/labs/motion/*.bundle.js
+web/labs/motion/*-validator.generated.js

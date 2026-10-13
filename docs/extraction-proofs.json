@@ -1,0 +1,518 @@
+[
+  {
+    "source": "web/labs/motion/action-labels.js",
+    "sha256": "a15ea874110bfe87b572200369b17ea7b4495ff706650865a58f9b486cf38af6"
+  },
+  {
+    "source": "web/labs/motion/action-library.js",
+    "sha256": "dfe302ec19d0a51627e09593ed6c8ea4cb068d8089f3291322981ff0817515ee"
+  },
+  {
+    "source": "web/labs/motion/body-controls.js",
+    "sha256": "09eba37bb7221967a0a0477b500a01ce9c890ceb82a2f2f84a698faaf889830b"
+  },
+  {
+    "source": "web/labs/motion/builtin-expansion.js",
+    "sha256": "6fb45da9353a3bc31b4d13c813fde8efb8f4d864a66095efc04eb3a9445f615d"
+  },
+  {
+    "source": "web/labs/motion/catalog-validator.generated.js",
+    "sha256": "756155100b6e05e351bedb7675245b16305face5766af63496006fd35fa39be9"
+  },
+  {
+    "source": "web/labs/motion/default-poses.js",
+    "sha256": "e6b1faedb9274be3c2d0f657fbfe6a05107182938561aaebfa10e7aa7c39610b"
+  },
+  {
+    "source": "web/labs/motion/free-view.js",
+    "sha256": "8e10a6bd3a447e30888697a3d50c5aad30eff81a1c16f4585140984990509595"
+  },
+  {
+    "source": "web/labs/motion/fullbody-rig.js",
+    "sha256": "0d6beaf2f0130234072fb97b5958edb03af255d8904d349e4b16a532c8b6bd58"
+  },
+  {
+    "source": "web/labs/motion/fullbody.css",
+    "sha256": "800a57ce799f8f53c756a087d974224775c99e8613f79be7242107cab614f976"
+  },
+  {
+    "source": "web/labs/motion/fullbody.html",
+    "sha256": "b5a5a7d73019c97e49518e5fb0269ae03490b93fcc63eb31b564ca87370dad46"
+  },
+  {
+    "source": "web/labs/motion/fullbody.js",
+    "sha256": "d26b4a6029521946db1c93e55f0cd061b25fa9b53fd8f70d06f96c7a77181bf0"
+  },
+  {
+    "source": "web/labs/motion/index.html",
+    "sha256": "73da0ea9ab6c4462a2b86acf1da93404b50a7c9aa804ff417f335d8a13b53de1"
+  },
+  {
+    "source": "web/labs/motion/library-schema.js",
+    "sha256": "d69a132fd71063bca38d5c4e34f2db415196a5fbf4019db0b02752ba3b0537fa"
+  },
+  {
+    "source": "web/labs/motion/library-validator.generated.js",
+    "sha256": "83bfc6952659f281bfee9d56853fc6f1144e9d2ca101e0377c07acdfc351e65f"
+  },
+  {
+    "source": "web/labs/motion/model-catalog.js",
+    "sha256": "059dd8a93ac77493f799c19df6d5aa0fc41b6cf14db4dfd2eb042dc8f53afe02"
+  },
+  {
+    "source": "web/labs/motion/motion-bounds.js",
+    "sha256": "2ba20a1a237f867f14a5f99aab2cebe9aab1ac114e92ee728ac4c625fbdaaf56"
+  },
+  {
+    "source": "web/labs/motion/motion-export-ui.js",
+    "sha256": "977ca5a514f3b774942e3805813167c079cd71758d6b14ba28e24ae6d0879394"
+  },
+  {
+    "source": "web/labs/motion/motion-export.js",
+    "sha256": "14d815a0d35f12d9b8b577f94b1fb5e173f0d11d9c50f5d9f776393579e8a8c1"
+  },
+  {
+    "source": "web/labs/motion/motion-prompts.js",
+    "sha256": "540370f20a445984b18c756531e5c08a4a2ae1333d1c3d687de0e09d654a8579"
+  },
+  {
+    "source": "web/labs/motion/motion-theme.css",
+    "sha256": "c79bd7b86bea94717f8267d6989829d8928fdfe18475e2833b401582db4f7896"
+  },
+  {
+    "source": "web/labs/motion/motion.css",
+    "sha256": "a0121b5b11b5cd9e9b5437cb6ffcf1e45247f069c20aa844c43f66152d1d66e6"
+  },
+  {
+    "source": "web/labs/motion/motion.js",
+    "sha256": "8bd9128ccc02c6704e28656f5a001ad511bef84d383b703c835e4cd90e7fded0"
+  },
+  {
+    "source": "web/labs/motion/pose-drag.js",
+    "sha256": "bf5f06d258d797a11dd91af975332e940783170489a514bcc76aaa4e090713a0"
+  },
+  {
+    "source": "web/labs/motion/pose-ik.js",
+    "sha256": "4173db68716d17e386d5717907e78b8816026a37ba3eb4425da44c85f124f72b"
+  },
+  {
+    "source": "web/labs/motion/pose-import.js",
+    "sha256": "9d142ca8c71dc806983bf816d88162be3d3b08d627148765a9e5f47a6f46db48"
+  },
+  {
+    "source": "web/labs/motion/reference-capture.js",
+    "sha256": "262e6804f76211bac7e578936d9a5f95c691623a684de64f902e8e0306740164"
+  },
+  {
+    "source": "web/labs/motion/sequence-core.js",
+    "sha256": "b62370a42b6f89ac77c4e565fd549f0ed4e60020fec3db09d57784d82a44b930"
+  },
+  {
+    "source": "web/labs/motion/three-adapter.js",
+    "sha256": "2322f58a12085b9d84d98fe8d6097a1aa93c74b7deedd50df66a947d59d12b49"
+  },
+  {
+    "source": "web/labs/motion/timeline-edit.js",
+    "sha256": "71fb413606d2e90827c5eb2a97351b959dfc15c3593f425ea7c5381b455e7dea"
+  },
+  {
+    "source": "web/labs/motion/timeline-history.js",
+    "sha256": "facb325a24a574f861d94db0cb7ecfb10611ef5261aaf6c19acfe0d2dc2ae759"
+  },
+  {
+    "source": "web/labs/motion/view-camera.js",
+    "sha256": "059b2d3464fe321c127eb145b59f8d7e6622045db54c4c1665cc15f060b341ef"
+  },
+  {
+    "source": "web/labs/motion/view-presets.js",
+    "sha256": "693a0ec368e89f7cbaca37aba838d60e34253d2de8e8eb63da1b4bb150271ad6"
+  },
+  {
+    "source": "web/icons-data.js",
+    "sha256": "59b075d3b1599fbba7fc6168295818d69edcdf3306457b3c96f11b65d3c23c0d"
+  },
+  {
+    "source": "web/workflow-image-store.js",
+    "sha256": "365c78ca7f013af8295997dd007475c34bc713a3060d5a6882c2324419b43694"
+  },
+  {
+    "source": "scripts/build-motion-lab.mjs",
+    "sha256": "7a7ae193bc0faa602d20e35572bf394dd1d2f331f2c94d69dc36b2d63ec88d14"
+  },
+  {
+    "source": "scripts/build-fullbody-trial.mjs",
+    "sha256": "b184c7e26fc927826af152e2fe6cbe8c580c444dccb347f5348f13637304b75c"
+  },
+  {
+    "source": "scripts/build-icons.mjs",
+    "sha256": "3d83a13cf08ab69699818717e97fde9ee8620b82dbe73eba794b8944f02289f2"
+  },
+  {
+    "source": "scripts/serve-motion-lab.mjs",
+    "sha256": "e61d656cb79d8ec5ac4b8e9f6e3119d937cadd11402da953618797ea0bef907c"
+  },
+  {
+    "source": "package-lock.json",
+    "sha256": "d2b4ca0b7b93bdd56852d6c87e345dc8ebed62ea92bc2b996a9bcf66a5f5f4f5"
+  },
+  {
+    "source": "tests/web/builtin-expansion.test.mjs",
+    "sha256": "4b9401c4b6cc3037a829a50855d4ea5a2a481d7bd4f4d8409a2dc8f8fb6b7d73"
+  },
+  {
+    "source": "tests/web/motion-action-labels.test.mjs",
+    "sha256": "cfe2c75f6443e9135e232ea37cc1b36ae14c01ef3a977206107a980b5b01da62"
+  },
+  {
+    "source": "tests/web/motion-bounds.test.mjs",
+    "sha256": "3fdafb4b0f0889d51e4932595321ebba893f1a49ec3aa464631ded84c4e60688"
+  },
+  {
+    "source": "tests/web/motion-composite.test.mjs",
+    "sha256": "ce18d31f53565cdeefa3ccaa2cf2f18be2c27551908d5bcd89fffe1f3ffabc08"
+  },
+  {
+    "source": "tests/web/motion-default-actions.test.mjs",
+    "sha256": "95f0f62b47298d988b6e611db73c456efec033d91490f19220d71b8884568e57"
+  },
+  {
+    "source": "tests/web/motion-default-poses.test.mjs",
+    "sha256": "3c85ed8c938cd039ebb999ad209b0d1db20f97a96328270d2e1a8d5b508dc9a6"
+  },
+  {
+    "source": "tests/web/motion-export.test.mjs",
+    "sha256": "3f44b09367523f2bd04575fdcc8307c5664e8e4154057dc4b53c1d8ecd606e05"
+  },
+  {
+    "source": "tests/web/motion-free-view.test.mjs",
+    "sha256": "5af07cf52b2cfe6fe2b1964a00ba6b591118e2692bc53b55a2a962878afd7d03"
+  },
+  {
+    "source": "tests/web/motion-fullbody.test.mjs",
+    "sha256": "33878d15f6692eef8372287a0ecce15021ee1e5ef907c76ac502db7e03570cf5"
+  },
+  {
+    "source": "tests/web/motion-history.test.mjs",
+    "sha256": "71c07621695ef2fe198bf0c62a5b67708e32ef86480d8652623566c55885d234"
+  },
+  {
+    "source": "tests/web/motion-ik.test.mjs",
+    "sha256": "6cef28cce035eba1df5a13725937f67002a3c6bc22134c541454c4e1a75b9247"
+  },
+  {
+    "source": "tests/web/motion-lab.test.mjs",
+    "sha256": "b167551e36cf891504b49ad6f45e054aad3fadeb411ce0d18cbbe529085a28a7"
+  },
+  {
+    "source": "tests/web/motion-library.test.mjs",
+    "sha256": "071ac8734f8e9af519617265b48f7f6532e80ff14ececaec3fc415a2bdf3b7a4"
+  },
+  {
+    "source": "tests/web/motion-model-catalog.test.mjs",
+    "sha256": "f317a8261300670fc2640c9f45b3ab603346dccd683ba2e0c7546c095d2741c3"
+  },
+  {
+    "source": "tests/web/motion-pose-import.test.mjs",
+    "sha256": "2eeb683e4f425f0a044b7c17caf55d24a7f0f97ab8257d48ddb713ae838129a2"
+  },
+  {
+    "source": "tests/web/motion-reference-capture.test.mjs",
+    "sha256": "ab638151202a51eaab3581be3b369611306065169e9169779d469248a012676b"
+  },
+  {
+    "source": "tests/web/motion-sequence.test.mjs",
+    "sha256": "42051dbf8d789ab4651fdd517f1f282ddf93d5ca77f70579c56e78f182aedaee"
+  },
+  {
+    "source": "tests/web/motion-view-camera.test.mjs",
+    "sha256": "0ce50cf713946fd7b572f85f21d230f1f3945aa79d6fe289c77ca1b42339f011"
+  },
+  {
+    "source": "tests/motion-lab/body-controls.spec.js",
+    "sha256": "ba6de758ab65d6abc3a0b72842aae94a9c912ce424f8e07d80b94f02782a2066"
+  },
+  {
+    "source": "tests/motion-lab/builtin-expansion.spec.js",
+    "sha256": "1e40c9645ab7988a586acffa0727ef925e4af0e972581c03247a812d89ea1892"
+  },
+  {
+    "source": "tests/motion-lab/builtin-models.spec.js",
+    "sha256": "93d20e30b535767cc8f69e9b2e0636126b24ff8d427045cd2606042cc7bfd546"
+  },
+  {
+    "source": "tests/motion-lab/candidate-models.spec.js",
+    "sha256": "3bc4a8c225827bf42e06f6b6ab0db058f085bd8b509c8d5aaad86d7a298e6ab7"
+  },
+  {
+    "source": "tests/motion-lab/clear-timeline.spec.js",
+    "sha256": "13604e49bfe431cb0a90feb3dec6613a93afc1be84a69234b99cc2563c273b33"
+  },
+  {
+    "source": "tests/motion-lab/clip-trim.spec.js",
+    "sha256": "5ca547be1dc3a4e6c8800ada3121b2775403994ede4aa1c4742d7f6b9b414bc9"
+  },
+  {
+    "source": "tests/motion-lab/confirm-helper.js",
+    "sha256": "55c79fe562e0f423636f887929ad1bf9340fbf83e85168ee558ccfb7c06325a7"
+  },
+  {
+    "source": "tests/motion-lab/custom-library.spec.js",
+    "sha256": "ea785049d4ac3e9a642fca644c61a69c8c715fcc2277840276e5902ea812c7a9"
+  },
+  {
+    "source": "tests/motion-lab/default-actions.spec.js",
+    "sha256": "b69db456e4c97fbf429c848ed3ac191712ca87b2bec84870e90088816d8d1d34"
+  },
+  {
+    "source": "tests/motion-lab/drag-source-helper.js",
+    "sha256": "dddaa2788b7c1ce80a19e819ee17a3fc190204121cdcf62d000cab740a01f974"
+  },
+  {
+    "source": "tests/motion-lab/editor-layout.spec.js",
+    "sha256": "3ddd18daac86918b59935ce9c4d2af07b708cd88c73c6dbdc92413f10d1ea19f"
+  },
+  {
+    "source": "tests/motion-lab/free-view.spec.js",
+    "sha256": "cbea2151bb67bd3132160abdc3fad0d21d70668d2973c5ef1c61e3b3fee8ab68"
+  },
+  {
+    "source": "tests/motion-lab/fullbody-trial.spec.js",
+    "sha256": "a0586e3dcf751c43bbe90b3deb391f63e8dff36adcfec4af4b33403bb4981bf8"
+  },
+  {
+    "source": "tests/motion-lab/joint-drag.spec.js",
+    "sha256": "614ece53313eae1785e47161454b6db089a49fd1d7fbbe2ac176967ba164f246"
+  },
+  {
+    "source": "tests/motion-lab/library-categories.spec.js",
+    "sha256": "6d6c30dfadc68dc28311ec3ce40a6fec21297295bd3ec01dc819fe8fb805f219"
+  },
+  {
+    "source": "tests/motion-lab/library-delete.spec.js",
+    "sha256": "43f12963613ad86ea7b94b4eda2c55f7c1a4846d588460a4690e3f4c7ece93b8"
+  },
+  {
+    "source": "tests/motion-lab/model-catalog.spec.js",
+    "sha256": "471bdf1f71cba8e5e8cea703d72cb42d8c5a4871eeeb0b4c73440a0d499817dc"
+  },
+  {
+    "source": "tests/motion-lab/motion-export.spec.js",
+    "sha256": "1d5cec22b439d450d29acb9ef197582ffcd51ce9f9a8fc02b4e655c1abd5b824"
+  },
+  {
+    "source": "tests/motion-lab/motion-framing.spec.js",
+    "sha256": "d730daaa0be4eb134ac123f9e4e03a20f4d862c1aa0afed9e446d5eed0359cfe"
+  },
+  {
+    "source": "tests/motion-lab/motion.spec.js",
+    "sha256": "150399a0657738f38c4228ca740ba9146958d6764a2cfc8bdb76f19dcabe4f1f"
+  },
+  {
+    "source": "tests/motion-lab/playback-mode.spec.js",
+    "sha256": "3f85c52495ca8ede5ccce5452cc99e4057abc9d91433c16f520556600854c110"
+  },
+  {
+    "source": "tests/motion-lab/pose-drag.spec.js",
+    "sha256": "7ef05f6309e8f8b82fe2bb68c5241d930ecc7a93bf6b87f203d2570d7c5e5968"
+  },
+  {
+    "source": "tests/motion-lab/pose-edit-copy.spec.js",
+    "sha256": "855fbdca3ecdd3b12119e58e385ee9c58a8616043b69c562236cddbf6f6b143f"
+  },
+  {
+    "source": "tests/motion-lab/pose-edit-hidden.spec.js",
+    "sha256": "c058000d660a7719954a85d81e0ec48a73fc26960a4470808735d8af3747132a"
+  },
+  {
+    "source": "tests/motion-lab/pose-import.spec.js",
+    "sha256": "b3b402c0fc7d6dfb76a95d5f4df9e869a2d5a64c0a420a586e004c1297a42ae1"
+  },
+  {
+    "source": "tests/motion-lab/pose-library.spec.js",
+    "sha256": "036a1f04d1e316c841ddfeaa0684316372173c8a173c0883a99e50e8be1ddf8f"
+  },
+  {
+    "source": "tests/motion-lab/prompts-composite.spec.js",
+    "sha256": "e46a1a7249f5040c6d5f0dd4b5a2ce4a6c49789d745a2e802fe0e919d6f49688"
+  },
+  {
+    "source": "tests/motion-lab/reference-capture.spec.js",
+    "sha256": "98b5b3c874289f3f240f540ffa3ad020eac1d2179e624c8151f2018b8dfc6260"
+  },
+  {
+    "source": "tests/motion-lab/reference-quality.spec.js",
+    "sha256": "d10bdd73b689472fd6746ee7a53fed69759816d27e558558581fd2fae964ec2a"
+  },
+  {
+    "source": "tests/motion-lab/resize-segment-helper.js",
+    "sha256": "bd7e1b02ce6148e94308278b0a0e73122976970aa5d6b0dd23e45f238a9800c6"
+  },
+  {
+    "source": "tests/motion-lab/segment-duration.spec.js",
+    "sha256": "fbeea005505625e950fb078896bc159e9c563ce6f08b9d72c881301a6623bdbb"
+  },
+  {
+    "source": "tests/motion-lab/simple-layout.spec.js",
+    "sha256": "dfc4548f1b23c3359d2947fd6b7af4bdc56510b4c2b2ef6cf73af4fead31a4ff"
+  },
+  {
+    "source": "tests/motion-lab/source-placement.spec.js",
+    "sha256": "884a7b00f19c1ad7aa90e201a70690507523b1b22a7beaaf46d419a6ff550659"
+  },
+  {
+    "source": "tests/motion-lab/timeline-edge-modes.spec.js",
+    "sha256": "e4123223f5b373e39840b52440757a38a86f33b91a7e14cf72f9ea8f8d623982"
+  },
+  {
+    "source": "tests/motion-lab/timeline-edit.spec.js",
+    "sha256": "37a1dfd65f26ed6e7fb50e9ab5be70d3aa8cc69f67cc492bdaed986996a558de"
+  },
+  {
+    "source": "tests/motion-lab/timeline-geometry.spec.js",
+    "sha256": "05199d95cd4928243fa2623bf8fffc360a4d170c071b8808f4f9488a5a391e0c"
+  },
+  {
+    "source": "tests/motion-lab/timeline-selection.spec.js",
+    "sha256": "48b5ea11e7b327a94b089b0d65ce6f964c3c5572216a73ceaf07fd2bba4a821f"
+  },
+  {
+    "source": "tests/motion-lab/transition-placement.spec.js",
+    "sha256": "97f42461fd61149cb044d24003c3cd68b1c8d9aa463f2c199f87cbca2be8fb9d"
+  },
+  {
+    "source": "tests/motion-lab/ui-refinement.spec.js",
+    "sha256": "ab4786248da53ad63bd78740f1414d5b6f8525c1b02b5af5dc30f090ba977108"
+  },
+  {
+    "source": "tests/motion-lab/view-presets.spec.js",
+    "sha256": "8a91380c4d6ee3ecf457cbc3c205d3ac3b3b03b8fb0464c86e4089deaca8c6d2"
+  },
+  {
+    "source": "tests/motion-lab/viewport-pose-tools.spec.js",
+    "sha256": "3083c3a6a2d7db1c051d1aa0f4998fa6557fcf77098a9fe3e88158a127cd6823"
+  },
+  {
+    "source": "tests/motion-lab/visual-style.spec.js",
+    "sha256": "5197a26ea98081b7960ea08b6d37a36685944973a5ef9647b072791f90cee87b"
+  },
+  {
+    "source": "output/fixtures/quaternius/AnimationLibrary_Godot_Standard.gltf",
+    "sha256": "0ff075c7ad6855c5c2c37a171592ee8f0d6ab2f58259e2be77a9b63dd8027765"
+  },
+  {
+    "source": "output/fixtures/quaternius/AnimationLibrary_Godot_Standard.bin",
+    "sha256": "6e65377d81558333c4093dbb144a48fd19019343d82b1a3a7992a98ec0e0543c"
+  },
+  {
+    "source": "output/fixtures/quaternius/LICENSE",
+    "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+  },
+  {
+    "source": "output/fixtures/poses/MakeHumanPoses.glb",
+    "sha256": "58a1975a260edde6e217b8d1b0af4194d06ada365a192c7623a6e6a0be4ffbcc"
+  },
+  {
+    "source": "output/fixtures/poses/MakeHumanPoses.json",
+    "sha256": "3e0d48c0c6e7f9e844cf6c58ece171c07e7faa165da76fc25b93c1c3f6078bfb"
+  },
+  {
+    "source": "output/fixtures/candidates/m2m-human-base-animations.glb",
+    "sha256": "406eb0a8dc4ab366e623b79b6e3005a4951392e1bda78ae39c1099d31147733c"
+  },
+  {
+    "source": "output/fixtures/candidates/m2m-human-addon-animations.glb",
+    "sha256": "a0d64d555e0d492026b72d58bf8e16c5e86779295f9093e376dcc001915c2c95"
+  },
+  {
+    "source": "output/fixtures/candidates/m2m-model-human.glb",
+    "sha256": "8766a46e82c63c947f7eff70c9d72d6ef0661e2280928048559f8975dcd1086d"
+  },
+  {
+    "source": "output/fixtures/candidates/m2m-rig-human.glb",
+    "sha256": "3f7ad51c9471458a920dbe373755c3a7223e3672bb572406fa7d2e65deb8f593"
+  },
+  {
+    "source": "output/fixtures/candidates/m2m-LICENSE-CC0.MD",
+    "sha256": "52fec1c484df708c16b4c27b2bf0d7f0d3994105c57adc4b9e6f95bcfd9de65f"
+  },
+  {
+    "source": "output/fixtures/candidates/sources.json",
+    "sha256": "292153ecda1a91140ca0f951e1bbb1eb10c98030d5041a02a9f12320fa1dbda2"
+  },
+  {
+    "source": "output/fixtures/RobotExpressive.glb",
+    "sha256": "047f5e5fb3bb6d378bd1df16ca6137f2a596c99b3a1b5690b4020c05aaf6f319"
+  },
+  {
+    "source": "output/fixtures/SambaDancing.fbx",
+    "sha256": "b9003ee562c87bf03051c3a502411b0808d3513f1d74a2011f7530d9f067069f"
+  },
+  {
+    "source": "output/fixtures/candidates/ual1/Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb",
+    "sha256": "69591853d817488edaa8fd9bf8fc1d821eaeaf789f8627b3cd23b41c4ed67997"
+  },
+  {
+    "source": "output/fixtures/candidates/ual1/Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard_RM.glb",
+    "sha256": "be684571ed655a1b892c2c07e6e2aeca053b606c442d34004adaf1d944090d01"
+  },
+  {
+    "source": "output/fixtures/candidates/ual1/Universal Animation Library[Standard]/License.txt",
+    "sha256": "6d01f55c6e4c49a2c9963e147e561945ae2c83958c8ca667d90a6bffdbfac061"
+  },
+  {
+    "source": "output/fixtures/candidates/ual2/Universal Animation Library 2[Standard]/Unreal-Godot/UAL2_Standard.glb",
+    "sha256": "8cee20ab1bc55130092447e810e26df22dd2803eccc54f52137a7d54d7ab88a8"
+  },
+  {
+    "source": "output/fixtures/candidates/ual2/Universal Animation Library 2[Standard]/Unreal-Godot/UAL2_Standard_RM.glb",
+    "sha256": "814eee878f82934992d3ea746c539df25e981487109c591f5efbb8dd03286f99"
+  },
+  {
+    "source": "output/fixtures/candidates/ual2/Universal Animation Library 2[Standard]/License.txt",
+    "sha256": "6d01f55c6e4c49a2c9963e147e561945ae2c83958c8ca667d90a6bffdbfac061"
+  },
+  {
+    "source": "web/licenses/closed-chain-ik.txt",
+    "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+  },
+  {
+    "source": "web/licenses/gl-matrix.txt",
+    "sha256": "af62d31a0cdc1bf95d5e19428c3e0de368b727d9d5b6b6cdb466f8a52e68ad06"
+  },
+  {
+    "source": "web/licenses/linear-solve-package.json",
+    "sha256": "f706a8dd25c5fcee5bb99f40462b2da57186bf1d88fd7cdd247b53b18d0310b9"
+  },
+  {
+    "source": "web/licenses/linear-solve-readme.txt",
+    "sha256": "4a25d5d0d965bb4f41564d646703f9c0e76784281c1534c09993e016d84cf2fa"
+  },
+  {
+    "source": "web/licenses/lucide.txt",
+    "sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57"
+  },
+  {
+    "source": "web/licenses/svd-js.txt",
+    "sha256": "64dc49fe525b14703d9a17a2bc0ba7f0c9506b321e09ea160d2b6f594246594a"
+  },
+  {
+    "source": "web/licenses/three.txt",
+    "sha256": "8b378ebe60e2fe500158cb0ac71cb5e8b7d92953c2abcc63a0eb90499653b5bc"
+  },
+  {
+    "source": "docs/references/motion-resource-expansion.md",
+    "sha256": "bf014dfe4235b79624a62e3988ce872d65696c7a5e9ed072f82f854b47717d22"
+  },
+  {
+    "source": "docs/references/motion-export.md",
+    "sha256": "ae5d1f87ec5f74477aaf8748bfe4a7678a35067b548884b463a263573b0c1667"
+  },
+  {
+    "source": "docs/references/motion-fullbody-trial.md",
+    "sha256": "d69b45f032d93d9935a97304e89e97f286ebb451fe2eb2422255e002d31cc5a8"
+  },
+  {
+    "source": "docs/references/motion-library-interactions.md",
+    "sha256": "c65711de557321dc6a4b969299d0aa6e8411024eb1f5290b1ae0e0e1de90b6eb"
+  }
+]
