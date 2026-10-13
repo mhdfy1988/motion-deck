@@ -1,6 +1,6 @@
 import {test,expect} from '@playwright/test';
 test('全身关节选择与移动工具真实拖动',async({page})=>{
- const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/labs/motion/index.html?tools=1');await page.locator('#humanDemo').click();await expect(page.locator('#status')).toContainText('已载入');
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/labs/motion/index.html?tools=1');await page.locator('#humanDemo').click();await expect(page.locator('#status')).toContainText('117 动作');
  await page.locator('#posePanel > summary').click();await page.locator('#resetPose').click();
  await expect(page.locator('.body-handle')).toHaveCount(15);
  await page.getByRole('button',{name:'调整头',exact:true}).click();await expect(page.locator('#body-rotate')).toHaveClass(/active/);await expect(page.locator('#body-translate')).toBeDisabled();

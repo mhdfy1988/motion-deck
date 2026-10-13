@@ -6,7 +6,7 @@ async function savePose(page,name){await page.locator('#capturePose').click();aw
 async function seek(page,time){await page.locator('#previewSeek').evaluate((el,t)=>{el.value=t;el.dispatchEvent(new Event('input',{bubbles:true}));},time);}
 test('姿势提取、持久化、独立拖放与动作混排过渡',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));await handleConfirmation(page,true,false);
- await page.goto('/');await page.locator('#welcomeDemo').click();await expect(page.locator('#status')).toContainText('已载入');
+ await page.goto('/');await page.locator('#replaceModel').selectOption('quaternius');await expect(page.locator('#status')).toContainText('117 动作');
  await page.locator('#clips [data-clip-name="Sword_Attack"]').first().click();await seek(page,.4);await savePose(page,'举剑');
  await expect(page.locator('#clips [data-pose-id]')).toHaveCount(100);await page.locator('#clips [data-pose-id]').filter({hasText:'举剑'}).click();await expect(page.locator('#currentClip')).toHaveText('举剑');
  await placeAction(page,page.locator('#clips [data-pose-id]').filter({hasText:'举剑'}));await placeAction(page,page.locator('#clips [data-pose-id]').filter({hasText:'举剑'}));await expect(page.locator('#segments .pose')).toHaveCount(2);
@@ -20,7 +20,7 @@ test('姿势提取、持久化、独立拖放与动作混排过渡',async({page}
  await page.locator('#modelFiles').setInputFiles(resolve('fixtures/RobotExpressive.glb'));await expect(page.locator('#status')).toContainText('已载入');await page.locator('#library-pose').click();await expect(page.locator('#clips [data-pose-id]')).toHaveCount(0);expect(errors).toEqual([]);
 });
 test('只保存姿势也可刷新恢复，失败和取消不发布素材',async({page})=>{
- await page.goto('/');await page.locator('#welcomeDemo').click();await expect(page.locator('#status')).toContainText('已载入');await savePose(page,'站立');
+ await page.goto('/');await page.locator('#replaceModel').selectOption('quaternius');await expect(page.locator('#status')).toContainText('117 动作');await savePose(page,'站立');
  await page.reload();await expect(page.locator('#status')).toContainText('已恢复上次保存的姿势库');await expect(page.locator('#clips [data-pose-id]')).toHaveCount(100);await expect(page.locator('#segments button')).toHaveCount(0);await expect(page.locator('#actionTitle')).toHaveText('未命名动作');
  await page.locator('#capturePose').click();await page.locator('#poseName').fill('取消');await page.locator('#cancelPoseSave').click();await expect(page.locator('#clips [data-pose-id]')).toHaveCount(100);
  await page.evaluate(()=>{IDBObjectStore.prototype.put=function(){throw new Error('storage blocked');};});

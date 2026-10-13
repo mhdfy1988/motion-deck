@@ -1,6 +1,22 @@
 import {test,expect} from '@playwright/test';
 import {handleConfirmation} from './confirm-helper.js';
 import {placeAction} from './drag-source-helper.js';
+
+test('首次直接加载Mesh2Motion，无选择页；刷新恢复上次模型',async({page})=>{
+ await page.goto('/');await expect(page.locator('main')).toBeVisible();await expect(page.locator('#welcome')).toHaveCount(0);
+ await expect(page.locator('#replaceModel')).toHaveValue('mesh2motion');await expect(page.locator('#status')).toContainText('162 动作');
+ await expect(page.locator('#takePhoto')).toBeEnabled();await expect(page.locator('#segments button')).toHaveCount(0);
+ await page.locator('#replaceModel').selectOption('quaternius');await expect(page.locator('#status')).toContainText('117 动作');
+ await page.reload();await expect(page.locator('#replaceModel')).toHaveValue('quaternius');await expect(page.locator('#capturePose')).toBeEnabled();
+ await expect(page.locator('#segments button')).toHaveCount(0);
+});
+
+test('首次默认模型加载失败显式报错，不静默换其他模型',async({page})=>{
+ await page.route('**/fixtures/candidates/m2m-human-base-animations.glb',route=>route.fulfill({status:503,body:'test failure'}));
+ await page.goto('/');await expect(page.locator('#error')).toContainText('模型资源未准备');
+ await expect(page.locator('main')).toBeVisible();await expect(page.locator('#takePhoto')).toBeDisabled();await expect(page.locator('#replaceModel')).toBeEnabled();
+ await page.locator('#replaceModel').selectOption('quaternius');await expect(page.locator('#status')).toContainText('117 动作');
+});
 test('两项内置来源：白模动作与姿势独立保存，切换取消保护及刷新恢复',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');const menu=page.locator('#replaceModel');
  await expect(menu.locator('optgroup[label="内置模型"] option')).toHaveText(['Quaternius','Mesh2Motion']);

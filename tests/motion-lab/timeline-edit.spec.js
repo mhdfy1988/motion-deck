@@ -1,6 +1,6 @@
 import {test,expect} from '@playwright/test';
 test('直接拖动时间轴调整时长、取消、排序和删除',async({page})=>{
- await page.goto('/labs/motion/index.html?tools=1');await page.locator('#humanDemo').click();await expect(page.locator('#status')).toContainText('已载入');await page.locator('#quickSequence').click();await page.locator('#play').click();
+ await page.goto('/labs/motion/index.html?tools=1');await page.locator('#humanDemo').click();await expect(page.locator('#status')).toContainText('117 动作');await page.locator('#quickSequence').click();await page.locator('#play').click();
  const first=page.locator('#segments .action').first(),key=await first.getAttribute('data-key');
  let handle=await first.locator('.resize-handle:not(.resize-left)').boundingBox();const old=Number(await first.getAttribute('data-duration'));
  const pps=await page.evaluate(()=>document.getElementById('timelineTrack').clientWidth/Number(document.getElementById('seek').max));

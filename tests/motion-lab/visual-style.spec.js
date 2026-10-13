@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 import {placeAction} from './drag-source-helper.js';
 test('黑灰白蓝视觉层，动作与姿势混排及短屏操作均保持可达',async({page})=>{
- const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.locator('#welcomeDemo').click();await expect(page.locator('#status')).toContainText('已载入');
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.locator('#replaceModel').selectOption('quaternius');await expect(page.locator('#status')).toContainText('117 动作');
  await expect(page.locator('.section-head h2')).toHaveText('素材库');expect(await page.locator('#play').evaluate(el=>getComputedStyle(el).backgroundColor)).toBe('rgba(0, 0, 0, 0)');
  await placeAction(page,page.locator('#clips [data-clip-name="Walk_Loop"]'));await page.locator('#library-pose').click();const pose=page.locator('#clips [data-pose-id]').filter({hasText:/^Fight 01/});await pose.click();await placeAction(page,pose);const second=await page.locator('#segments .pose').boundingBox();await placeAction(page,page.locator('#transitionSource'),{x:second.x+8,y:second.y+25});await pose.click();
  await expect(page.locator('#segments .action')).toHaveCount(1);await expect(page.locator('#segments .pose')).toHaveCount(1);await expect(page.locator('#segments .transition')).toHaveCount(1);

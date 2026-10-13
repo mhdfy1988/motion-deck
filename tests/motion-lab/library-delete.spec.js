@@ -3,7 +3,7 @@ import {handleConfirmation} from './confirm-helper.js';
 import {placeAction} from './drag-source-helper.js';
 async function savePose(page,name){await page.locator('#capturePose').click();await page.locator('#poseName').fill(name);await page.locator('#confirmPoseSave').click();await expect(page.locator('#savePoseDialog')).not.toBeVisible();}
 test('默认素材禁止删除和覆盖，自定义姿势取消、失败保护、删除不动已放片段',async({page})=>{
- await page.goto('/');await page.locator('#welcomeDemo').click();await expect(page.locator('#status')).toContainText('已载入');
+ await page.goto('/');await page.locator('#replaceModel').selectOption('quaternius');await expect(page.locator('#status')).toContainText('117 动作');
  await page.locator('#clips [data-clip-index]').first().click({button:'right'});await expect(page.locator('#motionConfirmDialog')).not.toBeVisible();await expect(page.locator('#clips .library-delete')).toHaveCount(0);await expect(page.locator('#clips [data-clip-index]')).toHaveCount(117);
  await page.locator('#library-pose').click();const defaults=page.locator('#clips [data-pose-id^="builtin:"]');await defaults.first().click({button:'right'});await expect(defaults).toHaveCount(99);
  await page.locator('#capturePose').click();await page.locator('#poseName').fill('Benchmark');await page.locator('#confirmPoseSave').click();await expect(page.locator('#savePoseDialog')).not.toBeVisible();await expect(defaults).toHaveCount(99);await expect(page.locator('#pose-library-custom').locator('..').locator('[data-pose-id]')).toHaveCount(1);
@@ -13,12 +13,12 @@ test('默认素材禁止删除和覆盖，自定义姿势取消、失败保护�
  await handleConfirmation(page);await own.focus();await own.press('Delete');await expect(own).toHaveCount(0);await expect(defaults).toHaveCount(99);await expect(page.locator('#segments .pose')).toHaveCount(1);await page.reload();await expect(page.locator('#status')).toContainText('已恢复');await expect(own).toHaveCount(0);await expect(defaults).toHaveCount(99);
 });
 test('自定义动作删除持久化，已打开编排保留且可另存',async({page})=>{
- await page.goto('/');await page.locator('#welcomeDemo').click();await expect(page.locator('#status')).toContainText('已载入');await placeAction(page,page.locator('#clips [data-clip-name="Idle_Loop"]'));
+ await page.goto('/');await page.locator('#replaceModel').selectOption('quaternius');await expect(page.locator('#status')).toContainText('117 动作');await placeAction(page,page.locator('#clips [data-clip-name="Idle_Loop"]'));
  await page.locator('#saveAction').click();await page.locator('#actionName').fill('可删除动作');await page.locator('#confirmSave').click();await expect(page.locator('#saveActionDialog')).not.toBeVisible();const own=page.locator('#clips [data-custom-id]');await handleConfirmation(page);await own.hover();await own.locator('..').locator('.library-delete').click();await expect(own).toHaveCount(0);await expect(page.locator('#segments .action')).toHaveCount(1);await expect(page.locator('#actionTitle')).toHaveText('未命名动作');
  await page.reload();await expect(page.locator('#status')).toContainText('已恢复');await page.locator('#library-actions').click();await page.locator('#library-custom').click();await expect(own).toHaveCount(0);
 });
 test('旧基础姿势清理仅执行一次，不影响默认姿势和后续同名保存',async({page})=>{
- await page.goto('/');await page.locator('#welcomeDemo').click();await expect(page.locator('#status')).toContainText('已载入');await savePose(page,'基础');
+ await page.goto('/');await page.locator('#replaceModel').selectOption('quaternius');await expect(page.locator('#status')).toContainText('117 动作');await savePose(page,'基础');
  await page.evaluate(async()=>{const {getImage,putImage}=await import('/motion-store.js'),pointer=await getImage('motion-library-last-v1'),record=await getImage('motion-library-v1:'+pointer.modelKey);delete record.data.testPoseCleanup;await putImage(record);});
  await page.reload();await expect(page.locator('#status')).toContainText('已恢复');await expect(page.locator('#clips [data-pose-id]').filter({hasText:'基础'})).toHaveCount(0);await expect(page.locator('#clips [data-pose-id^="builtin:"]')).toHaveCount(99);await savePose(page,'基础');await page.reload();await expect(page.locator('#status')).toContainText('已恢复');await expect(page.locator('#clips [data-pose-id]').filter({hasText:'基础'})).toHaveCount(1);
 });

@@ -4,9 +4,9 @@ import {resizeSegment} from './resize-segment-helper.js';
 
 test('简版空状态、两栏布局及短窗口没有外层滚动',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');
- await expect(page.locator('#welcome')).toBeVisible();await expect(page.locator('main')).toBeHidden();
+ await expect(page.locator('main')).toBeVisible();
  await page.setViewportSize({width:1920,height:900});await page.screenshot({path:'output/acceptance/motion-simple-welcome.png'});
- await page.locator('#welcomeDemo').click();await expect(page.locator('#status')).toContainText('已载入');await expect(page.locator('#welcome')).toBeHidden();await expect(page.locator('.settings')).toBeHidden();await expect(page.locator('.library-bottom')).toBeHidden();
+ await page.locator('#replaceModel').selectOption('quaternius');await expect(page.locator('#status')).toContainText('117 动作');await expect(page.locator('#welcome')).toBeHidden();await expect(page.locator('.settings')).toBeHidden();await expect(page.locator('.library-bottom')).toBeHidden();
  for(const size of [{width:1920,height:900},{width:1280,height:720},{width:1280,height:600}]){
   await page.setViewportSize(size);await expect(page.locator('#green')).toBeVisible();await expect(page.locator('#skeleton')).toBeVisible();await expect(page.locator('#transitionSource')).toBeVisible();
   await expect.poll(()=>page.evaluate(()=>document.querySelector('.library').scrollHeight-document.querySelector('.library').clientHeight)).toBeLessThanOrEqual(1);
@@ -18,7 +18,7 @@ test('简版空状态、两栏布局及短窗口没有外层滚动',async({page}
 });
 
 test('简版真实拖放、手动过渡、改时长、排序交换及删除恢复',async({page})=>{
- const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.locator('#welcomeDemo').click();await expect(page.locator('#status')).toContainText('已载入');
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.locator('#replaceModel').selectOption('quaternius');await expect(page.locator('#status')).toContainText('117 动作');
  const idle=page.locator('#clips [data-clip-name="Idle_Loop"]'),sword=page.locator('#clips [data-clip-name="Sword_Attack"]').first(),actions=page.locator('#segments .action');
  await idle.click();await expect(idle).toHaveClass(/active/);await expect(actions).toHaveCount(0);await placeAction(page,idle);await placeAction(page,sword);await expect(actions).toHaveCount(2);await expect(page.locator('#segments .transition')).toHaveCount(0);
  const second=await actions.last().boundingBox();await placeAction(page,page.locator('#transitionSource'),{x:second.x+8,y:second.y+30});await expect(page.locator('#segments .transition')).toHaveCount(1);

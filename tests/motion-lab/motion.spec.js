@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test';import {resolve} from 'node:path';
 import {resizeSegment} from './resize-segment-helper.js';
 import {placeAction} from './drag-source-helper.js';
 test('真实人偶动作/姿势混排与播放、编辑、追加',async({page})=>{
- const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/labs/motion/index.html?tools=1');await page.locator('#humanDemo').click();await expect(page.locator('#status')).toContainText('已载入');await expect(page.locator('#clipCount')).toHaveText('89');
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/labs/motion/index.html?tools=1');await page.locator('#humanDemo').click();await expect(page.locator('#status')).toContainText('117 动作');await expect(page.locator('#clipCount')).toHaveText('89');
  await page.locator('#source').selectOption({label:'Sword_Idle'});await placeAction(page);
  await page.locator('#source').selectOption({label:'Sword_Attack'});await page.locator('#sourceTrim > summary').click();await page.locator('#sourceTime').fill('.4');await page.locator('#sourceTime').dispatchEvent('change');
  await page.locator('#posePanel > summary').click();await page.locator('#posePanel details summary').click();const arm=await page.locator('#bone option').filter({hasText:'upper_arm'}).first().getAttribute('value');await page.locator('#bone').selectOption(arm);await page.locator('#rx').fill('45');await page.locator('#rx').dispatchEvent('change');await page.locator('#savePose').click();await page.locator('#addPose').click();await resizeSegment(page,page.locator('#segments .pose'),.5);await page.locator('#posePanel > summary').click();

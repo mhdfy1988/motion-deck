@@ -4,10 +4,10 @@ import {resolve} from 'node:path';
 import {placeAction} from './drag-source-helper.js';
 
 test('按来源精确删除旧测试人偶，默认库与外部素材不受影响',async({page})=>{
- await page.goto('/');await page.locator('#welcomeDemo').click();await expect(page.locator('#status')).toContainText('已载入');
+ await page.goto('/');await page.locator('#replaceModel').selectOption('quaternius');await expect(page.locator('#status')).toContainText('117 动作');
  const oldKey='a'.repeat(64);await page.evaluate(async oldKey=>{const {getImage,putImages}=await import('/motion-store.js'),catalog=await getImage('motion-model-catalog-v1');catalog.data.models.push({key:oldKey,name:'旧姿势人偶',builtinId:'makehuman'});await putImages([catalog,{id:'motion-library-v1:'+oldKey,kind:'motion-library',data:{test:true}},{id:'test-unrelated',blob:new Blob(['保留'])},{id:'motion-library-last-v1',kind:'motion-library-pointer',modelKey:oldKey}]);},oldKey);
- await page.reload();await expect(page.locator('#welcome')).toBeVisible();await expect(page.locator('#replaceModel optgroup[label="历史模型"]')).toHaveCount(0);
- const result=await page.evaluate(async oldKey=>{const {getImage}=await import('/motion-store.js');return {old:await getImage('motion-library-v1:'+oldKey),pointer:await getImage('motion-library-last-v1'),catalog:(await getImage('motion-model-catalog-v1')).data,other:await (await getImage('test-unrelated')).blob.text()};},oldKey);expect(result.old).toBeUndefined();expect(result.pointer).toBeUndefined();expect(result.catalog.models).toHaveLength(1);expect(result.other).toBe('保留');
+ await page.reload();await expect(page.locator('main')).toBeVisible();await expect(page.locator('#status')).toContainText('162 动作');await expect(page.locator('#replaceModel optgroup[label="历史模型"]')).toHaveCount(0);
+ const result=await page.evaluate(async oldKey=>{const {getImage}=await import('/motion-store.js');return {old:await getImage('motion-library-v1:'+oldKey),pointer:await getImage('motion-library-last-v1'),catalog:(await getImage('motion-model-catalog-v1')).data,other:await (await getImage('test-unrelated')).blob.text()};},oldKey);expect(result.old).toBeUndefined();expect(result.catalog.models.map(model=>model.builtinId).sort()).toEqual(['mesh2motion','quaternius']);expect(result.pointer.modelKey).toBe(result.catalog.models.find(model=>model.builtinId==='mesh2motion').key);expect(result.other).toBe('保留');
  await page.locator('#replaceModel').selectOption('quaternius');await expect(page.locator('#status')).toContainText('99 姿势');
 });
 
@@ -34,9 +34,10 @@ test('菜单导入外部模型、重命名取消和保存、切换不必重复�
 });
 
 test('资源缺失或模型目录写入失败时，原模型、编排和持久库均保留',async({page})=>{
- await page.goto('/labs/motion/index.html?tools=1');await page.locator('#humanDemo').click();await expect(page.locator('#status')).toContainText('已载入');await placeAction(page,page.locator('#clips [data-clip-name="Idle_Loop"]'));
+ await page.goto('/labs/motion/index.html?tools=1');await page.locator('#humanDemo').click();await expect(page.locator('#status')).toContainText('117 动作');await placeAction(page,page.locator('#clips [data-clip-name="Idle_Loop"]'));
+ const before=await page.evaluate(async()=>{const {getImage}=await import('/motion-store.js');return {catalog:(await getImage('motion-model-catalog-v1')).data,pointer:await getImage('motion-library-last-v1')};});
  await page.route('**/fixtures/poses/MakeHumanPoses.glb',route=>route.fulfill({status:404,body:'missing'}));await handleConfirmation(page);await page.locator('#humanDemo').click();await expect(page.locator('#error')).toContainText('姿势未准备');await expect(page.locator('#replaceModel')).toHaveValue('quaternius');await expect(page.locator('#segments .action')).toHaveCount(1);await page.unroute('**/fixtures/poses/MakeHumanPoses.glb');
  await page.evaluate(()=>{const put=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(record,...args){if(record.kind==='motion-model-catalog'){IDBObjectStore.prototype.put=put;throw new DOMException('测试目录失败','QuotaExceededError');}return put.call(this,record,...args);};});
  await handleConfirmation(page);await page.locator('#humanDemo').click();await expect(page.locator('#error')).toContainText('原模型保留');await expect(page.locator('#replaceModel')).toHaveValue('quaternius');await expect(page.locator('#segments .action')).toHaveCount(1);
- const records=await page.evaluate(async()=>{const {getImage}=await import('/motion-store.js');return {catalog:(await getImage('motion-model-catalog-v1')).data,pointer:await getImage('motion-library-last-v1')};});expect(records.catalog.models).toHaveLength(1);expect(records.pointer.modelKey).toBe(records.catalog.models[0].key);
+ const records=await page.evaluate(async()=>{const {getImage}=await import('/motion-store.js');return {catalog:(await getImage('motion-model-catalog-v1')).data,pointer:await getImage('motion-library-last-v1')};});expect(records).toEqual(before);expect(records.pointer.modelKey).toBe(records.catalog.models.find(model=>model.builtinId==='quaternius').key);
 });

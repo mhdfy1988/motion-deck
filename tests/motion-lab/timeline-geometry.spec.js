@@ -1,6 +1,6 @@
 import {test,expect} from '@playwright/test';
 test('进度条、播放线与片段共享时间比例',async({page})=>{
- await page.goto('/labs/motion/index.html?tools=1');await page.locator('#humanDemo').click();await expect(page.locator('#status')).toContainText('已载入');await page.locator('#quickSequence').click();await page.locator('#play').click();
+ await page.goto('/labs/motion/index.html?tools=1');await page.locator('#humanDemo').click();await expect(page.locator('#status')).toContainText('117 动作');await page.locator('#quickSequence').click();await page.locator('#play').click();
  for(const viewport of [{width:1920,height:900},{width:1280,height:720}]){
   await page.setViewportSize(viewport);const track=await page.locator('#timelineTrack').boundingBox(),segments=await page.locator('#segments button').evaluateAll(nodes=>nodes.map(n=>({x:n.getBoundingClientRect().x,width:n.getBoundingClientRect().width,start:Number(n.dataset.start),duration:Number(n.dataset.duration)}))),total=Number(await page.locator('#seek').getAttribute('max'));
   for(const s of segments){expect(Math.abs(s.width-track.width*s.duration/total)).toBeLessThan(1);expect(Math.abs(s.x-track.x-track.width*s.start/total)).toBeLessThan(1);}

@@ -1,6 +1,6 @@
 import {test,expect} from '@playwright/test';
 test('真实手脚拖动、取消与姿势编排',async({page})=>{
- const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/labs/motion/index.html?tools=1');await page.locator('#humanDemo').click();await expect(page.locator('#status')).toContainText('已载入');await expect(page.locator('.limb-handle')).toHaveCount(4);
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/labs/motion/index.html?tools=1');await page.locator('#humanDemo').click();await expect(page.locator('#status')).toContainText('117 动作');await expect(page.locator('.limb-handle')).toHaveCount(4);
  await page.locator('#posePanel > summary').click();await page.locator('#resetPose').click();const hand=page.getByRole('button',{name:'拖动右手',exact:true});await expect(hand).toBeVisible();const before=await hand.boundingBox();await page.mouse.move(before.x+before.width/2,before.y+before.height/2);await page.mouse.down();await page.mouse.move(before.x+before.width/2-35,before.y+before.height/2-70,{steps:14});
  const during=await hand.boundingBox();expect(during.y).toBeLessThan(before.y-15);await page.screenshot({path:'output/acceptance/motion-pose-dragging.png'});await page.mouse.up();await expect(page.locator('#status')).toContainText('姿势已调整');
  await page.locator('#savePose').click();await page.locator('#addPose').click();await page.locator('#undoDrag').click();await expect.poll(async()=>(await hand.boundingBox()).y).toBeCloseTo(before.y,0);

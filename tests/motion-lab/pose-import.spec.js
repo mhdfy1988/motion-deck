@@ -11,7 +11,7 @@ test('真实99姿势GLB：同骨架批量入库、预览拖放、保存恢复',a
  await page.locator('#clips [data-pose-id]').filter({hasText:/Fight 01姿势$/}).first().click();await page.screenshot({path:'output/acceptance/motion-external-poses.png'});expect(errors).toEqual([]);
 });
 test('姿势入口拒绝连续动作及不兼容骨架，不修改已有库',async({page})=>{
- await page.goto('/');await page.locator('#welcomeDemo').click();await expect(page.locator('#status')).toContainText('已载入');await page.locator('#library-pose').click();
+ await page.goto('/');await page.locator('#replaceModel').selectOption('quaternius');await expect(page.locator('#status')).toContainText('117 动作');await page.locator('#library-pose').click();
  await page.locator('#poseFiles').setInputFiles(pack);await expect(page.locator('#error')).toContainText('骨骼数量不同');await expect(page.locator('#clips [data-pose-id]')).toHaveCount(99);
  await page.locator('#poseFiles').setInputFiles(['AnimationLibrary_Godot_Standard.gltf','AnimationLibrary_Godot_Standard.bin'].map(n=>resolve('fixtures/quaternius',n)));await expect(page.locator('#error')).toContainText('连续动作');await expect(page.locator('#clips [data-pose-id]')).toHaveCount(99);await expect(page.locator('#modelName')).toContainText('Quaternius');
 });

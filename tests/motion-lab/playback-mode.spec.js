@@ -1,6 +1,6 @@
 import {test,expect} from '@playwright/test';
 import {placeAction} from './drag-source-helper.js';
-async function load(page){await page.goto('/');await page.locator('#welcomeDemo').click();await expect(page.locator('#status')).toContainText('已载入');}
+async function load(page){await page.goto('/');await page.locator('#replaceModel').selectOption('quaternius');await expect(page.locator('#status')).toContainText('117 动作');}
 test('姿势预览重新播放无编排不切源，有编排从轴首开始并正确结束',async({page})=>{
  await load(page);await page.locator('#library-pose').click();const pose=page.locator('#clips [data-pose-id]').filter({hasText:/^Fight 01/});await pose.click();
  const idleIcon=await page.locator('#play').innerHTML();await page.locator('#restart').click();await expect(page.locator('#currentClip')).toHaveText('Fight 01');expect(await page.locator('#play').innerHTML()).toBe(idleIcon);

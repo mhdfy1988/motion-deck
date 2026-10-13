@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 import {resolve} from 'node:path';
 test('动作与姿势双页签，动作内分三组，第三方导入持久化恢复',async({page})=>{
- await page.goto('/');await page.locator('#welcomeDemo').click();await expect(page.locator('#status')).toContainText('已载入');
+ await page.goto('/');await page.locator('#replaceModel').selectOption('quaternius');await expect(page.locator('#status')).toContainText('117 动作');
  await expect(page.locator('.library-tabs button')).toHaveCount(2);await expect(page.locator('.library-group')).toHaveCount(3);await expect(page.locator('#clips button:visible')).toHaveCount(117);
  await expect(page.locator('.top #replaceModel')).toBeVisible();await expect(page.locator('.section-head #appendClips')).toBeVisible();await expect(page.locator('.view-head #replaceModel, .view-head #appendClips')).toHaveCount(0);
  const modelChooser=page.waitForEvent('filechooser');await page.locator('#replaceModel').selectOption('import');expect((await modelChooser).isMultiple()).toBe(true);
