@@ -8,7 +8,7 @@
 
 使用 Node.js 24（本机验证24.14.0），在本项目目录执行：
 
-以下克隆方式用于源码成功推送后；当前本机目录可直接从 `npm.cmd ci` 开始。最近一次推送因 GitHub 凭据缺少 `workflow` 权限失败，详见文末状态。
+源码已推送至公开仓库；已有本机目录可直接从 `npm.cmd ci` 开始。
 
 ```powershell
 git clone https://github.com/mhdfy1988/motion-deck.git
@@ -79,6 +79,6 @@ Windows 浏览器回归使用 Chrome，录像验证需 FFmpeg/ffprobe 在 PATH �
 
 项目自有代码采用 [MIT 许可证](LICENSE)，目标[公开仓库](https://github.com/mhdfy1988/motion-deck)已创建。第三方依赖和资源保留各自许可，见 [来源与许可](THIRD_PARTY_NOTICES.md)。package 的 `private: true` 仅防止误发布到 npm，不限制 GitHub 仓库公开。
 
-2026-10-13提交前：独立抽取与首次默认模型加载已有本地提交，本次提交收录后续时间轴、光标、标题栏和面板调整。构建、18份资源校验、43项领域测试及47项完整浏览器回归通过。此前推送因凭据缺少 `workflow` 权限、无法上传 `.github/workflows/verify.yml` 而失败；远端同步需另行核对，不能仅由本地提交推断。
+2026-10-13：代码提交 `4e21d07` 已推送，包含独立抽取、首次默认模型加载以及时间轴、光标、标题栏和面板调整。构建、18份资源校验、43项领域测试及47项完整浏览器回归通过。此前缺少 `workflow` 权限的推送阻碍已通过用户授权解决；GitHub API已核对远端提交，自动验证已触发，结果仍需单独核对。
 
 GitHub 自动验证配置随源码提供，其运行结果需在仓库 Actions 页面核对，不能用本地通过代替远端通过。当前未创建版本标签、GitHub Release或安装包，也没有部署 GitHub Pages；服务与资源路径用于本机运行。
