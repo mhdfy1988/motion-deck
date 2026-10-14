@@ -41,7 +41,9 @@ test('真实NSIS安装、取消/失败重试、退出不安装、升级保留数
   // 普通退出不能安装下载好的更新。
   client=await launch(exe,dataDir,feed);page=await client.firstWindow();await expect(page.locator('#capturePose')).toBeEnabled();expect((await page.evaluate(()=>motionDeckDesktop.updateState())).currentVersion).toBe('0.0.1');
   await page.locator('#desktopUpdates').click();await page.locator('#checkDesktopUpdate').click();await expect(page.locator('#updateStatus')).toHaveText('发现新版本');await page.locator('#downloadDesktopUpdate').click();await expect(page.locator('#updateStatus')).toHaveText('下载与校验完成',{timeout:60000});
-  const closed=new Promise(resolve=>client.once('close',resolve));await page.locator('#installDesktopUpdate').click();await page.locator('#motionConfirmDialog .primary').click();await closed;client=undefined;
+  const closed=new Promise(resolve=>client.once('close',resolve));await page.locator('#installDesktopUpdate').click();
+  // 更新会在真实点击后关闭客户端；只接受预期的目标关闭，随后仍必须核对版本和原资料。
+  await Promise.all([closed,page.locator('#motionConfirmDialog .primary').click().catch(error=>{if(!/Target page, context or browser has been closed/.test(error.message))throw error;})]);client=undefined;
   await expect.poll(async()=>JSON.parse(await readFile(join(installDir,'resources','motiondeck-distribution.json'),'utf8')).version,{timeout:90000}).toBe('0.0.2');
   client=await launch(exe,dataDir,feed);page=await client.firstWindow();await expect(page.locator('#capturePose')).toBeEnabled();expect((await page.evaluate(()=>motionDeckDesktop.updateState())).currentVersion).toBe('0.0.2');const after=await page.evaluate(()=>motionDeckDesktop.settings());expect(after.library).toBe(before.library);expect(after.records).toBe(before.records);await page.locator('#library-pose').click();await expect(page.locator('#clips')).toContainText('升级保留姿势');
   await client.close();client=undefined;
