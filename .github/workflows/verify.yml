@@ -3,10 +3,16 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      pose_diagnostics:
+        description: 'Only profile the pose-library regression (not a release gate)'
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
   verify:
+    if: ${{ !inputs.pose_diagnostics }}
     runs-on: windows-latest
     timeout-minutes: 20
     steps:
@@ -22,7 +28,15 @@ jobs:
       - run: npx playwright install chrome
       - run: choco install ffmpeg --no-progress -y
       - run: npm run test:e2e
+      - name: Preserve browser failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-failure-diagnostics
+          path: test-results/
+          retention-days: 7
   desktop:
+    if: ${{ !inputs.pose_diagnostics }}
     runs-on: windows-latest
     timeout-minutes: 20
     steps:
@@ -51,3 +65,27 @@ jobs:
           $env:MOTIONDECK_TEST_OLD_INSTALLER = Join-Path $pwd 'output/update-acceptance/old/installer/MotionDeckAcceptance-0.0.1-setup-x64.exe'
           $env:MOTIONDECK_TEST_NEW_INSTALLER = Join-Path $pwd 'output/update-acceptance/new/installer/MotionDeckAcceptance-0.0.2-setup-x64.exe'
           npm.cmd run desktop:test
+  pose-diagnostics:
+    if: ${{ inputs.pose_diagnostics }}
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install chrome
+      - name: Profile pose-library without changing its budget
+        run: npx playwright test --config playwright.config.js pose-library.spec.js
+        env:
+          DEBUG: pw:api
+      - name: Preserve diagnostic traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pose-diagnostic-traces
+          path: test-results/
+          retention-days: 7

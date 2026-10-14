@@ -17,7 +17,13 @@ else{
  const directory=join(root,'output/desktop/installer'),tag='v'+pkg.version;
  const releases=await api(repository+'/releases');let release=releases.find(item=>item.tag_name===tag);
  if(mode==='draft'){
-  const runs=await api(repository+'/actions/runs?head_sha='+sha);if(!runs.workflow_runs.some(run=>run.status==='completed'&&run.conclusion==='success'))throw new Error('当前提交尚无成功远端门禁，拒绝发布');
+  const runs=await api(repository+'/actions/runs?head_sha='+sha);let passedGate=false;
+  for(const run of runs.workflow_runs.filter(run=>run.status==='completed'&&run.conclusion==='success')){
+   const {jobs}=await api(repository+'/actions/runs/'+run.id+'/jobs');
+   // 定向诊断运行不能替代完整网页及真实桌面门禁。
+   if(['verify','desktop'].every(name=>jobs.some(job=>job.name===name&&job.conclusion==='success'))){passedGate=true;break;}
+  }
+  if(!passedGate)throw new Error('当前提交尚无网页及桌面均成功的完整远端门禁，拒绝发布');
   if(!release)release=await api(repository+'/releases',{method:'POST',body:JSON.stringify({tag_name:tag,target_commitish:sha,name:'MotionDeck '+tag+' · 未签名测试版',body:await readFile(join(directory,'release-notes.md'),'utf8'),draft:true,prerelease:true,generate_release_notes:false})});
   if(!release.draft)throw new Error('版本已公开，禁止覆盖发布文件');
   for(const name of [`MotionDeck-${pkg.version}-setup-x64.exe`,`MotionDeck-${pkg.version}-setup-x64.exe.blockmap`,'latest.yml','SHA256SUMS.txt']){
