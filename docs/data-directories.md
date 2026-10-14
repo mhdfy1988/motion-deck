@@ -44,4 +44,4 @@
 - [Electron进程通信](https://www.electronjs.org/docs/latest/tutorial/ipc)、[安全桌面桥](https://www.electronjs.org/docs/latest/api/context-bridge)：仅暴露固定业务方法，保留sandbox/contextIsolation和来源检查。
 - [proper-lockfile](https://github.com/moxystudio/node-proper-lockfile)：成熟跨进程目录锁，统一stale/update策略，不手写进程锁。
 
-安装、自动更新及发布仍是后续任务；不以本轮数据管理通过宣称已经发布。
+当前用户安装、受控更新及数据保留已完成隔离真实验收，见[安装与更新](install-and-update.md)；发布状态仍以当前任务和远端发布页为准，不以本地验收冒充已上传。
