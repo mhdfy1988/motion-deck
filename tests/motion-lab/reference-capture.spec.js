@@ -1,10 +1,11 @@
+import {waitForModel} from './model-ready-helper.js';
 import {test,expect} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import {placeAction} from './drag-source-helper.js';
 const bin=process.env.FFMPEG_BIN?process.env.FFMPEG_BIN+'/':'';
 test('真实PNG与视频下载：无界面/网格/骨架、完整编排与恢复，提前停止及错误保护',async({page})=>{
- const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.locator('#replaceModel').selectOption('mesh2motion');await expect(page.locator('#status')).toContainText('162 动作');
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.locator('#replaceModel').selectOption('mesh2motion');await waitForModel(page,{actions:162});await expect(page.locator('#status')).toContainText('162 动作');
  await page.locator('#green').check();await page.locator('#skeleton').check();
  const photo=page.waitForEvent('download');await page.locator('#takePhoto').click();const image=await photo;expect(image.suggestedFilename()).toMatch(/\.png$/);const path='output/acceptance/reference-photo.png';await image.saveAs(path);const png=await readFile(path);expect(png.subarray(0,8).toString('hex')).toBe('89504e470d0a1a0a');expect(png.readUInt32BE(16)).toBe(1920);
  const colors=await page.evaluate(async data=>{const bitmap=await createImageBitmap(await (await fetch('data:image/png;base64,'+data)).blob()),canvas=new OffscreenCanvas(bitmap.width,bitmap.height),ctx=canvas.getContext('2d');ctx.drawImage(bitmap,0,0);const pixels=ctx.getImageData(0,0,bitmap.width,bitmap.height).data;let foreground=0;for(let i=0;i<pixels.length;i+=4)if(pixels[i]>100&&pixels[i+2]>100)foreground++;return {corner:[...pixels.slice(0,4)],foreground};},png.toString('base64'));expect(colors.corner).toEqual([0,255,0,255]);expect(colors.foreground).toBeGreaterThan(1000);

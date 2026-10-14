@@ -1,3 +1,4 @@
+import {waitForModel} from './model-ready-helper.js';
 import {test,expect} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
@@ -5,7 +6,7 @@ import {viewPresets} from '../../web/labs/motion/view-presets.js';
 const bin=process.env.FFMPEG_BIN?process.env.FFMPEG_BIN+'/':'';
 
 test('20个固定视图实际出图，切方向不改编排，短屏可达',async({page})=>{
- test.setTimeout(90000);const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.locator('#replaceModel').selectOption('mesh2motion');await expect(page.locator('#status')).toContainText('162 动作');await page.locator('#green').check();
+ test.setTimeout(90000);const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.locator('#replaceModel').selectOption('mesh2motion');await waitForModel(page,{actions:162});await expect(page.locator('#status')).toContainText('162 动作');await page.locator('#green').check();
  await expect(page.locator('#viewPreset option')).toHaveCount(21);await expect(page.locator('#viewPreset optgroup')).toHaveCount(5);
  for(const preset of viewPresets.filter(p=>p.id!=='perspective')){
   await page.locator('#viewPreset').selectOption(preset.id);const download=page.waitForEvent('download');await page.locator('#takePhoto').click();const file=await download;expect(file.suggestedFilename()).toContain(preset.label);const path=`output/acceptance/view-${preset.id}.png`;await file.saveAs(path);const png=await readFile(path);expect(png.readUInt32BE(16)).toBe(1920);
@@ -20,7 +21,7 @@ test('20个固定视图实际出图，切方向不改编排，短屏可达',asyn
 });
 
 test('斜俯视、等角真实录制并解码，镜头锁定且结束恢复',async({page})=>{
- await page.goto('/');await page.locator('#replaceModel').selectOption('mesh2motion');await expect(page.locator('#status')).toContainText('162 动作');
+ await page.goto('/');await page.locator('#replaceModel').selectOption('mesh2motion');await waitForModel(page,{actions:162});await expect(page.locator('#status')).toContainText('162 动作');
  for(const id of ['overhead-front-right','iso-back-left']){await page.locator('#viewPreset').selectOption(id);const download=page.waitForEvent('download');await page.locator('#recordVideo').click();await expect(page.locator('#viewPreset')).toBeDisabled();const file=await download;expect(file.suggestedFilename()).toContain(viewPresets.find(p=>p.id===id).label);const path=`output/acceptance/view-${id}.`+file.suggestedFilename().split('.').pop();await file.saveAs(path);
   const metadata=JSON.parse(execFileSync(bin+'ffprobe.exe',['-v','error','-count_frames','-show_streams','-of','json',path],{encoding:'utf8'}));expect(metadata.streams[0].width).toBe(1920);expect(Number(metadata.streams[0].nb_read_frames)).toBeGreaterThan(5);await expect(page.locator('#viewPreset')).toBeEnabled();await expect(page.locator('#viewPreset')).toHaveValue(id);await expect(page.locator('#recordingIndicator')).toBeHidden();
  }

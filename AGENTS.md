@@ -14,6 +14,7 @@
 - 素材哈希及来源真值在 fixtures/manifest.json 和 THIRD_PARTY_NOTICES.md；复制的参考文档保留原工具历史证据，不当作新项目发布记录。
 - 用户已授权公开仓库mhdfy1988/motion-deck及提交推送；2026-10-14确认数据管理完成后继续未签名测试版打包上传及更新发布，不修改原action-forge。自有代码采用MIT，第三方依赖与素材保留各自许可；文档、提交、推送、发布及安装状态分开描述。
 - 在主入口8901运行时，回归设置MOTIONDECK_TEST_PORT=8904，使用自动管理的独立服务和浏览器上下文；不得停止主服务或清用户数据库。
+- 网页加载回归统一使用tests/motion-lab/model-ready-helper.js；就绪需发布骨架/正确动作数且操作解锁，加载错误立即失败。15秒加载预算与60秒整项预算分开，不各处依赖默认5秒状态文案等待。确认handler只在官方可点击性/自动断言检查触发，不能用裸DOM轮询替代确认流程；依据见docs/references/model-loading-waits.md。
 - 用户反馈更新无变化时，先核对实际URL、服务进程与HTTP返回，再用独立上下文验证主入口；不要直接断言缓存原因或要求清站点数据。刷新前提醒保存未保存编排。
 - 已选Electron，客户端候选与第一轮分层落地；入口、分层和打包优先读取docs/project-structure.md及docs/desktop-runbook.md。助手命令操作尚未实现，复用应用操作层和一份模型状态，不为命令另造编辑逻辑；自动更新、旧库迁移和版本发布不是客户端化的隐含授权。
 - 桌面资源仅motiondeck://app，nodeIntegration关闭、contextIsolation/sandbox开启；preload只提供固定业务方法，主进程校验来源，不暴露任意IPC/文件操作。不得为测试关闭安全边界或静默回到旧8901/IndexedDB存储。测试显式使用MOTIONDECK_DATA_DIR隔离资料，真实产物验收通过前不得称客户端已完成。

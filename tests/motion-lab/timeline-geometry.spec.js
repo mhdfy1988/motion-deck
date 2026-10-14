@@ -1,8 +1,9 @@
+import {waitForModel} from './model-ready-helper.js';
 import {test,expect} from '@playwright/test';
 import {placeAction} from './drag-source-helper.js';
 
 test('比例稳定、缩放只改显示、适合全部显式执行',async({page})=>{
- await page.goto('/');await expect(page.locator('#status')).toContainText('162 动作');
+ await page.goto('/');await waitForModel(page,{actions:162});await expect(page.locator('#status')).toContainText('162 动作');
  const source=page.locator('#clips [data-clip-index]').first();
  await placeAction(page,source);
  const first=page.locator('#segments .action').first(),width=(await first.boundingBox()).width;
@@ -19,7 +20,7 @@ test('比例稳定、缩放只改显示、适合全部显式执行',async({page}
 });
 
 test('工具栏固定可见且禁用置灰，片段增删和历史恢复不改变页面高度',async({page})=>{
- await page.goto('/');await expect(page.locator('#status')).toContainText('162 动作');
+ await page.goto('/');await waitForModel(page,{actions:162});await expect(page.locator('#status')).toContainText('162 动作');
  await page.setViewportSize({width:1920,height:900});
  await expect(page.locator('.timeline-head')).toBeVisible();
  const bounds=await page.locator('.timeline').boundingBox();
@@ -44,7 +45,7 @@ test('工具栏固定可见且禁用置灰，片段增删和历史恢复不改�
 });
 
 test('工具栏与时间轴独立分层，宽屏及短窗口片段完整可见',async({page})=>{
- await page.goto('/');await expect(page.locator('#status')).toContainText('162 动作');
+ await page.goto('/');await waitForModel(page,{actions:162});await expect(page.locator('#status')).toContainText('162 动作');
  await placeAction(page,page.locator('#clips [data-clip-index]').first());
  await expect(page.locator('.timeline-head')).toHaveCSS('background-color','rgb(32, 35, 40)');
  await expect(page.locator('.timeline')).toHaveCSS('background-color','rgb(21, 24, 28)');
@@ -65,7 +66,7 @@ test('工具栏与时间轴独立分层，宽屏及短窗口片段完整可见',
  }
 });
 test('进度条、播放线与片段共享时间比例',async({page})=>{
- await page.goto('/labs/motion/index.html?tools=1');await page.locator('#humanDemo').click();await expect(page.locator('#status')).toContainText('117 动作');await page.locator('#quickSequence').click();await page.locator('#play').click();
+ await page.goto('/labs/motion/index.html?tools=1');await page.locator('#humanDemo').click();await waitForModel(page,{actions:117});await expect(page.locator('#status')).toContainText('117 动作');await page.locator('#quickSequence').click();await page.locator('#play').click();
  for(const viewport of [{width:1920,height:900},{width:1280,height:720}]){
   await page.setViewportSize(viewport);await page.locator('#timelineFit').click();const track=await page.locator('#timelineTrack').boundingBox(),segments=await page.locator('#segments button').evaluateAll(nodes=>nodes.map(n=>({x:n.getBoundingClientRect().x,width:n.getBoundingClientRect().width,start:Number(n.dataset.start),duration:Number(n.dataset.duration)}))),total=Number(await page.locator('#seek').getAttribute('max'));
   for(const s of segments){expect(Math.abs(s.width-track.width*s.duration/total)).toBeLessThan(1);expect(Math.abs(s.x-track.x-track.width*s.start/total)).toBeLessThan(1);}

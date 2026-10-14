@@ -12,6 +12,10 @@ on:
         description: 'Compare explicit Chromium software graphics driver'
         type: boolean
         default: false
+      model_diagnostics:
+        description: 'Profile model readiness and the failing loading tests'
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -82,10 +86,17 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npx playwright install chrome
-      - name: Profile pose-library without changing its budget
-        run: npx playwright test --config playwright.config.js pose-library.spec.js
+      - name: Profile readiness without changing the whole-test budget
+        shell: pwsh
+        run: |
+          if ($env:MODEL_DIAGNOSTICS -eq 'true') {
+            npx.cmd playwright test --config playwright.config.js model-ready.spec.js standalone.spec.js timeline-edge-modes.spec.js
+          } else {
+            npx.cmd playwright test --config playwright.config.js pose-library.spec.js
+          }
         env:
           DEBUG: pw:api
+          MODEL_DIAGNOSTICS: ${{ inputs.model_diagnostics }}
           MOTIONDECK_DIAGNOSTIC_SWANGLE: ${{ inputs.diagnostic_swangle && '1' || '0' }}
       - name: Preserve diagnostic traces
         if: failure()

@@ -1,7 +1,8 @@
+import {waitForModel} from './model-ready-helper.js';
 import {test,expect} from '@playwright/test';
 import {handleConfirmation} from './confirm-helper.js';
 import {resizeSegment} from './resize-segment-helper.js';
-async function setup(page){await page.goto('/labs/motion/index.html?tools=1');await page.locator('#humanDemo').click();await expect(page.locator('#status')).toContainText('117 动作');await page.locator('#quickSequence').click();await page.locator('#play').click();}
+async function setup(page){await page.goto('/labs/motion/index.html?tools=1');await page.locator('#humanDemo').click();await waitForModel(page,{actions:117});await expect(page.locator('#status')).toContainText('117 动作');await page.locator('#quickSequence').click();await page.locator('#play').click();}
 test('单选、连续选择、批量删除及撤销重做',async({page})=>{
  await setup(page);const actions=page.locator('#segments .action'),original=await actions.evaluateAll(nodes=>nodes.map(n=>n.dataset.key));
  await actions.first().click();await actions.first().click({modifiers:['Control']});await expect(page.locator('#selectionCount')).toHaveText('已选 0');await expect(page.locator('#timelineRemove')).toBeDisabled();

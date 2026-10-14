@@ -1,3 +1,4 @@
+import {waitForModel} from './model-ready-helper.js';
 import {test,expect} from '@playwright/test';
 import {resizeSegment} from './resize-segment-helper.js';
 import {placeAction} from './drag-source-helper.js';
@@ -5,7 +6,7 @@ import {placeAction} from './drag-source-helper.js';
 test('过渡必须主动放置，边界拒绝、取消、删除和历史恢复',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/labs/motion/index.html?tools=1');
  const card=page.locator('#transitionSource'),actions=page.locator('#segments .action'),transitions=page.locator('#segments .transition');
- await expect(card).toHaveAttribute('aria-disabled','true');await page.locator('#humanDemo').click();await expect(page.locator('#status')).toContainText('117 动作');
+ await expect(card).toHaveAttribute('aria-disabled','true');await page.locator('#humanDemo').click();await waitForModel(page,{actions:117});await expect(page.locator('#status')).toContainText('117 动作');
  await page.locator('#source').selectOption({label:'Idle_Loop'});await placeAction(page);await expect(card).toHaveAttribute('aria-disabled','true');
  await page.locator('#source').selectOption({label:'Sword_Idle'});await placeAction(page);await expect(transitions).toHaveCount(0);await expect(card).toHaveAttribute('aria-disabled','false');
  const boundary=async()=>{const b=await actions.nth(1).boundingBox();return {x:b.x+10,y:b.y+35};};
