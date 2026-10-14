@@ -99,6 +99,6 @@ Windows 浏览器回归使用 Chrome，录像验证需 FFmpeg/ffprobe 在 PATH �
 
 项目自有代码采用 [MIT 许可证](LICENSE)，目标[公开仓库](https://github.com/mhdfy1988/motion-deck)已创建。第三方依赖和资源保留各自许可，见 [来源与许可](THIRD_PARTY_NOTICES.md)。package 的 `private: true` 仅防止误发布到 npm，不限制 GitHub 仓库公开。
 
-2026-10-14：客户端0.1.0未签名预发布版正在收口。数据管理和真实NSIS升级验收已完成，领域55项通过；发布、最终回归与远端状态以[当前任务](docs/stages/current-todo.md)和[验证记录](docs/verification.md)为准。尚无签名、跨平台安装或GitHub Pages部署。
+2026-10-14：准备发布客户端0.1.0未签名预发布版。本地素材18项、领域55项、完整界面51项与真实桌面5项全部通过，无跳过；已验证旧库迁移、导出录像及真实安装升级。发布状态以[当前任务](docs/stages/current-todo.md)和[验证记录](docs/verification.md)为准。尚无代码签名、跨平台安装或GitHub Pages部署。
 
 GitHub自动检查仅构建、素材校验及领域测试，不部署网站。完整界面、桌面及真实安装升级回归以本地验收为准；保留手动`full_regression`入口，默认不执行重型回归。发布脚本要求完整本地JSON报告无失败、无跳过，且实现、测试和客户端包未在验收后变化；基础CI仍须通过。具体命令及证据见[本地验收](docs/references/local-acceptance.md)，历史云端失败仍保留在验证记录中，不视为已修复。
