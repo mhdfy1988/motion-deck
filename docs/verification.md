@@ -2,6 +2,8 @@
 
 ## 2026-10-14安装与更新
 
+- 用户授权“更新发布”后公开[v0.1.0未签名预发布版](https://github.com/mhdfy1988/motion-deck/releases/tag/v0.1.0)，标签指向发布准备提交05fc456，基础CI38541276810通过。安装包124,777,934字节，SHA256 fe45e21cc38a23edba819578575216d2299529c28576ebc3f4159c45a6a8765f；EXE、blockmap、latest.yml和SHA256SUMS.txt上传摘要及匿名下载字节均匹配。隔离安装旧MotionDeckAcceptance，使用真实GitHub更新源识别0.1.0后卸载；不安装正式产品、不自动升级用户环境。公开下载与更新源证明保存在output/acceptance/published-release-proof.json，签名仍为NotSigned，不将哈希完整性校验说成签名验证。
+
 - 按用户决定完整回归以本地为准，GitHub自动仅构建/素材/领域检查，重型任务手动触发。本轮重新构建客户端及未签名0.1.0安装包，素材18项、领域55项、完整网页51项（2.8分钟）、真实桌面5项（2.0分钟）全部通过，无跳过；保留旧客户端做真实迁移，NSIS升级包含取消/断网/损坏拒绝及重试、退出不安装、升级和卸载后资料保留。报告output/acceptance/local-web.json及local-desktop.json经本地发布门禁校验通过，未接触正式资料，未发布。源差异审计及运行方式见[完整本地验收](references/local-acceptance.md)。
 
 - b32f168完整远端：网页50通过1项模型等待超时，桌面因Chocolatey安装FFmpeg返回406后继续执行，缺少ffprobe而失败；目录/恢复/真实升级通过。CI视频工具改为固定8.1.2下载、SHA256及两工具执行检查，复用FFMPEG_BIN；本地真实视频读取/解码和错误哈希拒绝通过。仅本轮依赖准备已修复，远端及剩余模型等待问题未宣称完成，详见[CI视频工具准备](references/ci-ffmpeg.md)。

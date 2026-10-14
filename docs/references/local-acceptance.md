@@ -24,7 +24,7 @@ npx.cmd playwright test --config playwright.desktop.config.js --reporter=list,js
 
 scripts/local-acceptance-gate.mjs复用报告：网页至少51项、覆盖配置中的全部文件；桌面至少5项、含迁移/目录/更新文件；失败、重试后才成功、跳过、缺文件均拒绝。实现/测试/包在报告开始后变更也拒绝，需重新验收。报告仅保存在忽略目录，不手填通过标记，不把定向少量测试当成完整门禁。
 
-scripts/github-release.mjs仍要求当前提交基础CI通过，同时要求本地完整报告通过。不直接删除发布校验，也不允许仅诊断任务成功代替验收。本轮不自动发布。
+scripts/github-release.mjs仍要求当前提交基础CI通过，同时要求本地完整报告通过。不直接删除发布校验，也不允许仅诊断任务成功代替验收；发布另需用户授权，不能由测试通过自行推断授权。
 
 ## 差异审计
 
