@@ -1,5 +1,5 @@
-import {THREE,modelInfo,compatibleClips} from './three-adapter.js';
-import {capturePose} from './sequence-core.js';
+import {THREE,modelInfo,compatibleClips} from './platform/three-adapter.js';
+import {capturePose} from './core/sequence-core.js';
 import {importPoseClips} from './pose-import.js';
 
 // 仅适配已核对的两份Quaternius人偶导出，不作为外部骨架通用回退。

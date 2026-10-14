@@ -19,6 +19,6 @@ test('自定义动作删除持久化，已打开编排保留且可另存',async(
 });
 test('旧基础姿势清理仅执行一次，不影响默认姿势和后续同名保存',async({page})=>{
  await page.goto('/');await page.locator('#replaceModel').selectOption('quaternius');await expect(page.locator('#status')).toContainText('117 动作');await savePose(page,'基础');
- await page.evaluate(async()=>{const {getImage,putImage}=await import('/motion-store.js'),pointer=await getImage('motion-library-last-v1'),record=await getImage('motion-library-v1:'+pointer.modelKey);delete record.data.testPoseCleanup;await putImage(record);});
+ await page.evaluate(async()=>{const {getImage,putImage}=await import('/labs/motion/platform/indexeddb-store.js'),pointer=await getImage('motion-library-last-v1'),record=await getImage('motion-library-v1:'+pointer.modelKey);delete record.data.testPoseCleanup;await putImage(record);});
  await page.reload();await expect(page.locator('#status')).toContainText('已恢复');await expect(page.locator('#clips [data-pose-id]').filter({hasText:'基础'})).toHaveCount(0);await expect(page.locator('#clips [data-pose-id^="builtin:"]')).toHaveCount(99);await savePose(page,'基础');await page.reload();await expect(page.locator('#status')).toContainText('已恢复');await expect(page.locator('#clips [data-pose-id]').filter({hasText:'基础'})).toHaveCount(1);
 });

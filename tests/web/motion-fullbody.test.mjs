@@ -4,7 +4,7 @@ import {readFile} from 'node:fs/promises';
 import * as THREE from 'three';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {FullBodyRig} from '../../web/labs/motion/fullbody-rig.js';
-import {capturePose,applyPose,PoseSampler} from '../../web/labs/motion/sequence-core.js';
+import {capturePose,applyPose,PoseSampler} from '../../web/labs/motion/core/sequence-core.js';
 globalThis.ProgressEvent??=class{constructor(type,fields){Object.assign(this,fields);}};
 async function fixture(file){
  let data;if(file.endsWith('.gltf')){data=JSON.parse(await readFile(file,'utf8'));data.buffers[0].uri='data:application/octet-stream;base64,'+(await readFile(file.replace('.gltf','.bin'))).toString('base64');}

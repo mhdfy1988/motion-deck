@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {findLimbChains,LimbIK} from './pose-ik.js';
-import {capturePose,applyPose} from './sequence-core.js';
+import {capturePose,applyPose} from './core/sequence-core.js';
 export class PoseDrag{
   constructor({stage,camera,controls,getState,onEdit,onStatus}){Object.assign(this,{stage,camera,controls,getState,onEdit,onStatus});this.root=null;this.handles=[];this.drag=null;this.last=null;this.ray=new THREE.Raycaster();this.layer=document.createElement('div');this.layer.className='pose-handles';stage.append(this.layer);this.key=e=>{if(e.key==='Escape'&&this.drag){this.finish(true);e.preventDefault();}};window.addEventListener('keydown',this.key);}
   rebuild(root){this.finish(true);this.handles.forEach(h=>h.ik.dispose());this.handles=[];this.layer.replaceChildren();this.root=root;this.last=null;if(!root)return;

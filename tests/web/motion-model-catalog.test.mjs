@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {builtins,catalogRecord} from '../../web/labs/motion/model-catalog.js';
-import {validateLibrary} from '../../web/labs/motion/action-library.js';
+import {builtins,catalogRecord} from '../../web/labs/motion/application/model-catalog.js';
+import {validateLibrary} from '../../web/labs/motion/application/action-library.js';
 
 test('模型目录按内容身份更新，重命名不产生另一模型，来源名称独立于动作数量',()=>{
  const key='a'.repeat(64),other='b'.repeat(64),initial={version:1,models:[{key,name:'旧名称'},{key:other,name:'其他模型'}]};

@@ -24,5 +24,12 @@
 - closed-chain-ik：Apache-2.0，`web/licenses/closed-chain-ik.txt`；仅用于暂停的独立全身实验，固定原提交。
 - gl-matrix、svd-js、linear-solve：实验求解器依赖；对应许可、README 与包元数据在 `web/licenses`。
 - Ajv、esbuild、Playwright：构建或测试依赖，使用锁文件固定版本；包许可证随 npm 分发内容保留。
+- Electron 44.7.0：桌面运行时，MIT；Chromium及附带组件保留各自许可，免安装目录自带Electron的LICENSE与LICENSES.chromium.html。
+- @electron/packager 20.3.0：仅开发期打包工具，BSD-2-Clause；不随应用复制开发node_modules。
+- proper-lockfile 4.1.2（MIT）及其依赖：客户端素材库跨进程锁，随后台存储bundle提供；不向领域模型暴露库API。Ajv同时用于后台存储协议校验。构建复制这两者及运行依赖的完整许可到desktop/licenses，manifest.json记录准确版本与许可文件。
+- SQLite：使用Electron所带Node官方node:sqlite接口；相关运行时许可随Electron分发保留，不增加另一个原生ABI重编译依赖。
+- electron-updater 6.8.9（MIT）及运行依赖：官方更新下载、完整性校验和NSIS安装适配；构建递归收录原许可到desktop/licenses。lazy-val 1.0.5仅有上游MIT声明，无独立许可文件，保留原package.json和明确注明来源的标准MIT补充文本。
+- electron-builder 26.15.3（MIT）及NSIS：仅安装构建阶段，不向运行包复制其开发依赖；固定版本配置与安全审计见docs/install-and-update.md。
+- Sharp 0.35.5（Apache-2.0）与png-to-ico 3.0.2（MIT）：仅用于把已有Lucide胶片标识生成桌面PNG/多尺寸ICO；不随客户端复制这两个库。桌面图标保留Lucide的ISC许可。
 
 `docs/references` 中的旧工具日期、端口及历史验收仅作为来源证据。当前 MotionDeck 验收与限制以 README、docs/extraction-status.md 为准。

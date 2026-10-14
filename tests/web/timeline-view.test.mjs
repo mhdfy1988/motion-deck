@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {timelineMetrics,timelineTicks,fitTimeline} from '../../web/labs/motion/timeline-view.js';
+import {timelineMetrics,timelineTicks,fitTimeline} from '../../web/labs/motion/core/timeline-view.js';
 test('默认显示比例不随片段添加或窗口改变',()=>{
  assert.equal(timelineMetrics(2,1000,100).contentWidth,200);
  assert.equal(timelineMetrics(5,1000,100).contentWidth,500);

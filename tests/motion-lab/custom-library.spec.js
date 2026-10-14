@@ -45,5 +45,5 @@ test('保存关联指针失败时，模型与动作记录一并回滚',async({pa
 });
 
 test('复用的单素材存取接口仍保持原文件内容与修订语义',async({page})=>{
- await page.goto('/');const result=await page.evaluate(async()=>{const {putImage,getImage}=await import('/motion-store.js');const id='test-single-media';await putImage({id,revision:1,blob:new Blob(['原文件'])});const old=await getImage(id);await putImage({id,revision:2,blob:new Blob(['修改文件'])});const next=await getImage(id);return {old:await old.blob.text(),next:await next.blob.text(),revision:next.revision};});expect(result).toEqual({old:'原文件',next:'修改文件',revision:2});
+ await page.goto('/');const result=await page.evaluate(async()=>{const {putImage,getImage}=await import('/labs/motion/platform/indexeddb-store.js');const id='test-single-media';await putImage({id,revision:1,blob:new Blob(['原文件'])});const old=await getImage(id);await putImage({id,revision:2,blob:new Blob(['修改文件'])});const next=await getImage(id);return {old:await old.blob.text(),next:await next.blob.text(),revision:next.revision};});expect(result).toEqual({old:'原文件',next:'修改文件',revision:2});
 });

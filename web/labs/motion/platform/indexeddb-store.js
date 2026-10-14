@@ -1,5 +1,7 @@
-// 图片和视频原文件与画布清单分开保存；事务完成后才能发布资产引用。
+import {desktopPut,desktopGet} from './desktop-store.js';
+// 显式平台适配：客户端失败时不回落浏览器库；网页仍用原IndexedDB事务。
 const DB_NAME='motion-deck.library.v1';
+function desktopEnabled(){if(globalThis.location?.protocol==='motiondeck:'&&!globalThis.motionDeckDesktop)throw new Error('桌面存储桥未加载，已停止读写，禁止回落旧数据库');return !!globalThis.motionDeckDesktop;}
 let database;
 function openDatabase(){
   if(!database)database=new Promise((resolve,reject)=>{
@@ -14,6 +16,7 @@ function openDatabase(){
 export async function putImage(record){return putImages([record]);}
 // 多份关联记录在同一事务内提交，防止目录已更新但素材尚未保存。
 export async function putImages(records,deleteIds=[]){
+  if(desktopEnabled())return desktopPut(records,deleteIds);
   const db=await openDatabase();
   await new Promise((resolve,reject)=>{
     const transaction=db.transaction('images','readwrite');
@@ -24,6 +27,7 @@ export async function putImages(records,deleteIds=[]){
   });
 }
 export async function getImage(id){
+  if(desktopEnabled())return desktopGet(id);
   const db=await openDatabase();
   return new Promise((resolve,reject)=>{
     const transaction=db.transaction('images','readonly');

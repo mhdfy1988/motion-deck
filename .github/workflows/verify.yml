@@ -22,3 +22,32 @@ jobs:
       - run: npx playwright install chrome
       - run: choco install ffmpeg --no-progress -y
       - run: npm run test:e2e
+  desktop:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: choco install ffmpeg --no-progress -y
+      - run: npm run desktop:pack
+      - name: Build isolated update installers
+        shell: pwsh
+        run: |
+          $env:MOTIONDECK_BUILD_VARIANT = 'acceptance'
+          $env:MOTIONDECK_BUILD_VERSION = '0.0.1'
+          $env:MOTIONDECK_BUILD_OUTPUT = 'update-acceptance/old'
+          node scripts/package-installer.mjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $env:MOTIONDECK_BUILD_VERSION = '0.0.2'
+          $env:MOTIONDECK_BUILD_OUTPUT = 'update-acceptance/new'
+          node scripts/package-installer.mjs
+      - shell: pwsh
+        run: |
+          $env:MOTIONDECK_PACKAGED_EXE = Join-Path $pwd 'output/desktop/MotionDeck-win32-x64/MotionDeck.exe'
+          $env:MOTIONDECK_TEST_OLD_INSTALLER = Join-Path $pwd 'output/update-acceptance/old/installer/MotionDeckAcceptance-0.0.1-setup-x64.exe'
+          $env:MOTIONDECK_TEST_NEW_INSTALLER = Join-Path $pwd 'output/update-acceptance/new/installer/MotionDeckAcceptance-0.0.2-setup-x64.exe'
+          npm.cmd run desktop:test

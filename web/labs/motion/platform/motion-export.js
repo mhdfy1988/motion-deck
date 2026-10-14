@@ -2,8 +2,8 @@ import {THREE} from './three-adapter.js';
 import {clone} from 'three/addons/utils/SkeletonUtils.js';
 import {GLTFExporter} from 'three/addons/exporters/GLTFExporter.js';
 import {zipSync} from 'three/addons/libs/fflate.module.js';
-import {applyPose,PoseSampler,compileSequence,sampleSequence,clipKeyTimes} from './sequence-core.js';
-import {encodeAction,decodeAction} from './action-library.js';
+import {applyPose,PoseSampler,compileSequence,sampleSequence,clipKeyTimes} from '../core/sequence-core.js';
+import {encodeAction,decodeAction} from '../core/action-codec.js';
 
 const MAX_BYTES=128*1024**2;
 export function exportName(value){return (value.replace(/[\\/:*?"<>|\x00-\x1f]/g,'_').replace(/[. ]+$/g,'').slice(0,80)||'素材');}

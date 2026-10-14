@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {TransformControls} from 'three/addons/controls/TransformControls.js';
-import {capturePose,applyPose} from './sequence-core.js';
+import {capturePose,applyPose} from './core/sequence-core.js';
 
 // 控制器留在场景层，不进入模型树，保持姿势快照与原骨架结构不变。
 export class BodyControls{

@@ -1,7 +1,7 @@
-import {THREE,OrbitControls,loadFiles,disposeModel} from './three-adapter.js';
-import {builtins} from './model-catalog.js';
+import {THREE,OrbitControls,loadFiles,disposeModel} from './platform/three-adapter.js';
+import {builtins} from './application/model-catalog.js';
 import {FullBodyRig} from './fullbody-rig.js';
-import {capturePose,applyPose,PoseSampler} from './sequence-core.js';
+import {capturePose,applyPose,PoseSampler} from './core/sequence-core.js';
 import {FreeView} from './free-view.js';
 import {TransformControls} from 'three/addons/controls/TransformControls.js';
 const $=id=>document.getElementById(id),stage=$('stage'),canvas=$('canvas');

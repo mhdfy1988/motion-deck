@@ -1,6 +1,6 @@
-import {THREE,modelInfo,compatibleClips} from './three-adapter.js';
+import {THREE,modelInfo,compatibleClips} from './platform/three-adapter.js';
 import {mappedDefaultActions} from './default-poses.js';
-import {capturePose,applyPose,PoseSampler} from './sequence-core.js';
+import {capturePose,applyPose,PoseSampler} from './core/sequence-core.js';
 
 // 只处理固定版本官方Mesh2Motion人体附加包，不放宽外部assertSameRig。
 export function mesh2motionAddonActions(target,source,clips){

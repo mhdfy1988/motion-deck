@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {mappedDefaultActions,defaultBoneName} from '../../web/labs/motion/default-poses.js';
-import {capturePose,applyPose,PoseSampler} from '../../web/labs/motion/sequence-core.js';
+import {capturePose,applyPose,PoseSampler} from '../../web/labs/motion/core/sequence-core.js';
 globalThis.ProgressEvent??=class{constructor(type,fields){Object.assign(this,fields);}};
 test('真实UAL2：43动作映射、731个采样点的主骨骼一致，源不变异、未知轨道拒绝',async()=>{
  const loader=new GLTFLoader(),j=JSON.parse(await readFile('fixtures/quaternius/AnimationLibrary_Godot_Standard.gltf','utf8'));

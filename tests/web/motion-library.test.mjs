@@ -1,7 +1,7 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';import * as THREE from 'three';
-import {encodeAction,decodeAction,validateLibrary,modelKey} from '../../web/labs/motion/action-library.js';
-import {PoseSampler,compileSequence,sampleSequence,capturePose} from '../../web/labs/motion/sequence-core.js';
-import {validatePoses} from '../../web/labs/motion/action-library.js';
+import {encodeAction,decodeAction,validateLibrary,modelKey} from '../../web/labs/motion/application/action-library.js';
+import {PoseSampler,compileSequence,sampleSequence,capturePose} from '../../web/labs/motion/core/sequence-core.js';
+import {validatePoses} from '../../web/labs/motion/application/action-library.js';
 test('姿势库兼容旧动作快照，校验姿势形状、重复身份与模型节点数',()=>{
  const root=new THREE.Group(),key='a'.repeat(64),pose=capturePose(root),entry={id:'p1',name:'站立',pose};
  validateLibrary({version:1,modelKey:key,actions:[]},key);

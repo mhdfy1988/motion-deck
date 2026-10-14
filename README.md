@@ -2,13 +2,25 @@
 
 3D 动作与姿势编排工具，可录制参考视频供 2D 游戏和 AI 素材制作使用。
 
-从动作工坊的既有工具直接抽取，保留界面、编排协议和功能，没有重新实现。无需 Python 后端。
+从动作工坊的既有工具直接抽取，保留界面、编排协议和功能。现已提供Windows x64 Electron客户端候选，并完成第一轮模块分层；无需Python后端。
 
 ## 启动
 
+### 安装客户端
+
+Windows x64 未签名测试版，从[GitHub Releases](https://github.com/mhdfy1988/motion-deck/releases)下载 `MotionDeck-0.1.0-setup-x64.exe`，仅安装到当前用户，可选择安装位置。首次运行可能出现未知发布者或Windows安全提示，请核对来源；没有签名证书，不建议关闭系统安全防护。
+
+右上角“更新”支持检查、下载进度、取消/重试与确认重启安装；普通退出不会偷偷安装。已保存素材与设置保留，更新前请保存编排。安装及验证细节见[安装与更新](docs/install-and-update.md)。
+
+### 免安装客户端
+
+本机打包产物位于`output/desktop/MotionDeck-win32-x64/`，双击其中的`MotionDeck.exe`。保留整个目录，不需要安装Node或另开浏览器，也不使用8901端口。免安装版不支持原位更新，可重新下载完整包。
+
+### 源码启动
+
 使用 Node.js 24（本机验证24.14.0），在本项目目录执行：
 
-源码已推送至公开仓库；已有本机目录可直接从 `npm.cmd ci` 开始。
+已有本机目录可直接从 `npm.cmd ci` 开始；客户端源码的提交与发布进度见文末。
 
 ```powershell
 git clone https://github.com/mhdfy1988/motion-deck.git
@@ -18,7 +30,7 @@ npm.cmd run build
 npm.cmd start
 ```
 
-打开 http://127.0.0.1:8901/ 。服务仅监听本机；端口可通过环境变量 PORT 显式指定。不要通过双击 HTML 启动。
+npm start默认打开Electron客户端。网页仅保留为开发/回归入口：执行`npm.cmd run dev`后打开 http://127.0.0.1:8901/ ，服务仅监听本机；端口可通过环境变量PORT显式指定。不要通过双击HTML启动。客户端打包与隔离测试步骤见[桌面运行说明](docs/desktop-runbook.md)。
 
 首次进入直接加载Mesh2Motion白模，不显示模型选择页；通过顶部下拉切换Quaternius或导入其他模型。已有用户恢复上次模型和素材库，不覆盖为默认白模。
 
@@ -43,28 +55,32 @@ npm.cmd start
 - 边缘内侧最多20像素为调整区域，短片段自动缩小，光标为双箭头；片段中间用于选择或移动。按住边缘调整期间双箭头保持，Esc取消本次拖动。
 - 缩放只改变显示比例，不改变动作速度或实际时长；“适合全部”是一次性取景，之后添加片段仍保持该比例。
 
-## 客户端与命令操作方向（未实现）
+## 客户端与命令操作方向
 
-计划先做独立桌面工具，再通过命令操作当前模型；Electron与Tauri仍在比较，尚未确定框架。应用操作层应复用现有采样、保存和导出逻辑，MCP仅为可选入口。当前仍按上面的本机网页版启动，不支持桌面包或助手命令控制。源码依据、方案取舍和验收边界见[客户端架构讨论](docs/desktop-architecture.md)。
+已选Electron并提供本机客户端候选；命令控制、助手摆姿势和MCP仍未实现。核心、应用、平台与界面模块已分层，时间轴操作不依赖DOM，仍使用同一模型状态；组合入口尚未完全拆净，后续按用例推进，不为命令复制另一套编辑逻辑。见[项目结构](docs/project-structure.md)及[架构讨论与当前状态](docs/desktop-architecture.md)。
 
 ## 数据边界
 
 MotionDeck 使用独立浏览器数据库 `motion-deck.library.v1`。旧动作工坊代码、文件和旧数据库未修改，旧自定义库不会自动搬到新地址。不同地址/端口也不共享浏览器库。
 
-库数据仍保存在浏览器内，不是磁盘工程。当前 GLB/ZIP 导出是模型素材导出，不是可恢复整个库的工程备份；清空浏览器站点数据会丢失自定义内容。旧库迁移尚未实施，启动原工具并使用原地址可继续访问旧数据，不要清理旧数据库。
+客户端沿用动作协议，个人设置默认保存于`%APPDATA%\MotionDeck`，磁盘素材库、导出与备份默认放在系统文档目录的MotionDeck下。右上角“设置”可查看/打开目录、迁移素材库、更改导出/备份目录、备份恢复和清理缓存。程序替换不要求清理资料目录；不访问或迁移Chrome、动作工坊库。
+
+客户端启动时将本客户端旧IndexedDB库安全复制、校验并备份到磁盘库后切换，原库保留；损坏或迁移失败显式报错，不静默回落。新库使用SQLite索引和哈希原文件，不是每个动作一个GLB。完整备份包含模型、已保存动作和姿势，不包含未保存编排；恢复会提示并重载页面，旧库保留。网页开发入口仍使用独立IndexedDB。
+
+内置素材在`resources/app.asar`中，只读随包提供。GLB/ZIP、拍照和录像保存对话框默认使用配置的导出目录；这些是素材输出，不等于完整库备份。磁盘缓存与日志单独放置，清理缓存不删素材。详细边界与迁移流程见[数据目录说明](docs/data-directories.md)。
 
 ## 目录
 
 ```text
-web/labs/motion/       原工具源码、页面和样式
-web/motion-store.js    独立存储入口
+desktop/              Electron窗口、内部资源协议和安全边界
+web/labs/motion/       页面组合入口、样式；core/application/platform/ui模块
 fixtures/             已核对的内置资源与测试资源、哈希清单
 scripts/              构建、静态服务和资源校验
 tests/                领域测试及浏览器回归
 docs/                 抽取边界、参考证据和验收
 ```
 
-保留原目录结构以减少迁移风险；运行与构建不读取原 action-forge 目录。
+保留原页面入口，内部模块按职责整理；运行与构建不读取原action-forge目录。模型库身份和持久化格式不变，详细职责见[项目结构](docs/project-structure.md)。
 
 ## 验证
 
@@ -77,14 +93,12 @@ npm.cmd run test:e2e
 
 Windows 浏览器回归使用 Chrome，录像验证需 FFmpeg/ffprobe 在 PATH 中，或配置 FFMPEG_BIN。设置`MOTIONDECK_TEST_PORT=8904`使用隔离测试服务，不占用主入口8901；服务随测试自动启动和停止，浏览器上下文不使用已有用户库。门禁只覆盖当前开放功能；旧姿势编辑、第三方动作导入和全身试摆界面用例保留但不混入正式门禁。验证记录见[docs/verification.md](docs/verification.md)。
 
-复制的依赖锁沿用原树，`.npmrc` 固定 legacy-peer-deps，避免实验 IK 包的 URDF 示例同伴依赖改变安装图；本项目只使用其 core 求解器。所有依赖版本与原工具保持一致。
+原有领域依赖沿用抽取时的版本，`.npmrc`固定legacy-peer-deps，避免实验IK包的URDF示例同伴依赖改变安装图；只使用其core求解器。客户端另外引入Electron、Packager及构建期图标转换库，具体版本以package.json和锁文件为准。
 
 ## 许可与发布状态
 
 项目自有代码采用 [MIT 许可证](LICENSE)，目标[公开仓库](https://github.com/mhdfy1988/motion-deck)已创建。第三方依赖和资源保留各自许可，见 [来源与许可](THIRD_PARTY_NOTICES.md)。package 的 `private: true` 仅防止误发布到 npm，不限制 GitHub 仓库公开。
 
-2026-10-13：代码提交 `4e21d07` 已推送，包含独立抽取、首次默认模型加载以及时间轴、光标、标题栏和面板调整。构建、18份资源校验、43项领域测试及47项完整浏览器回归通过。此前缺少 `workflow` 权限的推送阻碍已通过用户授权解决；GitHub API已核对远端提交，自动验证已触发，结果仍需单独核对。
+2026-10-14：客户端0.1.0未签名预发布版正在收口。数据管理和真实NSIS升级验收已完成，领域55项通过；发布、最终回归与远端状态以[当前任务](docs/stages/current-todo.md)和[验证记录](docs/verification.md)为准。尚无签名、跨平台安装或GitHub Pages部署。
 
-GitHub 自动验证配置随源码提供，其运行结果需在仓库 Actions 页面核对，不能用本地通过代替远端通过。当前未创建版本标签、GitHub Release或安装包，也没有部署 GitHub Pages；服务与资源路径用于本机运行。
-
-2026-10-14核对：此前`310a1b3`的[GitHub自动验证](https://github.com/mhdfy1988/motion-deck/actions/runs/38418414006)已结束，浏览器测试步骤失败，根因未定位。本次为架构文档阶段提交，未修改业务源码；本地构建、18份资源校验和43项领域测试重新通过，未重跑完整浏览器测试，不宣称远端门禁已通过。
+GitHub自动验证需单独核对，不能用本地通过代替远端通过。此前`310a1b3`的[检查](https://github.com/mhdfy1988/motion-deck/actions/runs/38418414006)有3项浏览器失败：2项素材导出用例超时、1项模型加载断言超时；新桌面CI尚未在远端验证。详细历史与本轮验收见[验证记录](docs/verification.md)。

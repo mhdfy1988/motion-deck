@@ -1,7 +1,7 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';import * as THREE from 'three';import {findLimbChains,LimbIK} from '../../web/labs/motion/pose-ik.js';
 import {readFile} from 'node:fs/promises';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-import {capturePose,applyPose} from '../../web/labs/motion/sequence-core.js';
+import {capturePose,applyPose} from '../../web/labs/motion/core/sequence-core.js';
 globalThis.ProgressEvent??=class{constructor(type,fields){Object.assign(this,fields);}};
 async function rig(file){let data;if(file.endsWith('.gltf')){data=JSON.parse(await readFile(file,'utf8'));data.buffers[0].uri='data:application/octet-stream;base64,'+(await readFile(file.replace('.gltf','.bin'))).toString('base64');}else{const b=await readFile(file),length=b.readUInt32LE(12);data=JSON.parse(b.subarray(20,20+length));data.buffers[0].uri='data:application/octet-stream;base64,'+b.subarray(28+length).toString('base64');}delete data.materials;delete data.textures;delete data.images;for(const m of data.meshes)for(const p of m.primitives)delete p.material;return (await new GLTFLoader().parseAsync(JSON.stringify(data),'')).scene;}
 test('两种真实人偶：关节限幅、肘膝方向拖动与端点保持，世界变换后骨长不变',async()=>{

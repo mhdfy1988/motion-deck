@@ -1,6 +1,6 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';import * as THREE from 'three';
-import {PoseSampler,compileSequence,sampleSequence,makeCompositeClip,capturePose,clipKeyTimes} from '../../web/labs/motion/sequence-core.js';
-import {encodeAction,decodeAction,validateLibrary} from '../../web/labs/motion/action-library.js';
+import {PoseSampler,compileSequence,sampleSequence,makeCompositeClip,capturePose,clipKeyTimes} from '../../web/labs/motion/core/sequence-core.js';
+import {encodeAction,decodeAction,validateLibrary} from '../../web/labs/motion/application/action-library.js';
 function samePose(a,b){assert.equal(a.length,b.length);for(let i=0;i<a.length;i++)for(const key of ['p','q','s','m'])if(a[i][key])a[i][key].forEach((v,n)=>assert.ok(Math.abs(v-b[i][key][n])<1e-9,'仅允许浮点运算舍入差'));
 }
 test('合并整体保留内部动作、姿势、过渡，裁剪变速及再次保存恢复采样一致',()=>{

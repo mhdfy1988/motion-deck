@@ -1,5 +1,5 @@
-import {THREE,assertSameRig,compatibleClips} from './three-adapter.js';
-import {capturePose} from './sequence-core.js';
+import {THREE,assertSameRig,compatibleClips} from './platform/three-adapter.js';
+import {capturePose} from './core/sequence-core.js';
 
 // 外部姿势只接受固定的骨架动画，不把连续动作第一帧悄悄当成完整姿势包。
 export function importPoseClips(target,rig,source,clips){

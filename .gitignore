@@ -8,3 +8,7 @@ playwright-report/
 !.env.example
 web/labs/motion/*.bundle.js
 web/labs/motion/*-validator.generated.js
+web/labs/motion/core/*-validator.generated.js
+desktop/storage/*.bundle.cjs
+desktop/updates/*.bundle.cjs
+desktop/licenses/

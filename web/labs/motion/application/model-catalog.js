@@ -1,5 +1,5 @@
-import valid from './catalog-validator.generated.js';
-import {getImage} from '../../motion-store.js';
+import valid from '../core/catalog-validator.generated.js';
+import {getImage} from '../platform/indexeddb-store.js';
 
 // 模型目录只登记来源和内容身份，动画与姿势仍由现有模型库保存。
 export const CATALOG_ID='motion-model-catalog-v1';

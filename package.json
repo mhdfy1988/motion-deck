@@ -3,25 +3,45 @@
   "version": "0.1.0",
   "license": "MIT",
   "private": true,
-  "engines": {"node": ">=24.0.0"},
+  "engines": {
+    "node": ">=24.0.0"
+  },
   "description": "MotionDeck：3D 动作与姿势编排、参考录制及模型导出工具",
   "type": "module",
+  "main": "desktop/main.cjs",
   "scripts": {
     "build": "node scripts/build-motion-lab.mjs",
     "build:experiment": "node scripts/build-fullbody-trial.mjs",
     "build:icons": "node scripts/build-icons.mjs",
+    "build:desktop-icons": "node scripts/build-desktop-icons.mjs",
     "dev": "node scripts/serve-motion-lab.mjs",
-    "start": "node scripts/serve-motion-lab.mjs",
+    "prestart": "npm run build",
+    "start": "electron .",
     "test": "node --test tests/web/*.test.mjs",
     "test:e2e": "playwright test --config playwright.config.js",
-    "assets:verify": "node scripts/verify-assets.mjs"
+    "assets:verify": "node scripts/verify-assets.mjs",
+    "predesktop:dev": "npm run build",
+    "desktop:dev": "electron .",
+    "predesktop:pack": "npm run build",
+    "desktop:pack": "node scripts/package-desktop.mjs",
+    "predesktop:installer": "npm run build",
+    "desktop:installer": "node scripts/package-installer.mjs",
+    "desktop:test": "playwright test --config playwright.desktop.config.js"
   },
   "devDependencies": {
+    "@electron/packager": "20.3.0",
     "@playwright/test": "1.63.0",
     "ajv": "8.20.0",
     "closed-chain-ik": "https://codeload.github.com/gkjohnson/closed-chain-ik-js/tar.gz/1132da3dc3ac774426e9af503e4915bc04ca413b",
+    "electron": "44.7.0",
+    "electron-builder": "26.15.3",
+    "electron-updater": "6.8.9",
     "esbuild": "0.25.12",
     "lucide-static": "1.52.0",
+    "png-to-ico": "3.0.2",
+    "proper-lockfile": "4.1.2",
+    "semver": "7.8.5",
+    "sharp": "0.35.5",
     "three": "0.186.1"
   }
 }

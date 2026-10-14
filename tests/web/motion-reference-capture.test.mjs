@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {recordingType,ReferenceCapture} from '../../web/labs/motion/reference-capture.js';
+import {recordingType,ReferenceCapture} from '../../web/labs/motion/platform/reference-capture.js';
 test('录像格式显式探测，不把WebM伪装成MP4，不支持时拒绝',()=>{
  assert.match(recordingType({isTypeSupported:type=>type.startsWith('video/mp4')}),/^video\/mp4/);
  assert.match(recordingType({isTypeSupported:type=>type.endsWith('vp9')}),/^video\/webm/);

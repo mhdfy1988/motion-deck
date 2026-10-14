@@ -1,6 +1,6 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {mesh2motionAddonActions,mesh2motionAddonPoses} from '../../web/labs/motion/builtin-expansion.js';
-import {modelInfo,assertSameRig} from '../../web/labs/motion/three-adapter.js';import {PoseSampler,capturePose} from '../../web/labs/motion/sequence-core.js';
+import {modelInfo,assertSameRig} from '../../web/labs/motion/platform/three-adapter.js';import {PoseSampler,capturePose} from '../../web/labs/motion/core/sequence-core.js';
 globalThis.ProgressEvent??=class{constructor(type,fields){Object.assign(this,fields);}};
 async function load(path){const bytes=await readFile(path),length=bytes.readUInt32LE(12),data=JSON.parse(bytes.subarray(20,20+length));data.buffers[0].uri='data:application/octet-stream;base64,'+bytes.subarray(28+length).toString('base64');delete data.images;delete data.textures;delete data.materials;for(const mesh of data.meshes??[])for(const primitive of mesh.primitives)delete primitive.material;return new GLTFLoader().parseAsync(JSON.stringify(data),'');}
 test('真实附加75动作遵循官方轨道清理，不放宽通用骨架校验，16姿势不改当前模型',async()=>{

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {mappedDefaultPoses,defaultBoneName} from '../../web/labs/motion/default-poses.js';
-import {capturePose,applyPose,PoseSampler} from '../../web/labs/motion/sequence-core.js';
+import {capturePose,applyPose,PoseSampler} from '../../web/labs/motion/core/sequence-core.js';
 globalThis.ProgressEvent??=class {constructor(type,fields){this.type=type;Object.assign(this,fields);}};
 test('真实资源：53主骨骼映射99固定姿势，完整快照不变异及绑定错误拒绝',async()=>{
  const json=JSON.parse(await readFile('fixtures/quaternius/AnimationLibrary_Godot_Standard.gltf','utf8'));json.buffers[0].uri='data:application/octet-stream;base64,'+(await readFile('fixtures/quaternius/AnimationLibrary_Godot_Standard.bin')).toString('base64');

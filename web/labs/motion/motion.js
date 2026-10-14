@@ -1,25 +1,29 @@
 import {FreeView} from './free-view.js';
+import {bindDesktopSettings} from './ui/desktop-settings.js';
+import {bindDesktopUpdates} from './ui/desktop-updates.js';
+import {createSessionState} from './application/session-state.js';
+import {createTimelineController} from './application/timeline-controller.js';
 import {mesh2motionAddonActions,mesh2motionAddonPoses,quaterniusRootMotionActions,verifiedBuiltinFile} from './builtin-expansion.js';
-import {exportMotionAssets} from './motion-export.js';
-import {createMotionExportUI} from './motion-export-ui.js';
-import {createMotionPrompts} from './motion-prompts.js';
+import {exportMotionAssets} from './platform/motion-export.js';
+import {createMotionExportUI} from './ui/motion-export-ui.js';
+import {createMotionPrompts} from './ui/motion-prompts.js';
 import {boundsSampleTimes,measureMotionBounds} from './motion-bounds.js';
 import {viewPresets,viewPreset,framingDirections} from './view-presets.js';
 import {fitView,resizeView} from './view-camera.js';
 import {actionLabel,actionDisplayNames} from './action-labels.js';
-import {ReferenceCapture,downloadReference} from './reference-capture.js';
+import {ReferenceCapture,downloadReference} from './platform/reference-capture.js';
 import {mappedDefaultPoses,mappedDefaultActions} from './default-poses.js';
-import {builtins,readCatalog} from './model-catalog.js';
+import {builtins,readCatalog} from './application/model-catalog.js';
 import {importPoseClips} from './pose-import.js';
-import {modelKey,readLibrary,saveLibrary,lastSavedModel,savedModel,removeLegacyTestModels,encodeAction,decodeAction,validatePoses} from './action-library.js';
-import {THREE,OrbitControls,loadFiles,modelInfo,compatibleClips,assertSameRig,disposeModel} from './three-adapter.js';
-import {capturePose,applyPose,PoseSampler,compileSequence,sampleSequence,actionRange,makeCompositeClip,clipKeyTimes} from './sequence-core.js';
+import {modelKey,readLibrary,saveLibrary,lastSavedModel,savedModel,removeLegacyTestModels,encodeAction,decodeAction,validatePoses} from './application/action-library.js';
+import {THREE,OrbitControls,loadFiles,modelInfo,compatibleClips,assertSameRig,disposeModel} from './platform/three-adapter.js';
+import {capturePose,applyPose,PoseSampler,compileSequence,sampleSequence,actionRange,makeCompositeClip,clipKeyTimes} from './core/sequence-core.js';
 import {icons} from '../../icons-data.js';
 import {PoseDrag} from './pose-drag.js';
 import {BodyControls} from './body-controls.js';
-import {bindTimelineEdit} from './timeline-edit.js';
-import {createTimelineHistory} from './timeline-history.js';
-import {DEFAULT_PIXELS_PER_SECOND,zoomScale,fitTimeline,timelineMetrics,timelineTicks} from './timeline-view.js';
+import {bindTimelineEdit} from './ui/timeline-edit.js';
+import {createTimelineHistory} from './core/timeline-history.js';
+import {DEFAULT_PIXELS_PER_SECOND,zoomScale,fitTimeline,timelineMetrics,timelineTicks} from './core/timeline-view.js';
 const $=id=>document.getElementById(id),stage=$('stage');
 document.querySelector('.brand-mark').innerHTML=icons.film;
 let timelinePixels=DEFAULT_PIXELS_PER_SECOND;
@@ -33,6 +37,8 @@ $('timelineZoomIn').onclick=()=>setTimelineZoom(timelinePixels*1.25);
 $('timelineFit').onclick=()=>{setTimelineZoom(fitTimeline(state.sequence?.duration??0,$('timelineScroll').clientWidth-12));$('timelineScroll').scrollLeft=0;renderTimelineRuler();};
 $('timelineScroll').addEventListener('scroll',()=>renderTimelineRuler());
 const prompts=createMotionPrompts();
+bindDesktopSettings({prompts,onError:error=>message(error.message,true),isBusy:()=>state.busy});
+bindDesktopUpdates({prompts,onError:error=>message(error.message,true),isBusy:()=>state.busy});
 // 简版保留唯一编排主线；高级验证控件仅在显式工具入口展示。
 const advancedTools=new URLSearchParams(location.search).get('tools')==='1';
 // 姿势编辑暂缓开放，保留实现供后续研究；不影响姿势提取、保存与编排。
@@ -75,7 +81,7 @@ let renderer;try{renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawin
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));stage.append(renderer.domElement);
 const scene=new THREE.Scene();scene.background=new THREE.Color(advancedTools?'#13171c':'#121416');let camera=new THREE.PerspectiveCamera(38,1,.01,1000);const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;
 scene.add(new THREE.HemisphereLight(0xdbefff,0x424850,2.2));const light=new THREE.DirectionalLight(0xffffff,3);light.position.set(4,7,5);scene.add(light);const grid=new THREE.GridHelper(12,24,advancedTools?0x435364:0x39404a,advancedTools?0x252e37:0x23282f);scene.add(grid);
-const state={root:null,rig:null,sampler:null,helper:null,clips:[],bones:[],poses:[],items:[],selected:-1,sequence:null,mode:'source',time:0,sourceTime:0,playing:false,busy:false,size:2,center:new THREE.Vector3()};
+const state=createSessionState(new THREE.Vector3()),timelineController=createTimelineController(state);
 const motionExportUI=createMotionExportUI({getModel:()=>state.model.name,getEntries:()=>[
  ...state.clips.map((clip,index)=>({id:'source:'+index,kind:'action',name:displayAction(clip.name),duration:clip.duration,items:[{kind:'action',name:clip.name,clip,transition:0}]})),
  ...state.customs.map(action=>{const items=customItems(action);return {id:'custom:'+action.id,kind:'action',name:action.name,duration:compileSequence(items,state.sampler).duration,items};}),
@@ -362,17 +368,12 @@ $('quickSequence').onclick=()=>{const clips=quickActions.map(([key,name])=>({nam
 $('bone').onchange=()=>{state.playing=false;if(!advancedTools&&$('posePanel').open)bodyControls.chooseBone(state.bones[Number($('bone').value)]);boneValues();updateButtons();};for(const id of ['rx','ry','rz'])$(id).onchange=()=>{const values=['rx','ry','rz'].map(i=>$(i).valueAsNumber);if(!values.every(Number.isFinite)){message('关节角度无效',true);return;}state.playing=false;state.mode='pose';state.bones[Number($('bone').value)].quaternion.setFromEuler(new THREE.Euler(...values.map(THREE.MathUtils.degToRad),'XYZ'));state.root.updateMatrixWorld(true);$('currentClip').textContent='自定义姿势';updateButtons();};
 $('savePose').onclick=()=>savePoseEntry(`姿势 ${state.poses.length+1}`,capturePose(state.root));$('poses').onchange=()=>{state.playing=false;state.mode='pose';applyPose(state.root,state.poses[Number($('poses').value)].pose);boneValues();updateButtons();};
 $('addAction').onkeydown=event=>{if(event.key==='Enter'){event.preventDefault();const item=prepareInsert($('addAction'));if(item)insertAction(item);}};$('addPose').onclick=()=>{const pose=state.poses[Number($('poses').value)];add({kind:'pose',name:pose.name,pose:structuredClone(pose.pose),duration:1});};
-function moveItem(key,targetKey,after,swap=false){const source=state.items.filter(i=>state.selection.has(i.id)),target=state.items.findIndex(i=>i.id===targetKey);if(!source.length||target<0||source.some(i=>i.id===targetKey))return;history.run(()=>{if(swap){const targets=state.items.slice(target,target+source.length);if(targets.length!==source.length||targets.some(i=>source.includes(i))){message('交换需要同数量且不重叠的目标片段',true);return;}const positions=source.map(i=>state.items.indexOf(i));positions.forEach((position,i)=>{state.items[position]=targets[i];state.items[target+i]=source[i];});}else{state.items=state.items.filter(i=>!source.includes(i));const to=state.items.findIndex(i=>i.id===targetKey);state.items.splice(to+(after?1:0),0,...source);}state.selected=state.items.findIndex(i=>i.id===key);state.selectedTransition=false;state.playing=false;rebuild();showSequence(state.sequence.spans.find(s=>s.id===key).start);});}
-function removeSelected(){if(!state.selection.size)return;history.run(()=>{state.playing=false;for(const item of state.items)if(state.selection.has(`transition:${item.id}`))item.transition=0;state.items=state.items.filter(i=>!state.selection.has(i.id));state.selection.clear();state.selectedTransition=false;state.selected=-1;rebuild();if(state.items.length)showSequence(state.time);else showSource(0);updateButtons();});}
+function moveItem(key,targetKey,after,swap=false){history.run(()=>{try{if(!timelineController.move(key,targetKey,after,swap))return;rebuild();showSequence(state.sequence.spans.find(span=>span.id===key).start);}catch(error){message(error.message,true);}});}
+function removeSelected(){history.run(()=>{if(!timelineController.remove())return;rebuild();if(state.items.length)showSequence(state.time);else showSource(0);updateButtons();});}
 $('timelineRemove').onclick=removeSelected;
-function timelineItem(key){const transition=key.startsWith('transition:');return {item:state.items.find(i=>i.id===(transition?key.slice(11):key)),field:transition?'transition':'duration'};}
+const timelineItem=timelineController.itemFor;
 const disposeTimeline=bindTimelineEdit({container:$('segments'),scroll:$('timelineScroll'),track:$('timelineTrack'),library:$('clips'),sourceCard:$('addAction'),transitionSource:$('transitionSource'),prepareInsert,canInsert,insert:insertAction,select:selectSegment,selected:key=>state.selection.has(key),begin:history.begin,end:history.end,scale:()=>{},snapshot:key=>{const {item}=timelineItem(key);return {...item};},restore:(key,value)=>{const {item}=timelineItem(key);for(const field of Object.keys(item))delete item[field];Object.assign(item,value);},refresh:()=>{rebuild();showSequence(state.time);},move:moveItem,remove:removeSelected,resize:(key,value,side,original,mode)=>{
- if(state.busy)return;const {item,field}=timelineItem(key);if(!item)return;
- if(field==='duration'&&item.kind==='action'&&mode!=='duration'){
-  const range=actionRange(original),rate=range.duration/(original.duration??range.duration),max=side==='left'?range.out/rate:(item.clip.duration-range.in)/rate,duration=Math.max(.05,Math.min(value,max));
-  item.in=side==='left'?range.out-duration*rate:range.in;item.out=side==='left'?range.out:range.in+duration*rate;item.duration=duration;
- }else item[field]=Math.max(.05,Math.min(value,field==='transition'?5:item.kind==='pose'?30:300));
- state.playing=false;rebuild();showSequence(state.time);
+ if(timelineController.resize(key,value,side,original,mode)){rebuild();showSequence(state.time);}
 },canEdit:()=>!state.busy});
 $('timelineUndo').onclick=()=>history.undo();$('timelineRedo').onclick=()=>history.redo();$('timelineAll').onclick=()=>{state.selection=new Set(state.items.map(i=>i.id));selectionUI();selectedControls();};$('timelineNone').onclick=()=>{state.selection.clear();state.selected=-1;selectionUI();selectedControls();};
 document.querySelector('.timeline').addEventListener('keydown',event=>{if(event.target.matches('input,textarea,select'))return;if(event.ctrlKey||event.metaKey){if(event.key.toLowerCase()==='z'){event.preventDefault();event.shiftKey?history.redo():history.undo();}else if(event.key.toLowerCase()==='y'){event.preventDefault();history.redo();}else if(event.key.toLowerCase()==='a'){event.preventDefault();$('timelineAll').click();}}});
