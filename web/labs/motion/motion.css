@@ -45,9 +45,9 @@ main{grid-template-rows:minmax(0,1fr) 180px;min-height:600px}
 #playhead[hidden]{display:none}
 #timelineTrack #segments button{position:relative;cursor:grab;touch-action:none;padding-right:13px;user-select:none}
 #timelineTrack #segments .transition{cursor:pointer;padding-right:9px}
-.resize-handle{position:absolute;right:0;top:0;bottom:0;width:min(20px,50%);cursor:ew-resize;border-right:3px solid #607688;background:#ffffff08;z-index:2}
+.resize-handle{position:absolute;right:0;top:0;bottom:0;width:min(20px,50%);cursor:ew-resize;border:0;box-shadow:inset -3px 0 #607688;background:#ffffff08;z-index:2}
 .resize-handle::after{content:'';position:absolute;left:50%;top:50%;width:3px;height:22px;transform:translate(-50%,-50%);border-left:1px solid currentColor;border-right:1px solid currentColor;color:var(--accent);opacity:0;pointer-events:none}
-.resize-handle:hover{border-color:var(--accent);background:#88cfff33}
+.resize-handle:hover{box-shadow:inset -3px 0 var(--accent);background:#88cfff33}
 .resize-handle:hover::after{opacity:1}
 body.timeline-resizing,body.timeline-resizing *{cursor:ew-resize!important}
 .timeline-duration-tools{display:flex;align-items:center;gap:8px;flex-shrink:0}
@@ -148,7 +148,7 @@ body:not(.advanced-tools) ::-webkit-scrollbar{width:5px;height:5px}body:not(.adv
 #clips button[hidden]{display:none}
 
 #modelName{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:11px;min-width:0}
-#replaceModel{display:block!important;width:235px;max-width:26vw;margin:0;min-width:0;padding:5px 8px;background:#1b2025;color:#cbd5dd;font-size:11px}
+#replaceModel{display:inline-flex!important;width:235px;max-width:26vw;margin:0;min-width:0;padding:5px 8px;background:#1b2025;color:#cbd5dd;font-size:11px}
 .top #renameModel{display:inline-flex;align-items:center;justify-content:center;border:0;background:transparent;padding:4px;min-height:26px;margin-left:-14px;color:var(--muted)}
 .top #renameModel[hidden]{display:none}.top #renameModel svg{width:14px;height:14px}
 #renameModelDialog{width:340px;border:1px solid #414b54;border-radius:8px;padding:22px;background:#1b2025;color:var(--text)}
@@ -167,7 +167,7 @@ body:not(.advanced-tools) ::-webkit-scrollbar{width:5px;height:5px}body:not(.adv
 .dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:22px}
 .dialog-actions button{width:auto;min-width:70px;min-height:32px;font-size:12px}
 
-.resize-handle.resize-left{left:0;right:auto;border-right:0;border-left:3px solid #607688}
+.resize-handle.resize-left{left:0;right:auto;border:0;box-shadow:inset 3px 0 #607688}
 #previewSeek{width:calc(100% - 40px);margin:0 20px;height:12px;accent-color:var(--accent);flex-shrink:0;cursor:pointer}
 /* 高级入口已有源动作滑条，避免重复显示并保持原视口几何。 */
 body.advanced-tools #previewSeek{display:none}
@@ -176,4 +176,4 @@ body:not(.advanced-tools) .player #capturePose{width:auto;white-space:nowrap;fon
 #savePoseDialog::backdrop{background:#0009}
 #savePoseDialog label{font-size:12px;color:var(--muted)}
 #poseName{width:100%;margin-top:8px;padding:9px;background:#13171c;color:#eee;border:1px solid #414b54;border-radius:4px}
-.resize-left:hover{border-left-color:var(--accent)}
+.resize-left:hover{box-shadow:inset 3px 0 var(--accent)}

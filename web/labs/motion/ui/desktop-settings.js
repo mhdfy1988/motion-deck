@@ -1,8 +1,11 @@
+import {icons} from '../../../icons-data.js';
+
 export function bindDesktopSettings({prompts,onError,isBusy}){
  const bridge=globalThis.motionDeckDesktop;if(!bridge)return;
- const button=document.createElement('button');button.id='desktopSettings';button.textContent='设置';button.title='数据目录与备份';document.querySelector('.top').append(button);
+ document.body.classList.add('desktop-client');
+ const button=document.createElement('button');button.id='desktopSettings';button.type='button';button.className='icon-button';button.innerHTML=icons.settings;button.title='设置';button.setAttribute('aria-label','设置');document.querySelector('.top').append(button);
  const dialog=document.createElement('dialog');dialog.id='desktopSettingsDialog';dialog.setAttribute('aria-labelledby','desktopSettingsTitle');
- dialog.innerHTML='<div class="dialog-head"><h2 id="desktopSettingsTitle">数据与目录</h2><button id="closeDesktopSettings" type="button" aria-label="关闭">×</button></div><div class="directory-list"></div><div class="data-actions"><button id="backupLibrary">备份素材库</button><button id="restoreLibrary">恢复备份</button><button id="clearDesktopCache">清理缓存</button></div><p id="desktopSettingsStatus" role="status"></p>';
+ dialog.innerHTML='<div class="dialog-head"><h2 id="desktopSettingsTitle">设置</h2><button id="closeDesktopSettings" type="button" aria-label="关闭">×</button></div><div class="directory-list"></div><div class="data-actions"><button id="backupLibrary">备份素材库</button><button id="restoreLibrary">恢复备份</button><button id="clearDesktopCache">清理缓存</button></div><p id="desktopSettingsStatus" role="status"></p><div class="settings-update"></div>';
  document.body.append(dialog);let busy=false,recovery=false;
  const status=dialog.querySelector('#desktopSettingsStatus');
  function disable(value){busy=value;for(const control of dialog.querySelectorAll('button'))control.disabled=value||control.dataset.unavailable==='true';}

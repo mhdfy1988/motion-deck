@@ -26,6 +26,9 @@ import {createTimelineHistory} from './core/timeline-history.js';
 import {DEFAULT_PIXELS_PER_SECOND,zoomScale,fitTimeline,timelineMetrics,timelineTicks} from './core/timeline-view.js';
 const $=id=>document.getElementById(id),stage=$('stage');
 document.querySelector('.brand-mark').innerHTML=icons.film;
+const speedButtons=[...document.querySelectorAll('.speed-buttons button')];
+$('speed').onchange=()=>{for(const button of speedButtons)button.setAttribute('aria-pressed',String(button.dataset.speed===$('speed').value));};
+for(const button of speedButtons)button.onclick=()=>{$('speed').value=button.dataset.speed;$('speed').dispatchEvent(new Event('change',{bubbles:true}));};
 let timelinePixels=DEFAULT_PIXELS_PER_SECOND;
 const zoomTools=document.createElement('div');zoomTools.className='timeline-zoom';
 zoomTools.innerHTML='<button id="timelineZoomOut" type="button" aria-label="缩小时间轴" title="缩小时间轴">−</button><input id="timelineZoom" type="range" min="0" max="100" step="1" value="50" aria-label="时间轴缩放"><output id="timelineZoomValue">100%</output><button id="timelineZoomIn" type="button" aria-label="放大时间轴" title="放大时间轴">+</button><button id="timelineFit" type="button">适合全部</button>';
@@ -51,7 +54,7 @@ document.body.classList.toggle('advanced-tools',advancedTools);
 // 简版姿势操作属于视口，不混在播放器中；复用原按钮和保存入口。
 if(!advancedTools){const toolbar=document.createElement('div');toolbar.id='viewportPoseTools';toolbar.setAttribute('role','toolbar');toolbar.setAttribute('aria-label','视口姿势工具');stage.append(toolbar);toolbar.append($('editPose'),$('capturePose'));const edits=document.createElement('div');edits.className='pose-edit-tools';toolbar.append(edits);edits.append($('undoDrag'),$('resetPose'));for(const [id,icon,label] of [['undoDrag','undo-2','撤销拖动'],['resetPose','rotate-ccw','初始姿势']]){$(id).innerHTML=icons[icon];$(id).setAttribute('aria-label',label);$(id).title=label;$(id).classList.add('icon-button');}const fine=document.createElement('button');fine.id='poseFineTune';fine.textContent='微调';fine.setAttribute('aria-expanded','false');fine.onclick=()=>{const open=document.body.classList.toggle('pose-details-open');fine.setAttribute('aria-expanded',String(open));const details=$('posePanel').querySelector('details');if(details)details.open=open;};edits.append(fine);}
 // 微调沿用原角度字段，简版只呈现一个关节选择，不保留嵌套折叠层级。
-document.querySelector('.player').insertBefore($('capturePose'),document.querySelector('.player label'));
+document.querySelector('.player').insertBefore($('capturePose'),document.querySelector('.speed-control'));
 if(!poseEditingEnabled&&$('viewportPoseTools'))$('viewportPoseTools').hidden=true;
 // 编辑暂缓，单帧提取仍属于播放器；导入动作/姿势暂不开放。
 $('animationFiles').closest('label').hidden=true;
@@ -59,7 +62,7 @@ $('appendClips').hidden=true;
 const exportButton=document.createElement('button');exportButton.id='exportMotion';exportButton.textContent='导出';exportButton.disabled=true;document.querySelector('.section-head').append(exportButton);
 if(!advancedTools){const panel=$('posePanel'),details=panel.querySelector('details'),fields=document.createElement('div');fields.className='precision-fields';fields.append(details.querySelector('label'),details.querySelector('.angles'));details.replaceWith(fields);const head=document.createElement('div');head.className='precision-head';const title=document.createElement('strong');title.textContent='微调';const close=document.createElement('button');close.id='closePoseFineTune';close.className='icon-button';close.innerHTML=icons.x;close.setAttribute('aria-label','关闭微调');close.title='关闭微调';close.onclick=()=>{document.body.classList.remove('pose-details-open');$('poseFineTune').setAttribute('aria-expanded','false');};head.append(title,close);panel.prepend(head);stage.append(document.querySelector('.settings'));$('bone').setAttribute('aria-label','关节');}
 // 视角统一来自同一预设目录，界面分组不复制相机算法。
-$('viewPreset').replaceChildren();for(const name of new Set(viewPresets.map(p=>p.group))){const group=document.createElement('optgroup');group.label=name;for(const preset of viewPresets.filter(p=>p.group===name)){const option=document.createElement('option');option.value=preset.id;option.textContent=preset.label;group.append(option);}$('viewPreset').append(group);}
+$('viewPreset').replaceChildren();for(const [family,name] of [['perspective','自由视角'],['flat','平视'],['overhead','斜俯视'],['isometric','等角']]){const group=document.createElement('optgroup');group.label=name;const legend=document.createElement('legend');legend.textContent=name;group.append(legend);for(const preset of viewPresets.filter(p=>p.family===family)){const option=document.createElement('option');option.value=preset.id;option.textContent=preset.label;group.append(option);}$('viewPreset').append(group);}
 
 $('appendClips').onclick=()=> $(activeLibrary==='pose'?'poseFiles':'animationFiles').click();
 // 编辑工具使用统一图标；完整中文名称和快捷键保留在提示及无障碍标签中。
@@ -333,8 +336,8 @@ function syncModelMenu(){
 }
 async function refreshModelMenu(){
  const catalog=await readCatalog(),select=$('replaceModel');select.replaceChildren();
- const builtinGroup=document.createElement('optgroup');builtinGroup.label='内置模型';for(const model of builtins){const option=new Option(model.name,model.id);option.title=model.source;builtinGroup.append(option);}select.append(builtinGroup);
- const external=catalog.models.filter(model=>!model.builtinId);if(external.length){const group=document.createElement('optgroup');group.label='已导入模型';for(const model of external)group.append(new Option(model.name,model.key));select.append(group);}
+ const builtinGroup=document.createElement('optgroup');builtinGroup.label='内置模型';const builtinLegend=document.createElement('legend');builtinLegend.textContent=builtinGroup.label;builtinGroup.append(builtinLegend);for(const model of builtins){const option=new Option(model.name,model.id);option.title=model.source;builtinGroup.append(option);}select.append(builtinGroup);
+ const external=catalog.models.filter(model=>!model.builtinId);if(external.length){const group=document.createElement('optgroup');group.label='已导入模型';const legend=document.createElement('legend');legend.textContent=group.label;group.append(legend);for(const model of external)group.append(new Option(model.name,model.key));select.append(group);}
  select.append(new Option('导入模型…','import'));syncModelMenu();
 }
 $('replaceModel').onchange=async event=>{

@@ -1,6 +1,6 @@
 export function bindDesktopUpdates({prompts,isBusy,onError}){
  const bridge=globalThis.motionDeckDesktop;if(!bridge)return;
- const button=document.createElement('button');button.id='desktopUpdates';button.textContent='更新';button.title='检查更新';document.querySelector('.top').append(button);
+ const button=document.createElement('button');button.id='desktopUpdates';button.textContent='检查更新';button.title='软件更新';document.querySelector('#desktopSettingsDialog .settings-update').append(button);
  const dialog=document.createElement('dialog');dialog.id='desktopUpdateDialog';dialog.setAttribute('aria-labelledby','desktopUpdateTitle');
  dialog.innerHTML='<div class="dialog-head"><h2 id="desktopUpdateTitle">软件更新</h2><button id="closeDesktopUpdate" aria-label="关闭更新" type="button">×</button></div><p id="updateVersion"></p><p id="updateStatus" role="status"></p><progress id="updateProgress" max="100" value="0" hidden></progress><p class="update-security">未签名测试版 · 下载有完整性校验，无证书身份验证</p><div class="dialog-actions"><button id="updateReleasePage">下载页面</button><button id="checkDesktopUpdate">检查更新</button><button id="downloadDesktopUpdate" hidden>下载更新</button><button id="cancelDesktopUpdate" hidden>取消下载</button><button id="installDesktopUpdate" class="primary" hidden>重启更新</button></div>';
  document.body.append(dialog);

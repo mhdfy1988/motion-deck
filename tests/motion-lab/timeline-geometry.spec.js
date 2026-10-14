@@ -2,6 +2,24 @@ import {waitForModel} from './model-ready-helper.js';
 import {test,expect} from '@playwright/test';
 import {placeAction} from './drag-source-helper.js';
 
+test('默认界面的短片段不被留白撑宽，边缘与刻度共用零点及比例',async({page})=>{
+ await page.goto('/');await waitForModel(page,{actions:162});
+ const source=page.locator('#clips [data-clip-index]').first();
+ await placeAction(page,source);await placeAction(page,source);
+ const last=await page.locator('#segments .action').last().boundingBox();
+ await placeAction(page,page.locator('#transitionSource'),{x:last.x+8,y:last.y+25});
+ for(const zoom of [25,50,65]){
+  await page.locator('#timelineZoom').evaluate((node,value)=>{node.value=value;node.dispatchEvent(new Event('input',{bubbles:true}));},zoom);
+  const scale=Number(await page.locator('#timelineTrack').getAttribute('data-scale')),track=await page.locator('#timelineTrack').boundingBox();
+  for(const span of await page.locator('#segments button').evaluateAll(nodes=>nodes.map(n=>({x:n.getBoundingClientRect().x,width:n.getBoundingClientRect().width,start:Number(n.dataset.start),duration:Number(n.dataset.duration)})))){
+   expect(Math.abs(span.x-track.x-span.start*scale)).toBeLessThan(.5);
+   expect(Math.abs(span.width-span.duration*scale)).toBeLessThan(.5);
+  }
+  for(const tick of await page.locator('#timeRuler span.major').evaluateAll(nodes=>nodes.map(n=>({x:n.getBoundingClientRect().x,time:parseFloat(n.textContent)}))))expect(Math.abs(tick.x-track.x-tick.time*scale)).toBeLessThan(.5);
+ }
+ await page.screenshot({path:'output/acceptance/motion-short-spans-aligned.png'});
+});
+
 test('比例稳定、缩放只改显示、适合全部显式执行',async({page})=>{
  await page.goto('/');await waitForModel(page,{actions:162});await expect(page.locator('#status')).toContainText('162 动作');
  const source=page.locator('#clips [data-clip-index]').first();

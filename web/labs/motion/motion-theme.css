@@ -63,6 +63,8 @@ body:not(.advanced-tools) .top .titlebar-main{gap:18px;flex-shrink:0}
 body:not(.advanced-tools) .brand{color:#e8edf5;font-size:16px;font-weight:650;letter-spacing:.15px}
 body:not(.advanced-tools) #status{color:#8b909a;min-width:0;max-width:none;flex:1;text-align:right;font-size:11px}
 body:not(.advanced-tools) #replaceModel{background:#22252a;border-color:#353940;color:#d7dde6;min-height:30px;width:176px;font-size:12px;padding:4px 10px}
+body:not(.advanced-tools) .top :is(#desktopSettings,#replaceModel):hover:not(:disabled){background:#343b46;border-color:#687c95;color:#fff}
+body:not(.advanced-tools) .top :is(#desktopSettings,#replaceModel):active:not(:disabled){background:#29425c;border-color:#72b7ff;color:#fff}
 @media(max-width:760px){body:not(.advanced-tools) .top{gap:12px}body:not(.advanced-tools) .top .titlebar-main{gap:12px}body:not(.advanced-tools) .brand{font-size:14px;gap:7px}body:not(.advanced-tools) #replaceModel{width:132px}}
 body:not(.advanced-tools) .library{background:#1b1d21;border-color:#2b2e33;padding:20px 14px 14px;gap:14px}
 body:not(.advanced-tools) .section-head{padding:0 8px}
@@ -187,7 +189,42 @@ body:not(.advanced-tools) #welcome h1{font-size:26px;font-weight:600;letter-spac
 #clips .library-entry .library-delete:hover{color:#e9edf2;background:#353940}
 #clips .library-delete:focus-visible{outline:1px solid #72b7ff;outline-offset:1px}
 @media(hover:none){#clips .library-entry .library-delete{opacity:1;pointer-events:auto}}
-#desktopSettings{margin-left:16px;flex:none;padding:7px 13px}
+#desktopSettings{margin-left:16px;flex:none;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;min-height:34px;padding:7px;background:transparent;border-color:transparent;color:#b8c2d0}
+#desktopSettings svg{width:18px;height:18px}
+.speed-control{display:flex;align-items:center;gap:9px;flex-shrink:0;color:#8e95a2;font-size:11px}
+.speed-buttons{display:flex;gap:2px;padding:2px;border:1px solid #343b46;border-radius:6px;background:#15191e}
+.player .speed-buttons button,body:not(.advanced-tools) .player .speed-buttons button{width:auto;min-width:35px;min-height:24px;height:24px;padding:2px 5px;border:0;background:transparent;color:#909cab;font:11px Consolas,monospace;border-radius:4px}
+.player .speed-buttons button:hover,body:not(.advanced-tools) .player .speed-buttons button:hover{background:#303945;color:#e8f1fc}
+.player .speed-buttons button[aria-pressed=true],body:not(.advanced-tools) .player .speed-buttons button[aria-pressed=true]{background:#2d4057;color:#cde5ff}
+/* 使用浏览器可定制选择器，保留单一 value/change 链路和原生键盘语义。 */
+#replaceModel,#viewPreset,#replaceModel::picker(select),#viewPreset::picker(select){appearance:base-select}
+#replaceModel,#viewPreset{display:inline-flex;align-items:center;justify-content:space-between;gap:10px;white-space:nowrap;line-height:1.4}
+#replaceModel::picker-icon,#viewPreset::picker-icon{color:#98a4b5;font-size:10px;transition:rotate .15s}
+#replaceModel:open::picker-icon,#viewPreset:open::picker-icon{rotate:180deg}
+#replaceModel::picker(select),#viewPreset::picker(select){padding:8px;background:#202329;color:#dfe5ee;border:1px solid #3a414c;border-radius:8px;box-shadow:0 12px 30px #0007,0 2px 8px #0004;margin-top:7px;max-height:calc(100dvh - 140px);overflow:auto;font:12px/1.4 "DengXian","Microsoft YaHei UI",sans-serif}
+#replaceModel::picker(select){min-width:220px;max-width:min(320px,calc(100vw - 32px))}
+#viewPreset::picker(select){width:352px;max-width:calc(100vw - 32px);left:auto;right:anchor(right);top:calc(anchor(bottom) + 7px);margin-top:0}
+#replaceModel optgroup,#viewPreset optgroup{padding:0;margin:0;min-width:0;font-weight:400}
+#replaceModel legend,#viewPreset legend{padding:8px 9px 5px;color:#7f8b9c;font-size:10px;font-weight:500;letter-spacing:.3px}
+#replaceModel optgroup+optgroup,#viewPreset optgroup+optgroup{margin-top:8px;padding-top:5px;border-top:1px solid #343a44}
+#replaceModel option,#viewPreset option{display:flex;align-items:center;gap:8px;min-height:32px;padding:7px 10px;background:transparent;border:1px solid transparent;border-radius:5px;color:#c6d0df;font-weight:400;cursor:pointer;white-space:nowrap}
+#replaceModel option:hover,#viewPreset option:hover,#replaceModel option:focus-visible,#viewPreset option:focus-visible{background:#303945;color:#f0f5fc;outline:none}
+#replaceModel option:checked,#viewPreset option:checked{background:#26374a;border-color:#354e6b;color:#d7eaff}
+#replaceModel option::checkmark,#viewPreset option::checkmark{order:1;margin-left:auto;color:#79baff;font-size:12px}
+#replaceModel>option[value=import]{margin-top:7px;padding-top:9px;border-top:1px solid #343a44;border-radius:0 0 5px 5px;color:#95b9df}
+#viewPreset optgroup{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px}
+#viewPreset legend{grid-column:1/-1}
+#viewPreset option{font-size:11px;min-width:0;padding-inline:9px}
+/* 合并原生标题栏；交互控件不进入拖动区，系统窗口按钮保留安全空间。 */
+body.desktop-client .top{app-region:drag;-webkit-app-region:drag;padding-left:max(20px,env(titlebar-area-x,0px));padding-right:calc(100vw - env(titlebar-area-x,0px) - env(titlebar-area-width,100vw) + 20px);user-select:none}
+body.desktop-client .top :is(button,select,input,a){app-region:no-drag;-webkit-app-region:no-drag}
+.settings-update{display:flex;justify-content:flex-end;border-top:1px solid #343a43;margin-top:20px;padding-top:16px}
+/* 边框和文字留白只做视觉处理，不能撑大短片段而累积时间误差。 */
+body:not(.advanced-tools) #timelineTrack #segments button{padding-inline:0;border-width:0;box-shadow:inset 0 0 0 1px #414956}
+body:not(.advanced-tools) #timelineTrack #segments button :is(span,small){padding-inline:6px}
+body:not(.advanced-tools) #timelineTrack #segments .transition{box-shadow:inset 0 0 0 1px #456b91}
+body:not(.advanced-tools) #timelineTrack #segments .selected{box-shadow:inset 0 0 0 1px #72b7ff,inset 0 -2px #72b7ff}
+body:not(.advanced-tools) #timelineTrack #segments .playing{box-shadow:inset 0 0 0 1px #72b7ff,inset 0 -3px #72b7ff}
 #desktopUpdates{margin-left:8px;flex:none;padding:7px 13px}#desktopUpdates[data-available="true"]{color:#a3ceff;border-color:#5c98d0}
 #desktopUpdateDialog{width:min(470px,calc(100vw - 48px));padding:24px;border:1px solid #3b424c;border-radius:10px;background:#1b1e23;color:#e1e6ec}#desktopUpdateDialog::backdrop{background:#000a}#desktopUpdateDialog h2{margin:0;font-size:17px}#updateVersion{font-size:13px;color:#a8b3c1;margin-top:24px}#updateStatus{font-size:14px;line-height:1.6;overflow-wrap:anywhere;min-height:26px}#updateProgress{width:100%;height:7px;accent-color:#72b7ff}.update-security{font-size:11px;color:#8791a0;margin:20px 0}#desktopUpdateDialog .dialog-actions{flex-wrap:wrap}
 #desktopSettingsDialog{width:min(760px,calc(100vw - 48px));padding:24px;border:1px solid #3b424c;border-radius:10px;background:#1b1e23;color:#e1e6ec}
@@ -197,3 +234,62 @@ body:not(.advanced-tools) #welcome h1{font-size:26px;font-weight:600;letter-spac
 .directory-row{display:grid;grid-template-columns:72px minmax(0,1fr) 54px 54px;gap:12px;align-items:center;padding:15px 0;border-bottom:1px solid #343a43}
 .directory-row strong{font-size:13px;font-weight:500}.directory-row span{font-size:12px;color:#a8b3c1;overflow-wrap:anywhere}
 .data-actions{display:flex;gap:10px;margin-top:22px}#desktopSettingsStatus{font-size:12px;color:#a8b3c1;min-height:20px;overflow-wrap:anywhere;margin:16px 0 0}#desktopSettingsStatus.error{color:#efa0a0}
+/* 排版尺度统一：保留配色及面板结构，时间轴宽度、零点和采样完全不变。 */
+body:not(.advanced-tools){--sidebar-width:280px;--text-main:#f0f1f4;--text-secondary:#a9afb9;--muted:#a0a7b2;font-family:"Segoe UI","Microsoft YaHei UI",sans-serif;font-size:14px;line-height:1.5}
+body:not(.advanced-tools) :is(button,input,select){font-family:inherit;font-size:14px}
+body:not(.advanced-tools) :is(button,select):disabled{opacity:.42}
+body:not(.advanced-tools) main{grid-template-columns:var(--sidebar-width) minmax(0,1fr)}
+/* 顶栏分区共用素材栏宽度，竖线对齐主区域 8px 间隙的中心。 */
+body:not(.advanced-tools) .top{--titlebar-inset:20px;padding-left:var(--titlebar-inset)}
+body:not(.advanced-tools).desktop-client .top{--titlebar-inset:max(20px,env(titlebar-area-x,0px))}
+body:not(.advanced-tools) .top .titlebar-main{display:grid;grid-template-columns:calc(var(--sidebar-width) + 12px - var(--titlebar-inset)) 1px auto;gap:0;align-items:center}
+body:not(.advanced-tools) .top .titlebar-divider{width:1px}
+body:not(.advanced-tools) .top .model-control{margin-left:18px}
+.model-control>label{font-size:12px;color:#a9afb9;white-space:nowrap;app-region:no-drag;-webkit-app-region:no-drag}
+body:not(.advanced-tools) .library{padding:20px 16px 16px;gap:16px}
+body:not(.advanced-tools) .section-head{align-items:center}
+body:not(.advanced-tools) .section-head h2{font-size:16px;font-weight:600;letter-spacing:0;margin:0}
+body:not(.advanced-tools) #exportMotion{font-size:13px;min-height:32px;padding:5px 12px;color:var(--text-main)}
+body:not(.advanced-tools) .library-tabs button{font-size:13px;height:36px;min-height:36px;color:var(--text-secondary);font-weight:400}
+body:not(.advanced-tools) #librarySearch{font-size:13px;height:36px;padding:7px 12px}
+body:not(.advanced-tools) #librarySearch::placeholder{color:#959ca7}
+body:not(.advanced-tools) .library-group summary{font-size:13px;color:var(--text-secondary);padding:10px;letter-spacing:0}
+body:not(.advanced-tools) .library-group summary small{font-size:12px;color:#969eaa}
+body:not(.advanced-tools) .clips button{min-height:34px;padding:6px 10px;font-size:13px;font-weight:400;line-height:20px;color:var(--text-main)}
+body:not(.advanced-tools) .clips button small{font:12px/20px Consolas,monospace;color:var(--text-secondary)}
+body:not(.advanced-tools) .transition-library .motion-source-card{padding:10px 12px}
+body:not(.advanced-tools) .transition-library span{font-size:13px}
+body:not(.advanced-tools) .transition-library small{font-size:12px;color:var(--text-secondary)}
+body:not(.advanced-tools) #status{font-size:12px;color:var(--text-secondary)}
+body:not(.advanced-tools) .brand{font-size:18px}
+body:not(.advanced-tools) #replaceModel{font-size:13px;min-height:32px;width:176px}
+body:not(.advanced-tools) .view-head{height:54px}
+body:not(.advanced-tools) .view-head button,body:not(.advanced-tools) .toggle{font-size:13px;color:#c7ccd4}
+body:not(.advanced-tools) .toggle input{width:14px;height:14px}
+body:not(.advanced-tools) #viewPreset{font-size:13px;min-height:32px;width:184px;padding:5px 10px}
+body:not(.advanced-tools) .view-head .icon-button{width:36px;height:36px;padding:8px}
+body:not(.advanced-tools) .view-head .icon-button svg{width:20px;height:20px}
+body:not(.advanced-tools) .player{height:64px;gap:14px}
+body:not(.advanced-tools) #currentClip{font-size:13px;font-weight:400;color:var(--text-main)}
+body:not(.advanced-tools) #previewContext{font-size:12px;color:var(--text-secondary)}
+body:not(.advanced-tools) .player #capturePose{font-size:13px;min-height:32px;padding:5px 12px;color:var(--text-main)}
+body:not(.advanced-tools) .player #clock{font-size:12px;color:var(--text-secondary)}
+body:not(.advanced-tools) .speed-control{font-size:12px;color:var(--text-secondary)}
+body:not(.advanced-tools) .player .speed-buttons button{font:13px/22px Consolas,monospace;min-width:40px;min-height:30px;height:30px;color:var(--text-secondary)}
+body:not(.advanced-tools) .player .speed-buttons button[aria-pressed=true]{color:#cde5ff}
+body:not(.advanced-tools) .timeline-head{gap:10px;padding-block:10px}
+body:not(.advanced-tools) .timeline-head button{font-size:14px;min-height:36px;padding-block:6px;color:var(--text-main)}
+body:not(.advanced-tools) .timeline-head .timeline-edge-modes button{font-size:13px;min-height:30px;padding:4px 9px}
+body:not(.advanced-tools) .timeline-head .icon-button{width:36px;height:36px;padding:8px;color:#c7ccd4}
+body:not(.advanced-tools) .timeline-head .icon-button svg{width:20px;height:20px}
+body:not(.advanced-tools) .timeline-head :is(.selection-count,.timeline-zoom output){font-size:12px;color:var(--text-secondary)}
+body:not(.advanced-tools) .timeline-head .timeline-zoom button{font-size:12px;min-height:30px}
+body:not(.advanced-tools) #timeRuler span{font-size:12px;color:#a0a8b4}
+body:not(.advanced-tools) #timelineTrack #segments button{font-size:14px}
+body:not(.advanced-tools) #segments .empty{font-size:14px;color:#a0a8b4}
+#replaceModel::picker(select),#viewPreset::picker(select){font:13px/1.5 "Segoe UI","Microsoft YaHei UI",sans-serif}
+#replaceModel legend,#viewPreset legend{font-size:12px;color:#a0a8b4}
+#viewPreset option{font-size:13px}
+@media(max-width:1100px){body:not(.advanced-tools){--sidebar-width:232px}body:not(.advanced-tools) .library{padding-inline:12px}body:not(.advanced-tools) .timeline-head{gap:5px;padding-inline:12px}body:not(.advanced-tools) .timeline-head button{padding-inline:7px}body:not(.advanced-tools) .timeline-zoom input{width:54px}body:not(.advanced-tools) .view-head>div{gap:8px}body:not(.advanced-tools) .player{gap:10px}}
+@media(max-height:700px){body:not(.advanced-tools) .library{padding-block:12px;gap:8px}body:not(.advanced-tools) .library-tabs button{height:36px;min-height:36px}body:not(.advanced-tools) .library-group summary{padding-block:6px}body:not(.advanced-tools) .transition-library{padding-top:8px}body:not(.advanced-tools) .transition-library .motion-source-card{padding-block:8px}}
+@media(max-width:760px){body:not(.advanced-tools){--sidebar-width:180px}body:not(.advanced-tools) .brand{font-size:14px}body:not(.advanced-tools) .top .model-control{margin-left:10px;gap:6px}body:not(.advanced-tools) #replaceModel{width:112px;font-size:12px;min-height:30px}body:not(.advanced-tools) #status{font-size:11px}}

@@ -12,7 +12,7 @@ export function validateLocalReport(report,minimum,required){
  return start;
 }
 export async function assertLocalAcceptance(root){
- const specs=[['local-web.json',51,config.testMatch],['local-desktop.json',5,['client.spec.js','directories.spec.js','updates.spec.js']]];
+ const specs=[['local-web.json',51,config.testMatch],['local-desktop.json',7,['client.spec.js','directories.spec.js','updates.spec.js','chrome.spec.js','startup-shutdown.spec.js','timeline-controls.spec.js']]];
  let earliest=Infinity;
  for(const [file,minimum,required] of specs){
   const report=JSON.parse(await readFile(join(root,'output/acceptance',file),'utf8'));
@@ -23,5 +23,5 @@ export async function assertLocalAcceptance(root){
  for(const path of paths)if((await stat(join(root,path))).mtimeMs>earliest)throw new Error('验收后实现或测试已变更，需重跑：'+path);
  const archive=join(root,'output/desktop/MotionDeck-win32-x64/resources/app.asar');
  if((await stat(archive)).mtimeMs>earliest)throw new Error('验收后客户端已重新打包，需重跑');
- return {web:51,desktop:5};
+ return {web:51,desktop:7};
 }
