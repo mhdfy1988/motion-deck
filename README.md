@@ -101,4 +101,4 @@ Windows 浏览器回归使用 Chrome，录像验证需 FFmpeg/ffprobe 在 PATH �
 
 2026-10-14：客户端0.1.0未签名预发布版正在收口。数据管理和真实NSIS升级验收已完成，领域55项通过；发布、最终回归与远端状态以[当前任务](docs/stages/current-todo.md)和[验证记录](docs/verification.md)为准。尚无签名、跨平台安装或GitHub Pages部署。
 
-GitHub自动验证需单独核对，不能用本地通过代替远端通过。此前`310a1b3`的[检查](https://github.com/mhdfy1988/motion-deck/actions/runs/38418414006)有3项浏览器失败：2项素材导出用例超时、1项模型加载断言超时；新桌面CI尚未在远端验证。详细历史与本轮验收见[验证记录](docs/verification.md)。
+GitHub自动检查仅构建、素材校验及领域测试，不部署网站。完整界面、桌面及真实安装升级回归以本地验收为准；保留手动`full_regression`入口，默认不执行重型回归。发布脚本要求完整本地JSON报告无失败、无跳过，且实现、测试和客户端包未在验收后变化；基础CI仍须通过。具体命令及证据见[本地验收](docs/references/local-acceptance.md)，历史云端失败仍保留在验证记录中，不视为已修复。

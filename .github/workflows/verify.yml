@@ -4,6 +4,10 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
+      full_regression:
+        description: 'Run browser and desktop regression manually (normally tested locally)'
+        type: boolean
+        default: false
       pose_diagnostics:
         description: 'Only profile the pose-library regression (not a release gate)'
         type: boolean
@@ -34,10 +38,13 @@ jobs:
       - run: npm run assets:verify
       - run: npm test
       - run: npx playwright install chrome
+        if: ${{ inputs.full_regression }}
       - name: Prepare and validate pinned FFmpeg
+        if: ${{ inputs.full_regression }}
         shell: pwsh
         run: ./scripts/prepare-ci-ffmpeg.ps1 -Destination (Join-Path $env:RUNNER_TEMP 'motiondeck-ffmpeg')
       - run: npm run test:e2e
+        if: ${{ inputs.full_regression }}
       - name: Preserve browser failure diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
@@ -46,7 +53,7 @@ jobs:
           path: test-results/
           retention-days: 7
   desktop:
-    if: ${{ !inputs.pose_diagnostics }}
+    if: ${{ inputs.full_regression && !inputs.pose_diagnostics }}
     runs-on: windows-latest
     timeout-minutes: 20
     steps:

@@ -3,6 +3,7 @@ import {spawnSync,execFileSync} from 'node:child_process';
 import {readFile,writeFile} from 'node:fs/promises';
 import {resolve,join} from 'node:path';
 import {createHash} from 'node:crypto';
+import {assertLocalAcceptance} from './local-acceptance-gate.mjs';
 const root=resolve(import.meta.dirname,'..'),pkg=JSON.parse(await readFile(join(root,'package.json'),'utf8')),mode=process.argv[2]??'status';
 if(!['status','draft','publish','verify'].includes(mode))throw new Error('发布操作无效');
 const credential=spawnSync('git',['-c','credential.interactive=never','credential','fill'],{cwd:root,input:'protocol=https\nhost=github.com\nusername=mhdfy1988\n\n',encoding:'utf8',windowsHide:true,env:{...process.env,GIT_TERMINAL_PROMPT:'0',GCM_INTERACTIVE:'never'}});
@@ -17,13 +18,14 @@ else{
  const directory=join(root,'output/desktop/installer'),tag='v'+pkg.version;
  const releases=await api(repository+'/releases');let release=releases.find(item=>item.tag_name===tag);
  if(mode==='draft'){
+  await assertLocalAcceptance(root);
   const runs=await api(repository+'/actions/runs?head_sha='+sha);let passedGate=false;
   for(const run of runs.workflow_runs.filter(run=>run.status==='completed'&&run.conclusion==='success')){
    const {jobs}=await api(repository+'/actions/runs/'+run.id+'/jobs');
-   // 定向诊断运行不能替代完整网页及真实桌面门禁。
-   if(['verify','desktop'].every(name=>jobs.some(job=>job.name===name&&job.conclusion==='success'))){passedGate=true;break;}
+   // 基础CI仍需通过；完整网页/桌面验收由上面的本地报告门禁负责。
+   if(jobs.some(job=>job.name==='verify'&&job.conclusion==='success')){passedGate=true;break;}
   }
-  if(!passedGate)throw new Error('当前提交尚无网页及桌面均成功的完整远端门禁，拒绝发布');
+  if(!passedGate)throw new Error('当前提交尚无成功基础CI，拒绝发布');
   if(!release)release=await api(repository+'/releases',{method:'POST',body:JSON.stringify({tag_name:tag,target_commitish:sha,name:'MotionDeck '+tag+' · 未签名测试版',body:await readFile(join(directory,'release-notes.md'),'utf8'),draft:true,prerelease:true,generate_release_notes:false})});
   if(!release.draft)throw new Error('版本已公开，禁止覆盖发布文件');
   for(const name of [`MotionDeck-${pkg.version}-setup-x64.exe`,`MotionDeck-${pkg.version}-setup-x64.exe.blockmap`,'latest.yml','SHA256SUMS.txt']){
