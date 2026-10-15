@@ -6,6 +6,8 @@ AI工作区增加网页2项与真实包2项用例，当前完整门禁最低网�
 
 2026-10-14按用户决定调整：GitHub自动只执行npm ci、构建、18项素材校验与领域测试。浏览器、录制与真实NSIS升级测试默认不在测试机自动运行；可手动选择full_regression。没有部署云端网页。
 
+2026-10-15基础CI的领域测试显式`--test-concurrency=1`，避免Windows ACL子进程冷启动与其他文件测试竞争资源；不改安全超时、不跳过真实管道测试。[Node测试并发说明](https://nodejs.org/api/cli.html#--test-concurrency)确认该选项控制测试文件子进程数量；与用例内部并发、客户端命令队列无关。CI实测结果见verification.md。
+
 ## 运行顺序
 
 1. npm.cmd run desktop:installer：先构建及准备真实客户端/安装器，测试开始后不能再改包。

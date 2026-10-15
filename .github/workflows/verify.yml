@@ -36,7 +36,8 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run assets:verify
-      - run: npm test
+      # 真实Windows ACL子进程与求解器测试不争用冷启动资源，保留原10秒安全预算。
+      - run: node --test --test-concurrency=1 tests/web/*.test.mjs
       - run: npx playwright install chrome
         if: ${{ inputs.full_regression }}
       - name: Prepare and validate pinned FFmpeg
