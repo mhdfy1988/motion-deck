@@ -11,4 +11,5 @@ if ($Mode -eq 'admin-owner') {
  & (Join-Path $env:SystemRoot 'System32\icacls.exe') $resolved '/setowner' '*S-1-5-32-544' '/Q' | Out-Null
  if ($LASTEXITCODE -ne 0) { throw 'Test owner update failed' }
 }
-@{current=$identity.User.Value;owner=(Get-Acl -LiteralPath $resolved).GetOwner([System.Security.Principal.SecurityIdentifier]).Value;elevated=$elevated} | ConvertTo-Json -Compress
+$acl=Get-Acl -LiteralPath $resolved
+@{current=$identity.User.Value;owner=$acl.GetOwner([System.Security.Principal.SecurityIdentifier]).Value;elevated=$elevated;rules=@($acl.GetAccessRules($true,$true,[System.Security.Principal.SecurityIdentifier]) | ForEach-Object { @{sid=$_.IdentityReference.Value;inherited=$_.IsInherited;rights=$_.FileSystemRights.ToString()} })} | ConvertTo-Json -Compress -Depth 4

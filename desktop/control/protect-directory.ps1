@@ -7,7 +7,7 @@ function Assert-PrivateAcl($item,$acl,$currentSid,$systemSid) {
  $selfAllowed=$false
  foreach ($rule in $acl.GetAccessRules($true,$true,[System.Security.Principal.SecurityIdentifier])) {
   if ($rule.AccessControlType -ne 'Allow') { throw 'Unexpected deny rule' }
-  if ($rule.IdentityReference.Value -notin @($currentSid.Value,$systemSid.Value)) { throw 'Control path accessible to another principal' }
+  if ($rule.IdentityReference.Value -notin @($currentSid.Value,$systemSid.Value)) { throw "Control path accessible to another principal (sid=$($rule.IdentityReference.Value); inherited=$($rule.IsInherited); rights=$($rule.FileSystemRights))" }
   if ($rule.IdentityReference.Value -eq $currentSid.Value -and ($rule.FileSystemRights -band [System.Security.AccessControl.FileSystemRights]::FullControl) -eq [System.Security.AccessControl.FileSystemRights]::FullControl) { $selfAllowed=$true }
  }
  if (-not $selfAllowed) { throw 'Current user permission missing' }
