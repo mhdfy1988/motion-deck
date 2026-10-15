@@ -1,4 +1,4 @@
-param([Parameter(Mandatory=$true)][string]$Directory,[ValidateSet('protect','seal-file','verify')][string]$Mode='verify')
+﻿param([Parameter(Mandatory=$true)][string]$Directory,[ValidateSet('protect','seal-file','verify')][string]$Mode='verify')
 $ErrorActionPreference='Stop'
 function Assert-PrivateAcl($item,$acl,$currentSid,$systemSid) {
  if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'Control path must not be a reparse point' }
@@ -40,6 +40,14 @@ try {
   $icacls=Join-Path $env:SystemRoot 'System32\icacls.exe'
   & $icacls $Directory '/grant:r' ('*'+$currentSid.Value+':(OI)(CI)F') '*S-1-5-18:(OI)(CI)F' '/inheritance:r' '/Q' | Out-Null
   if ($LASTEXITCODE -ne 0) { throw 'Private ACL update failed' }
+  $acl=Get-Acl -LiteralPath $Directory
+ }
+ if ($Mode -ne 'verify') {
+  # /inheritance:r只移除继承项；默认创建者模板及管理员显式许可也必须收紧。
+  foreach ($bootstrapSid in @('*S-1-3-0','*S-1-5-32-544')) {
+   & (Join-Path $env:SystemRoot 'System32\icacls.exe') $Directory '/remove:g' $bootstrapSid '/Q' | Out-Null
+   if ($LASTEXITCODE -ne 0) { throw 'Private bootstrap ACL cleanup failed' }
+  }
   $acl=Get-Acl -LiteralPath $Directory
  }
  Assert-PrivateAcl $item $acl $currentSid $systemSid

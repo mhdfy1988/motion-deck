@@ -51,7 +51,7 @@ test('Windows真实管道/ACL：分片、认证、过期、去重、状态与禁
 
 test('Windows所有者：初始化归属当前用户，读取不修复篡改，临时文件需私有父目录',async t=>{
  await mkdir(resolve('output/control-tests'),{recursive:true});const personal=await mkdtemp(resolve('output/control-tests/owner-')),directory=join(personal,'control');await mkdir(directory);
- const before=await ownerFixture(directory);t.diagnostic(JSON.stringify(before));
+ await ownerFixture(directory,'bootstrap-grants');const before=await ownerFixture(directory);t.diagnostic(JSON.stringify(before));
  await assert.rejects(verifyPrivatePath(directory));
  await verifyPrivatePath(directory,'protect');assert.equal((await ownerFixture(directory)).owner,before.current);
  const temp=join(directory,'instance-11111111-1111-1111-1111-111111111111.tmp');await writeFile(temp,'fixture',{flag:'wx'});
@@ -68,4 +68,7 @@ test('Windows所有者：初始化归属当前用户，读取不修复篡改，�
  }
  const unsafe=join(personal,'unsafe');await mkdir(unsafe);const outside=join(unsafe,'instance-22222222-2222-2222-2222-222222222222.tmp');await writeFile(outside,'fixture',{flag:'wx'});
  await assert.rejects(verifyPrivatePath(outside,'seal-file'));
+ const env=Object.fromEntries(Object.entries(process.env).filter(([key])=>key.toUpperCase()!=='PSMODULEPATH'));
+ await promisify(execFile)(join(process.env.SystemRoot,'System32/WindowsPowerShell/v1.0/powershell.exe'),['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',resolve('tests/helpers/control-acl-tamper.ps1'),'-Directory',directory],{env,windowsHide:true});
+ await assert.rejects(verifyPrivatePath(directory,'protect'),/another principal/);
 });

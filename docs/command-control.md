@@ -134,6 +134,8 @@ node scripts/motion-command.mjs --data-dir "$env:APPDATA\MotionDeck" --operation
 
 ## 安全与打包边界
 
+初始化还会移除默认的管理员组与创建者占位许可（`S-1-5-32-544`、`S-1-3-0`），因为`/inheritance:r`不删除显式项；不允许将它们保留为最终白名单。其他显式主体仍导致失败。Windows PowerShell 5.1执行的辅助脚本使用UTF-8 BOM，避免中文注释被系统代码页误解。创建者语义见[微软已知SID定义](https://learn.microsoft.com/en-us/windows/win32/secauthz/well-known-sids)。
+
 个人目录的 `control/instance.json` 包含本次令牌。服务启用前收紧 `control/` 的 Windows DACL，命令客户端每次连接前核对目录/文件所有者及许可：只接受当前用户与 SYSTEM，拒绝链接、继承宽权限、其他主体或缺少当前用户权限。系统管理员/同用户恶意进程不在隔离保证内。
 
 脚本只接受本机 `\\.\pipe\motiondeck-<随机ID>` 端点，没有 TCP/HTTP 服务。不声称 Node 管道天然拒绝 SMB 远程连接：Node24.14.0的libuv无 `PIPE_REJECT_REMOTE_CLIENTS`。A3延续私有凭据、认证和固定白名单，另增加用户明确授权，拒绝任意代码/路径/编排写入；未改变系统SMB/防火墙，也未做跨机器渗透审计。若令牌被同用户恶意程序或管理员窃取，本次姿势权限可被滥用，这不是强系统隔离；不要在不可信共用账号环境开启。
