@@ -36,18 +36,12 @@ try {
   if ($LASTEXITCODE -ne 0) { throw 'Private owner update failed' }
   $acl=Get-Acl -LiteralPath $Directory
  }
- if ($Mode -eq 'protect') {
-  $icacls=Join-Path $env:SystemRoot 'System32\icacls.exe'
-  & $icacls $Directory '/grant:r' ('*'+$currentSid.Value+':(OI)(CI)F') '*S-1-5-18:(OI)(CI)F' '/inheritance:r' '/Q' | Out-Null
-  if ($LASTEXITCODE -ne 0) { throw 'Private ACL update failed' }
-  $acl=Get-Acl -LiteralPath $Directory
- }
  if ($Mode -ne 'verify') {
-  # /inheritance:r只移除继承项；默认创建者模板及管理员显式许可也必须收紧。
-  foreach ($bootstrapSid in @('*S-1-3-0','*S-1-5-32-544')) {
-   & (Join-Path $env:SystemRoot 'System32\icacls.exe') $Directory '/remove:g' $bootstrapSid '/Q' | Out-Null
-   if ($LASTEXITCODE -ne 0) { throw 'Private bootstrap ACL cleanup failed' }
-  }
+  # 明确替换DACL，而非在继承/显式混合规则上逐项增删；不修改SACL或其他路径。
+  if ($item.PSIsContainer) { $desired=New-Object System.Security.AccessControl.DirectorySecurity; $inherit='OICI' }
+  else { $desired=New-Object System.Security.AccessControl.FileSecurity; $inherit='' }
+  $desired.SetSecurityDescriptorSddlForm("D:P(A;$inherit;FA;;;$($currentSid.Value))(A;$inherit;FA;;;SY)",[System.Security.AccessControl.AccessControlSections]::Access)
+  $item.SetAccessControl($desired)
   $acl=Get-Acl -LiteralPath $Directory
  }
  Assert-PrivateAcl $item $acl $currentSid $systemSid

@@ -70,5 +70,7 @@ test('Windows所有者：初始化归属当前用户，读取不修复篡改，�
  await assert.rejects(verifyPrivatePath(outside,'seal-file'));
  const env=Object.fromEntries(Object.entries(process.env).filter(([key])=>key.toUpperCase()!=='PSMODULEPATH'));
  await promisify(execFile)(join(process.env.SystemRoot,'System32/WindowsPowerShell/v1.0/powershell.exe'),['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',resolve('tests/helpers/control-acl-tamper.ps1'),'-Directory',directory],{env,windowsHide:true});
- await assert.rejects(verifyPrivatePath(directory,'protect'),/another principal/);
+ await assert.rejects(verifyPrivatePath(directory),/another principal/);
+ await verifyPrivatePath(directory,'protect');await verifyPrivatePath(directory);
+ assert.deepEqual((await ownerFixture(directory)).rules.map(rule=>rule.sid).sort(),[before.current,'S-1-5-18'].sort());
 });
