@@ -2,7 +2,7 @@
 
 Windows 上的 3D 姿势与动作编排工具。可手动组合素材，也可让 AI 通过本机命令试摆、编排、截图检查并保存成果，无需云端服务或 Python 后端。
 
-当前准备发布 **v0.2.0 未签名测试版**；技能独立版本为 `0.1.0`。发布完成前，公开版本仍为 [v0.1.1](https://github.com/mhdfy1988/motion-deck/releases/tag/v0.1.1)，不包含本机命令、AI 工作区和随包技能。
+当前已发布 [v0.2.0 未签名测试版](https://github.com/mhdfy1988/motion-deck/releases/tag/v0.2.0)；技能独立版本为 `0.1.0`，随安装包提供。
 
 ## 安装与更新
 
