@@ -74,7 +74,7 @@ function createControlServer({personal,dispatch}){
   const temp=path.join(directory,'instance-'+current.sessionId+'.tmp');
   try{
    await writeFile(temp,JSON.stringify({protocolVersion:1,pid:process.pid,sessionId:current.sessionId,endpoint:current.endpoint,token:current.token}),{encoding:'utf8',flag:'wx'});
-   await verifyPrivatePath(temp);await rename(temp,discovery);await verifyPrivatePath(discovery);
+   await verifyPrivatePath(temp,'seal-file');await rename(temp,discovery);await verifyPrivatePath(discovery);
   }catch(error){await stop();await rm(temp,{force:true});throw fail('AUTH_FAILED','凭据目录或文件权限验证失败');}
   return state();
  }

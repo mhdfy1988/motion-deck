@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,mkdir,readFile} from 'node:fs/promises';
+import {mkdtemp,mkdir,readFile,writeFile} from 'node:fs/promises';
 import {resolve,join} from 'node:path';
 import net from 'node:net';
 import {createRequire} from 'node:module';
@@ -11,6 +11,12 @@ import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 const require=createRequire(import.meta.url),{createControlServer}=require('../../desktop/control/server.cjs'),{sendQuery,readConnection}=require('../../desktop/control/client.cjs');
 const {request:validate}=require('../../desktop/control/validators.generated.cjs');
+const {verifyPrivatePath}=require('../../desktop/control/private-directory.cjs');
+async function ownerFixture(target,mode='inspect'){
+ const env=Object.fromEntries(Object.entries(process.env).filter(([key])=>key.toUpperCase()!=='PSMODULEPATH'));
+ const {stdout}=await promisify(execFile)(join(process.env.SystemRoot,'System32/WindowsPowerShell/v1.0/powershell.exe'),['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',resolve('tests/helpers/control-owner-fixture.ps1'),'-Target',target,'-Mode',mode],{env,windowsHide:true});
+ return JSON.parse(stdout);
+}
 function raw(info,request,chunks=false){return new Promise((resolve,reject)=>{const socket=net.createConnection(info.endpoint);let text='';socket.on('error',reject);socket.setTimeout(3000,()=>socket.destroy(new Error('test timeout')));socket.on('connect',()=>{const bytes=Buffer.from(JSON.stringify(request)+'\n');if(chunks){socket.write(bytes.subarray(0,7));setTimeout(()=>socket.write(bytes.subarray(7)),5);}else socket.write(bytes);});socket.on('data',bytes=>{text+=bytes.toString();if(text.includes('\n')){socket.destroy();resolve(JSON.parse(text));}});});}
 test('协议拒绝缺少版本的写请求、未知参数和非法分页，不暴露工作台方法',()=>{
  const request={protocolVersion:1,requestId:'r',sessionId:'s',token:'0'.repeat(64),operation:'session.inspect',args:{}};
@@ -41,4 +47,25 @@ test('Windows真实管道/ACL：分片、认证、过期、去重、状态与禁
   await assert.rejects(readConnection(personal),{code:'AUTH_FAILED'});
   await server.setEnabled(false);assert.equal(server.state().enabled,false);await assert.rejects(readFile(join(personal,'control/instance.json')),{code:'ENOENT'});
  }finally{await server.close();}
+});
+
+test('Windows所有者：初始化归属当前用户，读取不修复篡改，临时文件需私有父目录',async t=>{
+ await mkdir(resolve('output/control-tests'),{recursive:true});const personal=await mkdtemp(resolve('output/control-tests/owner-')),directory=join(personal,'control');await mkdir(directory);
+ const before=await ownerFixture(directory);t.diagnostic(JSON.stringify({initialOwner:before.owner,current:before.current,elevated:before.elevated}));
+ await assert.rejects(verifyPrivatePath(directory));
+ await verifyPrivatePath(directory,'protect');assert.equal((await ownerFixture(directory)).owner,before.current);
+ const temp=join(directory,'instance-11111111-1111-1111-1111-111111111111.tmp');await writeFile(temp,'fixture',{flag:'wx'});
+ await verifyPrivatePath(temp,'seal-file');await verifyPrivatePath(temp);assert.equal((await ownerFixture(temp)).owner,before.current);
+ await assert.rejects(verifyPrivatePath(temp,'protect'));
+ // GitHub提权运行器会进入此分支；普通本地账号照常执行其他全部断言。
+ if(before.elevated){
+  await ownerFixture(temp,'admin-owner');await assert.rejects(verifyPrivatePath(temp),/owner mismatch/);
+  await assert.rejects(verifyPrivatePath(temp,'protect'));
+  assert.equal((await ownerFixture(temp)).owner,'S-1-5-32-544');
+  await verifyPrivatePath(temp,'seal-file');assert.equal((await ownerFixture(temp)).owner,before.current);
+  await ownerFixture(directory,'admin-owner');await assert.rejects(verifyPrivatePath(directory),/owner mismatch/);
+  await verifyPrivatePath(directory,'protect');await verifyPrivatePath(directory);
+ }
+ const unsafe=join(personal,'unsafe');await mkdir(unsafe);const outside=join(unsafe,'instance-22222222-2222-2222-2222-222222222222.tmp');await writeFile(outside,'fixture',{flag:'wx'});
+ await assert.rejects(verifyPrivatePath(outside,'seal-file'));
 });

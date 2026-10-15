@@ -142,6 +142,10 @@ node scripts/motion-command.mjs --data-dir "$env:APPDATA\MotionDeck" --operation
 
 ACL 辅助脚本通过 Windows 自带 `icacls` 写 DACL、再独立读取校验；子进程删除继承的 PSModulePath，让 Windows PowerShell 5.1 使用自己的模块。仅为此子进程使用执行策略参数，不更改系统/用户策略。打包仅将 `desktop/control/protect-directory.ps1` 放到 `app.asar.unpacked`，外部 PowerShell 使用明确解包路径，不静默回落其他脚本。
 
+提权进程可能默认以管理员组而非账号SID创建对象。服务初始化的`protect`仅处理控制目录，`seal-file`仅处理服务以`wx`新建的随机临时凭据，并先严格校验私有父目录；只有当前进程确实提权且原所有者为内置管理员组时，才通过`icacls /setowner`明确改为当前账号。随后仍逐项校验所有者和DACL，失败中止。客户端的`verify`始终只读，发现管理员组所有者也拒绝，不替外部路径修复权限，不接受其他账号。没有放宽最终安全条件。
+
+源码依据：[微软新对象所有者规则](https://learn.microsoft.com/en-us/windows/win32/secauthz/owner-of-a-new-object)说明默认所有者来自创建进程令牌，不保证等于用户SID；[icacls文档](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/icacls)定义`/setowner`。落点为`desktop/control/protect-directory.ps1`及`server.cjs`，真实回归为`tests/web/control-protocol.test.mjs`；提权用例需由GitHub Windows运行器实际覆盖，普通本地账号不能冒充已验过该分支。
+
 技术方案见 [assistant-control.md](assistant-control.md)，验证记录见 [verification.md](verification.md)。
 
 ### 连续关键姿势（v0.2.0）
