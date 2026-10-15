@@ -134,7 +134,7 @@ node scripts/motion-command.mjs --data-dir "$env:APPDATA\MotionDeck" --operation
 
 ## 安全与打包边界
 
-初始化还会移除默认的管理员组与创建者占位许可（`S-1-5-32-544`、`S-1-3-0`），因为`/inheritance:r`不删除显式项；不允许将它们保留为最终白名单。其他显式主体仍导致失败。Windows PowerShell 5.1执行的辅助脚本使用UTF-8 BOM，避免中文注释被系统代码页误解。创建者语义见[微软已知SID定义](https://learn.microsoft.com/en-us/windows/win32/secauthz/well-known-sids)。
+初始化在所有者检查通过后，用Windows自带.NET的DirectorySecurity/FileSecurity明确写入受保护DACL，仅当前账号与SYSTEM拥有完全控制；不在原有混合继承规则上逐项增删。范围仅控制目录及私有父目录中新建的随机临时凭据，不改其他目录或审计表。客户端verify只读、对所有额外主体或所有者变化继续拒绝；服务重新初始化则可重新收紧当前账号所有的目录，不把旧许可保留为fallback。Windows PowerShell 5.1执行的辅助脚本使用UTF-8 BOM，避免中文注释被系统代码页误解。
 
 个人目录的 `control/instance.json` 包含本次令牌。服务启用前收紧 `control/` 的 Windows DACL，命令客户端每次连接前核对目录/文件所有者及许可：只接受当前用户与 SYSTEM，拒绝链接、继承宽权限、其他主体或缺少当前用户权限。系统管理员/同用户恶意进程不在隔离保证内。
 
@@ -142,11 +142,11 @@ node scripts/motion-command.mjs --data-dir "$env:APPDATA\MotionDeck" --operation
 
 主进程不持有第二份骨架，固定 IPC 只转发白名单查询/姿势操作，渲染调用共享操作层。令牌不进入渲染页面、结果或日志；固定截图落盘桥仅在已授权截图请求期间接收受限PNG字节。不暴露任意脚本、IPC、文件路径读写，沙箱/隔离/来源校验保持。
 
-ACL 辅助脚本通过 Windows 自带 `icacls` 写 DACL、再独立读取校验；子进程删除继承的 PSModulePath，让 Windows PowerShell 5.1 使用自己的模块。仅为此子进程使用执行策略参数，不更改系统/用户策略。打包仅将 `desktop/control/protect-directory.ps1` 放到 `app.asar.unpacked`，外部 PowerShell 使用明确解包路径，不静默回落其他脚本。
+ACL辅助脚本通过Windows自带.NET写入DACL、再独立读取校验；仅所有者规范化使用`icacls /setowner`。子进程删除继承的PSModulePath，让Windows PowerShell 5.1使用自己的模块。仅为此子进程使用执行策略参数，不更改系统/用户策略。打包仅将`desktop/control/protect-directory.ps1`放到`app.asar.unpacked`，外部PowerShell使用明确解包路径，不静默回落其他脚本。
 
 提权进程可能默认以管理员组而非账号SID创建对象。服务初始化的`protect`仅处理控制目录，`seal-file`仅处理服务以`wx`新建的随机临时凭据，并先严格校验私有父目录；只有当前进程确实提权且原所有者为内置管理员组时，才通过`icacls /setowner`明确改为当前账号。随后仍逐项校验所有者和DACL，失败中止。客户端的`verify`始终只读，发现管理员组所有者也拒绝，不替外部路径修复权限，不接受其他账号。没有放宽最终安全条件。
 
-源码依据：[微软新对象所有者规则](https://learn.microsoft.com/en-us/windows/win32/secauthz/owner-of-a-new-object)说明默认所有者来自创建进程令牌，不保证等于用户SID；[icacls文档](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/icacls)定义`/setowner`。落点为`desktop/control/protect-directory.ps1`及`server.cjs`，真实回归为`tests/web/control-protocol.test.mjs`；提权用例需由GitHub Windows运行器实际覆盖，普通本地账号不能冒充已验过该分支。
+源码依据：[微软新对象所有者规则](https://learn.microsoft.com/en-us/windows/win32/secauthz/owner-of-a-new-object)说明默认所有者来自创建进程令牌，不保证等于用户SID；[icacls文档](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/icacls)定义`/setowner`；[DirectorySecurity](https://learn.microsoft.com/en-us/dotnet/api/system.security.accesscontrol.directorysecurity)提供DACL构建与落盘。落点为`desktop/control/protect-directory.ps1`及`server.cjs`，真实回归为`tests/web/control-protocol.test.mjs`；提权用例需由GitHub Windows运行器实际覆盖，普通本地账号不能冒充已验过该分支。
 
 技术方案见 [assistant-control.md](assistant-control.md)，验证记录见 [verification.md](verification.md)。
 
