@@ -6,7 +6,8 @@ try {
  $item=Get-Item -LiteralPath $Directory -Force
  if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'Control path must not be a reparse point' }
  $acl=Get-Acl -LiteralPath $Directory
- if ($acl.GetOwner([System.Security.Principal.SecurityIdentifier]).Value -ne $currentSid.Value) { throw 'Control path owner mismatch' }
+ $ownerSid=$acl.GetOwner([System.Security.Principal.SecurityIdentifier]).Value
+ if ($ownerSid -ne $currentSid.Value) { throw "Control path owner mismatch (owner=$ownerSid; current=$($currentSid.Value); mode=$Mode; directory=$($item.PSIsContainer))" }
  if ($Mode -eq 'protect') {
   if (-not $item.PSIsContainer) { throw 'Only the private control directory can be protected' }
   $icacls=Join-Path $env:SystemRoot 'System32\icacls.exe'
