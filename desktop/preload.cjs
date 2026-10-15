@@ -1,6 +1,18 @@
 const {contextBridge,ipcRenderer}=require('electron');
 // 只暴露固定业务操作，绝不暴露ipcRenderer、Node或任意文件路径读写。
 contextBridge.exposeInMainWorld('motionDeckDesktop',Object.freeze({
+ controlState:()=>ipcRenderer.invoke('motiondeck:control','state'),
+ setControlEnabled:enabled=>ipcRenderer.invoke('motiondeck:control','enable',enabled),
+ setControlWrite:enabled=>ipcRenderer.invoke('motiondeck:control','write',enabled),
+ setControlTimeline:enabled=>ipcRenderer.invoke('motiondeck:control','timeline',enabled),
+ saveControlExport:bytes=>ipcRenderer.invoke('motiondeck:control-export',bytes),
+ controlDraftState:dirty=>ipcRenderer.invoke('motiondeck:control','draft',dirty),
+ saveControlCapture:bytes=>ipcRenderer.invoke('motiondeck:control-capture',bytes),
+ saveControlManifest:value=>ipcRenderer.invoke('motiondeck:control-manifest',value),
+ saveControlVideo:value=>ipcRenderer.invoke('motiondeck:control-video',value),
+ controlReady:()=>ipcRenderer.invoke('motiondeck:control','ready'),
+ answerControlQuery:value=>ipcRenderer.invoke('motiondeck:control-reply',value),
+ onControlQuery:callback=>{const listener=(_event,value)=>callback(value);ipcRenderer.on('motiondeck:control-query',listener);return ()=>ipcRenderer.removeListener('motiondeck:control-query',listener);},
  getRecord:id=>ipcRenderer.invoke('motiondeck:data','get',id),
  putRecords:payload=>ipcRenderer.invoke('motiondeck:data','put',payload),
  migrationInfo:()=>ipcRenderer.invoke('motiondeck:data','info'),

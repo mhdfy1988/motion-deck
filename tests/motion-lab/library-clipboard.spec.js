@@ -1,0 +1,11 @@
+import {test,expect} from '@playwright/test';
+import {waitForModel} from './model-ready-helper.js';
+test('默认及自定义动作键盘/右键复制粘贴，姿势类型隔离，刷新持久化',async({page})=>{
+ await page.goto('/');await waitForModel(page,{actions:162});
+ const source=page.locator('#clips [data-clip-index]').first();await source.focus();await source.press('Control+c');await source.press('Control+v');
+ const actions=page.locator('#clips [data-custom-id]');await expect(actions).toHaveCount(1);const id=await actions.first().getAttribute('data-custom-id');await actions.first().press('Control+c');await actions.first().press('Control+v');await expect(actions).toHaveCount(2);await expect(actions.last()).toContainText('副本 副本');
+ await page.locator('#library-pose').click();await page.locator('#clips').focus();await page.locator('#clips').press('Control+v');await expect(page.locator('#status')).toContainText('对应类型');await expect(page.locator('#clips [data-pose-id]:not([data-pose-id^="builtin:"])')).toHaveCount(0);
+ const pose=page.locator('#clips [data-pose-id^="builtin:"]').first();await pose.click();await expect(pose).toBeFocused();await page.keyboard.press('Control+c');await pose.click({button:'right'});await page.getByRole('menuitem',{name:'复制（Ctrl+C）',exact:true}).click();await page.locator('#pose-library-custom').click({button:'right'});await page.screenshot({path:'output/acceptance/library-clipboard-menu.png'});await page.getByRole('menuitem',{name:'粘贴到自定义姿势库（Ctrl+V）',exact:true}).click();
+ const poses=page.locator('#clips [data-pose-id]:not([data-pose-id^="builtin:"])');await expect(poses).toHaveCount(1);await poses.first().press('Control+c');await poses.first().press('Control+v');await expect(poses).toHaveCount(2);await expect(page.locator('#segments button')).toHaveCount(0);
+ await page.reload();await waitForModel(page);await page.locator('#library-pose').click();await expect(poses).toHaveCount(2);await page.locator('#pose-library-default').click();await pose.click();await expect(pose).toBeFocused();await page.keyboard.press('Control+c');await page.keyboard.press('Control+v');await expect(poses).toHaveCount(3);await page.locator('#library-actions').click();await page.locator('#library-custom').click();await expect(page.locator('#clips [data-custom-id="'+id+'"]')).toHaveCount(1);await expect(actions).toHaveCount(2);
+});

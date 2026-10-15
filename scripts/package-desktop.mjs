@@ -2,6 +2,7 @@ import {packager} from '@electron/packager';
 import {mkdir,mkdtemp,cp,readFile,writeFile,stat} from 'node:fs/promises';
 import {resolve,join,relative,sep} from 'node:path';
 import {valid} from 'semver';
+import {packageSkills} from './package-skills.mjs';
 
 const root=resolve(import.meta.dirname,'..'),variant=process.env.MOTIONDECK_BUILD_VARIANT??'public';
 if(!['public','acceptance'].includes(variant))throw new Error('构建类型无效');
@@ -24,8 +25,12 @@ for(const resource of JSON.parse(await readFile(join(root,'fixtures/manifest.jso
 await cp(join(root,'fixtures/manifest.json'),join(stage,'fixtures/manifest.json'));
 for(const file of ['LICENSE','THIRD_PARTY_NOTICES.md'])await cp(join(root,file),join(stage,file));
 await writeFile(join(stage,'package.json'),JSON.stringify({name:variant==='acceptance'?'motiondeck-acceptance':'motion-deck',productName,version,license:'MIT',main:'desktop/main.cjs',description:pkg.description},null,2)+'\n','utf8');
-const paths=await packager({dir:stage,name:productName,platform:'win32',arch:'x64',electronVersion:pkg.devDependencies.electron,out:output,icon:join(root,'desktop/assets/motiondeck.ico'),overwrite:true,asar:true,prune:false,win32metadata:{CompanyName:'MotionDeck',FileDescription:'MotionDeck 动作编排工具',ProductName:productName}});
+const paths=await packager({dir:stage,name:productName,platform:'win32',arch:'x64',electronVersion:pkg.devDependencies.electron,out:output,icon:join(root,'desktop/assets/motiondeck.ico'),overwrite:true,asar:{unpack:'**/desktop/control/protect-directory.ps1'},prune:false,win32metadata:{CompanyName:'MotionDeck',FileDescription:'MotionDeck 动作编排工具',ProductName:productName}});
 const packageDir=paths[0],archive=join(packageDir,'resources/app.asar');
+// 技能保留在归档外，NSIS沿用整个免安装目录，用户可直接复制使用。
+const skills=await packageSkills(join(packageDir,'skills'));
+// 官方Node模式复用客户端内置运行时；命令子进程不创建GUI或初始化素材库。
+await writeFile(join(packageDir,'MotionDeck-command.cmd'),['@echo off','setlocal','set ELECTRON_RUN_AS_NODE=1',`"%~dp0${productName}.exe" "%~dp0resources\\app.asar\\desktop\\control\\command.cjs" %*`,'exit /b %errorlevel%',''].join('\r\n'),'ascii');
 await writeFile(join(packageDir,'resources/motiondeck-distribution.json'),JSON.stringify({format:'motiondeck-distribution',kind:'portable',variant,productName,appId,version})+'\n','utf8');
 export const packaged={root,packageDir,stage,output,version,productName,appId,variant,electronVersion:pkg.devDependencies.electron};
-console.log(JSON.stringify({packageDir,executable:join(packageDir,productName+'.exe'),archive,archiveBytes:(await stat(archive)).size,stage},null,2));
+console.log(JSON.stringify({packageDir,executable:join(packageDir,productName+'.exe'),archive,archiveBytes:(await stat(archive)).size,skills:skills.skills.map(({name,version})=>({name,version})),stage},null,2));

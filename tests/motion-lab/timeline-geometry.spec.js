@@ -2,6 +2,23 @@ import {waitForModel} from './model-ready-helper.js';
 import {test,expect} from '@playwright/test';
 import {placeAction} from './drag-source-helper.js';
 
+test('片段类型底纹与选中描边分离，过渡选中和播放组合不抹掉类型，短片段几何不变',async({page})=>{
+ await page.goto('/');await waitForModel(page,{actions:162});
+ const source=page.locator('#clips [data-clip-index]').first();await placeAction(page,source);await placeAction(page,source);
+ const last=await page.locator('#segments .action').last().boundingBox();await placeAction(page,page.locator('#transitionSource'),{x:last.x+8,y:last.y+25});
+ const action=page.locator('#segments .action').first(),transition=page.locator('#segments .transition');
+ const style=locator=>locator.evaluate(n=>({background:getComputedStyle(n).backgroundColor,image:getComputedStyle(n).backgroundImage,shadow:getComputedStyle(n).boxShadow,width:n.getBoundingClientRect().width}));
+ await action.click();await page.mouse.move(20,20);const selectedAction=await style(action),ordinaryTransition=await style(transition);
+ expect(selectedAction.background).toBe('rgb(37, 42, 50)');expect(selectedAction.shadow).toContain('rgb(130, 189, 255)');expect(selectedAction.image).toBe('none');
+ expect(ordinaryTransition.background).toBe('rgb(48, 45, 39)');expect(ordinaryTransition.image).toContain('repeating-linear-gradient');expect(ordinaryTransition.shadow).not.toContain('rgb(130, 189, 255)');
+ await page.screenshot({path:'output/acceptance/timeline-selected-action.png'});
+ await transition.click();await page.mouse.move(20,20);const selectedTransition=await style(transition);expect(selectedTransition.background).toBe(ordinaryTransition.background);expect(selectedTransition.image).toBe(ordinaryTransition.image);expect(selectedTransition.shadow).toContain('rgb(130, 189, 255)');expect(selectedTransition.shadow).toContain('rgb(206, 215, 226)');expect(selectedTransition.width).toBe(ordinaryTransition.width);
+ await page.screenshot({path:'output/acceptance/timeline-selected-transition.png'});
+ await page.locator('#timelineZoom').evaluate(node=>{node.value=25;node.dispatchEvent(new Event('input',{bubbles:true}));});
+ const scale=Number(await page.locator('#timelineTrack').getAttribute('data-scale')),track=await page.locator('#timelineTrack').boundingBox();
+ for(const b of await page.locator('#segments button').evaluateAll(nodes=>nodes.map(n=>({x:n.getBoundingClientRect().x,width:n.getBoundingClientRect().width,start:Number(n.dataset.start),duration:Number(n.dataset.duration)})))){expect(Math.abs(b.x-track.x-b.start*scale)).toBeLessThan(.5);expect(Math.abs(b.width-b.duration*scale)).toBeLessThan(.5);}
+});
+
 test('默认界面的短片段不被留白撑宽，边缘与刻度共用零点及比例',async({page})=>{
  await page.goto('/');await waitForModel(page,{actions:162});
  const source=page.locator('#clips [data-clip-index]').first();

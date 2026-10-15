@@ -4,11 +4,14 @@ import {createReadStream} from 'node:fs';
 import {mkdir,mkdtemp,readFile,stat} from 'node:fs/promises';
 import {resolve,join,sep} from 'node:path';
 import {spawn} from 'node:child_process';
+import {createHash} from 'node:crypto';
 import {setTimeout as delay} from 'node:timers/promises';
 
 const root=resolve('.');
 function command(executable,args){return new Promise((resolve,reject)=>{const child=spawn(executable,args,{windowsHide:true,stdio:'pipe'});let error='';child.stderr.on('data',data=>error+=data);child.on('error',reject);child.on('exit',code=>code===0?resolve():reject(new Error('安装器退出 '+code+' '+error)));});}
 function launch(exe,dataDir,feed){const env={...process.env,MOTIONDECK_DATA_DIR:dataDir,MOTIONDECK_TEST_UPDATE_URL:feed};delete env.ELECTRON_RUN_AS_NODE;return electron.launch({executablePath:exe,args:['--smoke-hidden'],env,timeout:30000});}
+// 固定旧夹具来自顶栏独立更新页；不能拿新版设置入口操作尚未升级的旧界面。
+async function openOldUpdate(page){await page.locator('#desktopUpdates').click();await expect(page.locator('#desktopUpdateDialog')).toBeVisible();}
 
 test('真实NSIS安装、取消/失败重试、退出不安装、升级保留数据、卸载保留数据',async()=>{
  test.setTimeout(600000);
@@ -33,19 +36,24 @@ test('真实NSIS安装、取消/失败重试、退出不安装、升级保留数
   expect((await page.evaluate(()=>motionDeckDesktop.updateState())).currentVersion).toBe('0.0.1');
   await page.locator('#capturePose').click();await page.locator('#poseName').fill('升级保留姿势');await page.locator('#confirmPoseSave').click();await expect(page.locator('#savePoseDialog')).not.toBeVisible();
   const before=await page.evaluate(()=>motionDeckDesktop.settings());
-  await page.locator('#desktopUpdates').click();await page.locator('#checkDesktopUpdate').click();await expect(page.locator('#updateStatus')).toContainText('更新失败');
+  await openOldUpdate(page);await page.locator('#checkDesktopUpdate').click();await expect(page.locator('#updateStatus')).toContainText('更新失败');
   mode='slow';await page.locator('#checkDesktopUpdate').click();await expect(page.locator('#updateStatus')).toHaveText('发现新版本');await page.locator('#downloadDesktopUpdate').click();await expect(page.locator('#updateProgress')).toBeVisible();await expect.poll(()=>downloads).toBeGreaterThan(0);await page.locator('#cancelDesktopUpdate').click();await expect(page.locator('#updateStatus')).toHaveText('发现新版本');
   mode='corrupt';await page.locator('#downloadDesktopUpdate').click();await expect(page.locator('#updateStatus')).toContainText('更新失败',{timeout:60000});expect((await page.evaluate(()=>motionDeckDesktop.updateState())).status).toBe('error');await expect(page.locator('#installDesktopUpdate')).not.toBeVisible();
   mode='normal';await page.locator('#downloadDesktopUpdate').click();await expect(page.locator('#updateStatus')).toHaveText('下载与校验完成',{timeout:60000});await page.screenshot({path:'output/acceptance/motion-desktop-update.png'});
   await client.close();client=undefined;await delay(1500);
   // 普通退出不能安装下载好的更新。
   client=await launch(exe,dataDir,feed);page=await client.firstWindow();await expect(page.locator('#capturePose')).toBeEnabled();expect((await page.evaluate(()=>motionDeckDesktop.updateState())).currentVersion).toBe('0.0.1');
-  await page.locator('#desktopUpdates').click();await page.locator('#checkDesktopUpdate').click();await expect(page.locator('#updateStatus')).toHaveText('发现新版本');await page.locator('#downloadDesktopUpdate').click();await expect(page.locator('#updateStatus')).toHaveText('下载与校验完成',{timeout:60000});
+  await openOldUpdate(page);await page.locator('#checkDesktopUpdate').click();await expect(page.locator('#updateStatus')).toHaveText('发现新版本');await page.locator('#downloadDesktopUpdate').click();await expect(page.locator('#updateStatus')).toHaveText('下载与校验完成',{timeout:60000});
   const closed=new Promise(resolve=>client.once('close',resolve));await page.locator('#installDesktopUpdate').click();
   // 更新会在真实点击后关闭客户端；只接受预期的目标关闭，随后仍必须核对版本和原资料。
   await Promise.all([closed,page.locator('#motionConfirmDialog .primary').click().catch(error=>{if(!/Target page, context or browser has been closed/.test(error.message))throw error;})]);client=undefined;
   await expect.poll(async()=>JSON.parse(await readFile(join(installDir,'resources','motiondeck-distribution.json'),'utf8')).version,{timeout:90000}).toBe('0.0.2');
   client=await launch(exe,dataDir,feed);page=await client.firstWindow();await expect(page.locator('#capturePose')).toBeEnabled();expect((await page.evaluate(()=>motionDeckDesktop.updateState())).currentVersion).toBe('0.0.2');const after=await page.evaluate(()=>motionDeckDesktop.settings());expect(after.library).toBe(before.library);expect(after.records).toBe(before.records);await page.locator('#library-pose').click();await expect(page.locator('#clips')).toContainText('升级保留姿势');
+  // 新版必须使用内嵌更新区，并且实际安装目录带上可独立复制的完整技能。
+  await page.locator('#desktopSettings').click();await expect(page.locator('#desktopUpdateDialog')).toHaveCount(0);await expect(page.locator('#updateVersion')).toHaveText('当前版本 0.0.2');await page.locator('#checkDesktopUpdate').click();await expect(page.locator('#checkDesktopUpdate')).toHaveText('已是最新');await page.locator('#closeDesktopSettings').click();
+  const skillManifest=JSON.parse(await readFile(join(installDir,'skills/manifest.json'),'utf8')),skill=skillManifest.skills[0];expect(skill.name).toBe('motiondeck-director');expect(await readFile(join(installDir,'skills/motiondeck-director/SKILL.md'),'utf8')).toContain('version: "'+skill.version+'"');
+  for(const file of skill.files){const bytes=await readFile(join(installDir,'skills',file.path));expect(createHash('sha256').update(bytes).digest('hex')).toBe(file.sha256);expect(bytes).toEqual(await readFile(join(root,'skills',file.path)));}
+  expect(await readFile(join(installDir,'skills/使用说明.md'),'utf8')).toBe(await readFile(join(root,'skills/使用说明.md'),'utf8'));
   await client.close();client=undefined;
   // 精确限制卸载范围；正式MotionDeck安装目录和个人目录不在目标内。
   if(!installDir.startsWith(join(root,'output','update-acceptance')+sep))throw new Error('卸载目标越界');

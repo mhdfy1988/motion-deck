@@ -1,6 +1,6 @@
 {
   "name": "motion-deck",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "license": "MIT",
   "private": true,
   "engines": {
@@ -16,12 +16,12 @@
     "build:desktop-icons": "node scripts/build-desktop-icons.mjs",
     "dev": "node scripts/serve-motion-lab.mjs",
     "prestart": "npm run build",
-    "start": "electron .",
+    "start": "node scripts/start-desktop-dev.mjs",
     "test": "node --test tests/web/*.test.mjs",
     "test:e2e": "playwright test --config playwright.config.js",
     "assets:verify": "node scripts/verify-assets.mjs",
     "predesktop:dev": "npm run build",
-    "desktop:dev": "electron .",
+    "desktop:dev": "node scripts/start-desktop-dev.mjs",
     "predesktop:pack": "npm run build",
     "desktop:pack": "node scripts/package-desktop.mjs",
     "predesktop:installer": "npm run build",

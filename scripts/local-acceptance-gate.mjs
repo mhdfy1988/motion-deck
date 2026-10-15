@@ -12,16 +12,17 @@ export function validateLocalReport(report,minimum,required){
  return start;
 }
 export async function assertLocalAcceptance(root){
- const specs=[['local-web.json',51,config.testMatch],['local-desktop.json',7,['client.spec.js','directories.spec.js','updates.spec.js','chrome.spec.js','startup-shutdown.spec.js','timeline-controls.spec.js']]];
+ const specs=[['local-web.json',63,config.testMatch],['local-desktop.json',21,['client.spec.js','directories.spec.js','updates.spec.js','chrome.spec.js','startup-shutdown.spec.js','timeline-controls.spec.js','workbench-operations.spec.js','control-command.spec.js','pose-command.spec.js','timeline-command.spec.js','dev-auto-control.spec.js','review-command.spec.js','root-motion-command.spec.js','library-rename.spec.js','library-clipboard.spec.js','ai-workspace.spec.js']]];
  let earliest=Infinity;
  for(const [file,minimum,required] of specs){
   const report=JSON.parse(await readFile(join(root,'output/acceptance',file),'utf8'));
   const start=validateLocalReport(report,minimum,required);
   earliest=Math.min(earliest,start);
  }
- const paths=execFileSync('git',['ls-files','web','desktop','fixtures','tests','package.json','package-lock.json','playwright.config.js','playwright.desktop.config.js','scripts/build*','scripts/package*'],{cwd:root,encoding:'utf8'}).trim().split(/\r?\n/).filter(Boolean);
+ // NUL分隔保留中文、空格及引号，不把Git展示用转义文本当作真实路径。
+ const paths=execFileSync('git',['ls-files','-z','--cached','--others','--exclude-standard','web','desktop','fixtures','skills','tests','package.json','package-lock.json','playwright.config.js','playwright.desktop.config.js','scripts','.github/workflows'],{cwd:root,encoding:'utf8'}).split('\0').filter(Boolean);
  for(const path of paths)if((await stat(join(root,path))).mtimeMs>earliest)throw new Error('验收后实现或测试已变更，需重跑：'+path);
  const archive=join(root,'output/desktop/MotionDeck-win32-x64/resources/app.asar');
  if((await stat(archive)).mtimeMs>earliest)throw new Error('验收后客户端已重新打包，需重跑');
- return {web:51,desktop:7};
+ return {web:63,desktop:21};
 }

@@ -1,0 +1,23 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import * as THREE from 'three';
+import {createSessionState} from '../../web/labs/motion/application/session-state.js';
+import {createWorkbenchOperations} from '../../web/labs/motion/application/workbench-operations.js';
+import {PoseSampler,capturePose} from '../../web/labs/motion/core/sequence-core.js';
+function setup(){const state=createSessionState(null),root=new THREE.Group(),bone=new THREE.Bone();root.add(bone);state.root=root;state.modelKey='a'.repeat(64);state.bones=[bone];state.sampler=new PoseSampler(root);state.clips=[new THREE.AnimationClip('idle',1,[])];const workbench=createWorkbenchOperations(state);workbench.fromClip({clipId:workbench.libraryList().entries[0].id,time:0,modelKey:state.modelKey,revision:0});return {state,root,bone,workbench,expected:()=>({modelKey:state.modelKey,revision:workbench.inspect().revision})};}
+test('批量旋转整笔提交/验证失败不变/撤销重做深拷贝',()=>{const {state,root,bone,workbench,expected}=setup(),before=capturePose(root),q=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),.4).toArray();const revision=state.revision;
+ assert.throws(()=>workbench.setBones([{id:'node:1',quaternion:q},{id:'node:999',quaternion:q}],expected()),{code:'INVALID_ARGUMENT'});assert.deepEqual(capturePose(root),before);assert.equal(state.revision,revision);
+ workbench.setBones([{id:'node:1',quaternion:q}],expected());assert.deepEqual(bone.quaternion.toArray(),q);assert.throws(()=>workbench.setBones([{id:'node:1',quaternion:[0,0,0,0]}],expected()),{code:'INVALID_ARGUMENT'});
+ workbench.draftHistory('undo',expected());assert.deepEqual(capturePose(root),before);workbench.draftHistory('redo',expected());assert.deepEqual(bone.quaternion.toArray(),q);assert.equal(state.poseDraft.undo.length,1);
+});
+test('骨骼局部位置与旋转同笔提交，非法位置不改变草稿，撤销恢复',()=>{const {root,bone,workbench,expected}=setup(),before=capturePose(root),q=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),.2).toArray();
+ assert.throws(()=>workbench.setBones([{id:'node:1',quaternion:q,position:[0,Infinity,0]}],expected()),{code:'INVALID_ARGUMENT'});assert.deepEqual(capturePose(root),before);
+ workbench.setBones([{id:'node:1',quaternion:q,position:[.1,.2,-.3]}],expected());assert.deepEqual(bone.position.toArray(),[.1,.2,-.3]);assert.deepEqual(bone.quaternion.toArray(),q);
+ workbench.draftHistory('undo',expected());assert.deepEqual(capturePose(root),before);
+});
+test('保存失败保留草稿/历史/可见姿势，确认保存不覆盖默认或同名自定义',async()=>{const {state,root,workbench,expected}=setup();let fail=true;workbench.configure({savePose:async()=>{if(fail)throw new Error('disk failed');}});const before=capturePose(root);
+ await assert.rejects(workbench.saveDraft({name:'新姿势',confirmed:true},expected()),/disk failed/);assert.equal(state.busy,false);assert.ok(state.poseDraft);assert.equal(state.poses.length,0);assert.deepEqual(capturePose(root),before);
+ fail=false;const saved=await workbench.saveDraft({name:'新姿势',confirmed:true},expected());assert.equal(state.poseDraft,null);assert.equal(state.poses[0].id,saved.id);assert.equal(state.mode,'pose');
+ workbench.fromClip({clipId:workbench.libraryList().entries[0].id,time:0,modelKey:state.modelKey,revision:expected().revision});await assert.rejects(workbench.saveDraft({name:'新姿势',confirmed:true},expected()),{code:'DUPLICATE_NAME'});await assert.rejects(workbench.saveDraft({name:'其他',confirmed:false},expected()),{code:'INVALID_ARGUMENT'});
+});
+test('异步保存期间拒绝模型/骨架修改，截图失败恢复busy和播放状态',async()=>{const {state,workbench,expected}=setup();let finish;workbench.configure({savePose:()=>new Promise(resolve=>finish=resolve),captureViews:async()=>{throw new Error('capture failed');}});const saving=workbench.saveDraft({name:'姿势',confirmed:true},expected());assert.equal(state.busy,true);assert.throws(()=>workbench.setBones([{id:'node:1',quaternion:[0,0,0,1]}],expected()),{code:'BUSY'});finish();await saving;state.playing=true;await assert.rejects(workbench.captureViews(['front'],expected()),/capture failed/);assert.equal(state.busy,false);assert.equal(state.playing,true);});

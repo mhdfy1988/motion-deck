@@ -81,6 +81,7 @@ jobs:
       - shell: pwsh
         run: |
           $env:MOTIONDECK_PACKAGED_EXE = Join-Path $pwd 'output/desktop/MotionDeck-win32-x64/MotionDeck.exe'
+          $env:MOTIONDECK_DEV_PREVIEW_EXE = Join-Path $pwd 'output/update-acceptance/new/MotionDeckAcceptance-win32-x64/MotionDeckAcceptance.exe'
           $env:MOTIONDECK_TEST_OLD_INSTALLER = Join-Path $pwd 'output/update-acceptance/old/installer/MotionDeckAcceptance-0.0.1-setup-x64.exe'
           $env:MOTIONDECK_TEST_NEW_INSTALLER = Join-Path $pwd 'output/update-acceptance/new/installer/MotionDeckAcceptance-0.0.2-setup-x64.exe'
           npm.cmd run desktop:test

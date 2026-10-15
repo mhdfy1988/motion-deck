@@ -4,6 +4,7 @@ import {GLTFExporter} from 'three/addons/exporters/GLTFExporter.js';
 import {zipSync} from 'three/addons/libs/fflate.module.js';
 import {applyPose,PoseSampler,compileSequence,sampleSequence,clipKeyTimes} from '../core/sequence-core.js';
 import {encodeAction,decodeAction} from '../core/action-codec.js';
+import {createRootMotionFilter} from '../core/root-motion.js';
 
 const MAX_BYTES=128*1024**2;
 export function exportName(value){return (value.replace(/[\\/:*?"<>|\x00-\x1f]/g,'_').replace(/[. ]+$/g,'').slice(0,80)||'素材');}
@@ -18,16 +19,17 @@ export function exportTimes(sequence){
  const unique=new Map();for(const time of times){const key=Math.fround(time);unique.set(key,Math.max(time,unique.get(key)??time));}
  if(unique.size>12000)throw new Error('动作采样点超过导出预算');return [...unique.values()].sort((a,b)=>a-b);
 }
-export function bakeExportAction(root,sampler,items,name,budget={bytes:0}){
+export function bakeExportAction(root,sampler,items,name,budget={bytes:0},rootMotion){
  const sequence=compileSequence(items,sampler),times=exportTimes(sequence),nodes=[];root.traverse(node=>nodes.push(node));
  const widths=nodes.map(node=>10+(node.morphTargetInfluences?.length??0)),bytes=times.length*widths.reduce((a,b)=>a+b,0)*4;
  budget.bytes+=bytes;if(budget.bytes>MAX_BYTES)throw new Error('动画数据超过128 MiB导出预算，请减少选择');
  const values=nodes.map(node=>({p:new Float32Array(times.length*3),q:new Float32Array(times.length*4),s:new Float32Array(times.length*3),m:node.morphTargetInfluences?new Float32Array(times.length*node.morphTargetInfluences.length):null}));
- times.forEach((time,frame)=>{const pose=sampleSequence(sequence,time,sampler).pose;pose.forEach((v,i)=>{values[i].p.set(v.p,frame*3);values[i].q.set(v.q,frame*4);values[i].s.set(v.s,frame*3);if(values[i].m)values[i].m.set(v.m,frame*v.m.length);});});
+ const filter=createRootMotionFilter(root,sampleSequence(sequence,0,sampler).pose,rootMotion);
+ times.forEach((time,frame)=>{const pose=filter(sampleSequence(sequence,time,sampler).pose);pose.forEach((v,i)=>{values[i].p.set(v.p,frame*3);values[i].q.set(v.q,frame*4);values[i].s.set(v.s,frame*3);if(values[i].m)values[i].m.set(v.m,frame*v.m.length);});});
  const tracks=[];nodes.forEach((node,i)=>{const v=values[i];tracks.push(new THREE.VectorKeyframeTrack(node.uuid+'.position',times,v.p),new THREE.QuaternionKeyframeTrack(node.uuid+'.quaternion',times,v.q),new THREE.VectorKeyframeTrack(node.uuid+'.scale',times,v.s));if(v.m)tracks.push(new THREE.NumberKeyframeTrack(node.uuid+'.morphTargetInfluences',times,v.m));});
  return new THREE.AnimationClip(name,sequence.duration,tracks);
 }
-export async function exportMotionAssets({root,base,entries,modelName,copyright='',signal,onProgress=()=>{}}){
+export async function exportMotionAssets({root,base,entries,modelName,copyright='',signal,onProgress=()=>{},rootMotion}){
  if(!root||!entries.length)throw new Error('请选择要导出的素材');if(entries.length>64)throw new Error('一次最多导出64项素材');
  const check=()=>{if(signal?.aborted)throw new DOMException('已取消导出','AbortError');};
  const copy=clone(root);applyPose(copy,base);const sampler=new PoseSampler(copy),exporter=new GLTFExporter(),budget={bytes:0},files={},used=new Set();
@@ -36,7 +38,7 @@ export async function exportMotionAssets({root,base,entries,modelName,copyright=
  const binary=async(animations)=>{check();const data=await exporter.parseAsync(copy,{binary:true,animations,onlyVisible:false,trs:true,copyright});check();totalBytes+=data.byteLength;if(totalBytes>MAX_BYTES)throw new Error('导出文件超过128 MiB，请减少选择');return new Uint8Array(data);};
  try{
   const actions=entries.filter(entry=>entry.kind==='action'),poses=entries.filter(entry=>entry.kind==='pose'),clips=[];
-  const animationNames=new Set();for(const entry of actions){check();const data=encodeAction(entry.items,'export',entry.name,root),items=decodeAction(data,copy);let name=entry.name,index=2;while(animationNames.has(name))name=`${entry.name} (${index++})`;animationNames.add(name);clips.push(bakeExportAction(copy,sampler,items,name,budget));onProgress('准备动作 '+entry.name);await new Promise(resolve=>setTimeout(resolve,0));}
+  const animationNames=new Set();for(const entry of actions){check();const data=encodeAction(entry.items,'export',entry.name,root),items=decodeAction(data,copy);let name=entry.name,index=2;while(animationNames.has(name))name=`${entry.name} (${index++})`;animationNames.add(name);clips.push(bakeExportAction(copy,sampler,items,name,budget,rootMotion));onProgress('准备动作 '+entry.name);await new Promise(resolve=>setTimeout(resolve,0));}
   if(clips.length){applyPose(copy,base);files[fileName(actions.length===1?actions[0].name:modelName+'-动作')]=await binary(clips);}
   for(const entry of poses){check();applyPose(copy,entry.pose);onProgress('准备姿势 '+entry.name);files[fileName(entry.name)]=await binary([]);}
   check();const names=Object.keys(files);if(names.length===1)return {blob:new Blob([files[names[0]]],{type:'model/gltf-binary'}),name:names[0]};

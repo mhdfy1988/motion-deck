@@ -34,7 +34,7 @@ export function createTimelineController(state){
     const range=actionRange(original),rate=range.duration/(original.duration??range.duration);
     const max=side==='left'?range.out/rate:(item.clip.duration-range.in)/rate,duration=Math.max(.05,Math.min(value,max));
     item.in=side==='left'?range.out-duration*rate:range.in;item.out=side==='left'?range.out:range.in+duration*rate;item.duration=duration;
-   }else item[field]=Math.max(.05,Math.min(value,field==='transition'?5:item.kind==='pose'?30:300));
+   }else item[field]=Math.max(field==='duration'&&item.kind==='pose'&&item.interpolation==='continuous'?0:.05,Math.min(value,field==='transition'?5:item.kind==='pose'?30:300));
    state.playing=false;return true;
   },
  };

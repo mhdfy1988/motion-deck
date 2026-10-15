@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import {attachContinuousCurves,sampleContinuous} from './continuous-poses.js';
+export function validItemDuration(item,duration){return Number.isFinite(duration)&&(duration>0||duration===0&&item.kind==='pose'&&item.interpolation==='continuous');}
 // 姿势按当前模型节点顺序保存，不跨模型复用。
 export function capturePose(root){const pose=[];root.traverse(n=>pose.push({p:n.position.toArray(),q:n.quaternion.toArray(),s:n.scale.toArray(),m:n.morphTargetInfluences?.slice()}));return pose;}
 export function applyPose(root,pose){let i=0;root.traverse(n=>{const v=pose[i++];n.position.fromArray(v.p);n.quaternion.fromArray(v.q);n.scale.fromArray(v.s);if(v.m&&n.morphTargetInfluences)n.morphTargetInfluences.splice(0,v.m.length,...v.m);});root.updateMatrixWorld(true);}
@@ -10,7 +12,7 @@ export class PoseSampler{
 }
 // 整体片段只包装既有采样，不烘焙、重采样或改变内部裁剪与过渡。
 export function makeCompositeClip(items,name){
- if(!items.length)throw new Error('合并动作没有片段');let duration=0;for(let i=0;i<items.length;i++){const item=items[i],d=item.duration??(item.kind==='action'?actionRange(item).duration:undefined);if(!Number.isFinite(d)||d<=0)throw new Error('合并动作时长无效');const transition=i?(item.transition??0):0;if(!Number.isFinite(transition)||transition<0||transition>5)throw new Error('合并动作过渡无效');duration+=d+transition;}
+ if(!items.length)throw new Error('合并动作没有片段');let duration=0;for(let i=0;i<items.length;i++){const item=items[i],d=item.duration??(item.kind==='action'?actionRange(item).duration:undefined);if(!validItemDuration(item,d))throw new Error('合并动作时长无效');const transition=i?(item.transition??0):0;if(!Number.isFinite(transition)||transition<0||transition>5)throw new Error('合并动作过渡无效');duration+=d+transition;}if(duration<=0)throw new Error('合并动作总时长必须大于0');
  const clip=new THREE.AnimationClip(name,duration,[]);clip.recipeItems=items.map(item=>({...item,...(item.pose?{pose:structuredClone(item.pose)}:{})}));return clip;
 }
 export function clipKeyTimes(clip){
@@ -21,9 +23,10 @@ export function clipKeyTimes(clip){
 export function actionRange(item){const start=item.in??0,end=item.out??item.clip.duration;if(!Number.isFinite(start)||!Number.isFinite(end)||start<0||end>item.clip.duration||end<=start)throw new Error('动作范围须满足 0 ≤ 开始 < 结束 ≤ 动作时长');return {in:start,out:end,duration:end-start};}
 export function compileSequence(items,sampler){let time=0;const spans=[];for(let i=0;i<items.length;i++){
   const item=items[i],range=item.kind==='action'?actionRange(item):null,duration=item.duration??range?.duration;
-  if(!Number.isFinite(duration)||duration<=0)throw new Error('片段时长必须大于0');
+  if(item.interpolation!==undefined&&(item.kind!=='pose'||item.interpolation!=='continuous'))throw new Error('连续模式仅用于姿势');
+  if(!validItemDuration(item,duration))throw new Error('片段时长必须大于0；连续姿势可零停留');
   const startPose=range?sampler.sample(item.clip,range.in):item.pose,endPose=range?sampler.sample(item.clip,range.out):item.pose;
-  if(i){const transition=item.transition;if(!Number.isFinite(transition)||transition<0||transition>5)throw new Error('过渡时长须在0—5秒之间');if(transition>0){spans.push({kind:'transition',targetId:item.id,start:time,duration:transition,a:spans.at(-1).endPose,b:startPose,name:'末帧 → 首帧'});time+=transition;}}
+  if(i){const transition=item.transition;if(!Number.isFinite(transition)||transition<0||transition>5)throw new Error('过渡时长须在0—5秒之间');if(transition>0){spans.push({kind:'transition',targetId:item.id,start:time,duration:transition,a:spans.at(-1).endPose,b:startPose,continuous:item.interpolation==='continuous'&&items[i-1].interpolation==='continuous',name:'末帧 → 首帧'});time+=transition;}}
   spans.push({...item,...range,start:time,duration,startPose,endPose});time+=duration;
-}return {spans,duration:time};}
-export function sampleSequence(sequence,time,sampler){if(!sequence.spans.length)return null;const t=Math.max(0,Math.min(time,sequence.duration)),span=sequence.spans.find(s=>t<s.start+s.duration)||sequence.spans.at(-1),local=Math.max(0,t-span.start);return {span,local,pose:span.kind==='transition'?blendPoses(span.a,span.b,local/span.duration):span.kind==='action'?sampler.sample(span.clip,span.in+Math.min(local/span.duration,1)*(span.out-span.in)):span.pose};}
+}if(items.length&&time<=0)throw new Error('编排总时长必须大于0');attachContinuousCurves(spans);return {spans,duration:time};}
+export function sampleSequence(sequence,time,sampler){if(!sequence.spans.length)return null;const t=Math.max(0,Math.min(time,sequence.duration)),span=sequence.spans.find(s=>t<s.start+s.duration)||sequence.spans.at(-1),local=Math.max(0,t-span.start);return {span,local,pose:span.kind==='transition'?(span.curve?sampleContinuous(span,local/span.duration):blendPoses(span.a,span.b,local/span.duration)):span.kind==='action'?sampler.sample(span.clip,span.in+Math.min(local/span.duration,1)*(span.out-span.in)):span.pose};}

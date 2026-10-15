@@ -1,0 +1,1673 @@
+{
+  "format": "motiondeck-skill-commands",
+  "protocolVersion": 1,
+  "operations": {
+    "read": [
+      "session.inspect",
+      "model.inspect",
+      "rig.list",
+      "library.list",
+      "request.status",
+      "timeline.inspect",
+      "sequence.sample",
+      "workspace.list"
+    ],
+    "write": [
+      "pose.fromClip",
+      "pose.fromLibrary",
+      "pose.fromSequence",
+      "pose.setRootTransform",
+      "pose.setBones",
+      "pose.undo",
+      "pose.redo",
+      "pose.discard",
+      "pose.save",
+      "view.capture",
+      "view.captureSequence",
+      "timeline.insertPoseAt",
+      "timeline.append",
+      "timeline.move",
+      "timeline.remove",
+      "timeline.resize",
+      "timeline.trim",
+      "timeline.transition",
+      "timeline.undo",
+      "timeline.redo",
+      "timeline.saveAction",
+      "preview.sequence",
+      "preview.setRootMotion",
+      "export.glb",
+      "export.video",
+      "workspace.create",
+      "workspace.activate",
+      "workspace.update",
+      "workspace.cleanup",
+      "workspace.restore"
+    ]
+  },
+  "query": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "requestId",
+      "sessionId",
+      "operation",
+      "args"
+    ],
+    "properties": {
+      "requestId": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9-]{1,80}$"
+      },
+      "sessionId": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9-]{1,80}$"
+      },
+      "modelKey": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      },
+      "expectedRevision": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "operation": {
+        "enum": [
+          "session.inspect",
+          "model.inspect",
+          "rig.list",
+          "library.list",
+          "request.status",
+          "timeline.inspect",
+          "sequence.sample",
+          "workspace.list",
+          "pose.fromClip",
+          "pose.fromLibrary",
+          "pose.fromSequence",
+          "pose.setRootTransform",
+          "pose.setBones",
+          "pose.undo",
+          "pose.redo",
+          "pose.discard",
+          "pose.save",
+          "view.capture",
+          "view.captureSequence",
+          "timeline.insertPoseAt",
+          "timeline.append",
+          "timeline.move",
+          "timeline.remove",
+          "timeline.resize",
+          "timeline.trim",
+          "timeline.transition",
+          "timeline.undo",
+          "timeline.redo",
+          "timeline.saveAction",
+          "preview.sequence",
+          "preview.setRootMotion",
+          "export.glb",
+          "export.video",
+          "workspace.create",
+          "workspace.activate",
+          "workspace.update",
+          "workspace.cleanup",
+          "workspace.restore"
+        ]
+      },
+      "args": {
+        "type": "object"
+      }
+    },
+    "allOf": [
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "enum": [
+                "session.inspect",
+                "model.inspect"
+              ]
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "rig.list"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "offset": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100000
+                },
+                "limit": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "workspace.list"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "offset": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100000
+                },
+                "limit": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                },
+                "query": {
+                  "type": "string",
+                  "maxLength": 80
+                }
+              },
+              "required": []
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "library.list"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "offset": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100000
+                },
+                "limit": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                },
+                "taskId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "role": {
+                  "enum": [
+                    "temporary",
+                    "key",
+                    "result"
+                  ]
+                },
+                "stage": {
+                  "type": "string",
+                  "maxLength": 80
+                },
+                "iteration": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 10000
+                },
+                "kind": {
+                  "enum": [
+                    "action",
+                    "pose",
+                    "custom"
+                  ]
+                },
+                "scope": {
+                  "enum": [
+                    "all",
+                    "custom",
+                    "ai"
+                  ]
+                },
+                "query": {
+                  "type": "string",
+                  "maxLength": 80
+                },
+                "includeTrash": {
+                  "type": "boolean"
+                }
+              },
+              "required": []
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "request.status"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "args": {
+              "type": "object",
+              "required": [
+                "requestId"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "requestId": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z0-9-]{1,80}$"
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "workspace.create"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                }
+              },
+              "required": [
+                "name"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "workspace.activate"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "taskId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                }
+              },
+              "required": [
+                "taskId"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "workspace.update"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "taskId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "assetId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 300
+                },
+                "role": {
+                  "enum": [
+                    "temporary",
+                    "key",
+                    "result"
+                  ]
+                },
+                "stage": {
+                  "type": "string",
+                  "maxLength": 80
+                },
+                "iteration": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 10000
+                },
+                "state": {
+                  "enum": [
+                    "active",
+                    "superseded"
+                  ]
+                },
+                "protected": {
+                  "const": true
+                }
+              },
+              "required": [
+                "taskId",
+                "assetId"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "workspace.cleanup"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "taskId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "keep": {
+                  "enum": [
+                    "action",
+                    "keyframes",
+                    "all"
+                  ]
+                },
+                "confirmed": {
+                  "const": true
+                }
+              },
+              "required": [
+                "taskId",
+                "keep"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "workspace.restore"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "taskId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                }
+              },
+              "required": [
+                "taskId"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "preview.setRootMotion"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "horizontal": {
+                  "type": "boolean"
+                },
+                "vertical": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "horizontal",
+                "vertical"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "pose.fromSequence"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "time": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100000
+                }
+              },
+              "required": [
+                "time"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "timeline.insertPoseAt"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "time": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100000
+                },
+                "poseId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 300
+                }
+              },
+              "required": [
+                "time",
+                "poseId"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "sequence.sample"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "times": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 600,
+                  "items": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100000
+                  }
+                },
+                "start": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100000
+                },
+                "end": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100000
+                },
+                "step": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 100000
+                },
+                "boneIds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 64,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "pattern": "^node:[0-9]+$"
+                  }
+                }
+              },
+              "required": [
+                "boneIds"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "view.captureSequence"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "times": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 600,
+                  "items": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100000
+                  }
+                },
+                "start": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100000
+                },
+                "end": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100000
+                },
+                "step": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 100000
+                },
+                "views": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 3,
+                  "uniqueItems": true,
+                  "items": {
+                    "enum": [
+                      "front",
+                      "right",
+                      "front-right",
+                      "back",
+                      "left",
+                      "front-left"
+                    ]
+                  }
+                },
+                "options": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "width": {
+                      "type": "integer",
+                      "minimum": 320,
+                      "maximum": 1920
+                    },
+                    "height": {
+                      "type": "integer",
+                      "minimum": 240,
+                      "maximum": 1080
+                    },
+                    "framing": {
+                      "enum": [
+                        "motion",
+                        "pose",
+                        "current"
+                      ]
+                    },
+                    "ground": {
+                      "type": "boolean"
+                    },
+                    "skeleton": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": []
+                }
+              },
+              "required": [
+                "views"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "export.video"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "confirmed": {
+                  "const": true
+                },
+                "start": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100000
+                },
+                "end": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100000
+                },
+                "view": {
+                  "enum": [
+                    "front",
+                    "right",
+                    "front-right",
+                    "back",
+                    "left",
+                    "front-left"
+                  ]
+                },
+                "options": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "width": {
+                      "type": "integer",
+                      "minimum": 320,
+                      "maximum": 1920
+                    },
+                    "height": {
+                      "type": "integer",
+                      "minimum": 240,
+                      "maximum": 1080
+                    },
+                    "framing": {
+                      "enum": [
+                        "motion",
+                        "pose",
+                        "current"
+                      ]
+                    },
+                    "ground": {
+                      "type": "boolean"
+                    },
+                    "skeleton": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": []
+                }
+              },
+              "required": [
+                "name",
+                "confirmed",
+                "start",
+                "end"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "timeline.inspect"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {},
+              "required": []
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "pose.fromLibrary"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "poseId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 300
+                }
+              },
+              "required": [
+                "poseId"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "pose.setRootTransform"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "position": {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "number",
+                    "minimum": -100,
+                    "maximum": 100
+                  }
+                },
+                "quaternion": {
+                  "type": "array",
+                  "minItems": 4,
+                  "maxItems": 4,
+                  "items": {
+                    "type": "number",
+                    "minimum": -1,
+                    "maximum": 1
+                  }
+                }
+              },
+              "required": [
+                "position",
+                "quaternion"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "timeline.append"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "assetId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 300
+                },
+                "duration": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 300
+                },
+                "transition": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 5
+                },
+                "interpolation": {
+                  "const": "continuous"
+                }
+              },
+              "required": [
+                "assetId",
+                "duration"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "timeline.move"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "targetId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "after": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "targetId"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "timeline.remove"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "ids": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 256,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  }
+                }
+              },
+              "required": [
+                "ids"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "timeline.resize"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "duration": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 300
+                }
+              },
+              "required": [
+                "id",
+                "duration"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "timeline.trim"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "in": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "out": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "duration": {
+                  "type": "number",
+                  "minimum": 0.05,
+                  "maximum": 300
+                }
+              },
+              "required": [
+                "id",
+                "in",
+                "out",
+                "duration"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "timeline.transition"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "duration": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 5
+                }
+              },
+              "required": [
+                "id",
+                "duration"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "timeline.undo"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {},
+              "required": []
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "timeline.redo"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {},
+              "required": []
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "timeline.saveAction"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "confirmed": {
+                  "const": true
+                },
+                "taskId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "role": {
+                  "enum": [
+                    "temporary",
+                    "key",
+                    "result"
+                  ]
+                },
+                "stage": {
+                  "type": "string",
+                  "maxLength": 80
+                },
+                "iteration": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 10000
+                }
+              },
+              "required": [
+                "name",
+                "confirmed"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "preview.sequence"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "time": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100000
+                },
+                "playing": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "time",
+                "playing"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "export.glb"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "confirmed": {
+                  "const": true
+                },
+                "rootMotion": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "horizontal": {
+                      "type": "boolean"
+                    },
+                    "vertical": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "horizontal",
+                    "vertical"
+                  ]
+                }
+              },
+              "required": [
+                "name",
+                "confirmed"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "pose.fromClip"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "clipId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 300
+                },
+                "time": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "clipId",
+                "time"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "pose.setBones"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "changes": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 256,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^node:[0-9]+$"
+                      },
+                      "quaternion": {
+                        "type": "array",
+                        "minItems": 4,
+                        "maxItems": 4,
+                        "items": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        }
+                      },
+                      "position": {
+                        "type": "array",
+                        "minItems": 3,
+                        "maxItems": 3,
+                        "items": {
+                          "type": "number",
+                          "minimum": -100,
+                          "maximum": 100
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "quaternion"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "changes"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "pose.undo"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {},
+              "required": []
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "pose.redo"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {},
+              "required": []
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "pose.discard"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {},
+              "required": []
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "pose.save"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "confirmed": {
+                  "const": true
+                },
+                "taskId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "role": {
+                  "enum": [
+                    "temporary",
+                    "key",
+                    "result"
+                  ]
+                },
+                "stage": {
+                  "type": "string",
+                  "maxLength": 80
+                },
+                "iteration": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 10000
+                }
+              },
+              "required": [
+                "name",
+                "confirmed"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "view.capture"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "modelKey",
+            "expectedRevision"
+          ],
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "views": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 3,
+                  "uniqueItems": true,
+                  "items": {
+                    "enum": [
+                      "front",
+                      "right",
+                      "front-right",
+                      "back",
+                      "left",
+                      "front-left"
+                    ]
+                  }
+                },
+                "options": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "width": {
+                      "type": "integer",
+                      "minimum": 320,
+                      "maximum": 1920
+                    },
+                    "height": {
+                      "type": "integer",
+                      "minimum": 240,
+                      "maximum": 1080
+                    },
+                    "framing": {
+                      "enum": [
+                        "motion",
+                        "pose",
+                        "current"
+                      ]
+                    },
+                    "ground": {
+                      "type": "boolean"
+                    },
+                    "skeleton": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": []
+                }
+              },
+              "required": [
+                "views"
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

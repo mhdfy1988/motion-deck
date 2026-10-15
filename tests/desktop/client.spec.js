@@ -50,9 +50,10 @@ test('真实桌面产物：资源、安全隔离、编排保存、导出、拍�
   expect(await client.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().length)).toBe(1);
   const layout=await client.evaluate(async({app})=>{
    const fs=process.getBuiltinModule('node:fs/promises'),root=app.getAppPath();
-   return {root,files:await fs.readdir(root),unpacked:await fs.stat(root+'.unpacked').then(()=>true,error=>{if(error.code==='ENOENT')return false;throw error;})};
+   const unpacked=await fs.stat(root+'.unpacked').then(()=>true,error=>{if(error.code==='ENOENT')return false;throw error;});
+   return {root,files:await fs.readdir(root),unpacked,unpackedFiles:unpacked?(await fs.readdir(root+'.unpacked',{recursive:true})).map(file=>file.replace(/\\/g,'/')).sort():[]};
   });
-  if(process.env.MOTIONDECK_PACKAGED_EXE){expect(layout.root).toMatch(/app\.asar$/);expect(layout.unpacked).toBe(false);for(const forbidden of ['node_modules','tests','output','.git'])expect(layout.files).not.toContain(forbidden);}
+  if(process.env.MOTIONDECK_PACKAGED_EXE){expect(layout.root).toMatch(/app\.asar$/);expect(layout.unpacked).toBe(true);expect(layout.unpackedFiles).toEqual(['desktop','desktop/control','desktop/control/protect-directory.ps1']);for(const forbidden of ['node_modules','tests','output','.git'])expect(layout.files).not.toContain(forbidden);}
   await client.evaluate(({session},dir)=>{
    globalThis.desktopDownloads=[];
    session.defaultSession.on('will-download',(_event,item)=>{

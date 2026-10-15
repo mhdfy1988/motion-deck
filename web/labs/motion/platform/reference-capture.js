@@ -29,7 +29,7 @@ export function downloadReference(blob,name){
 export class ReferenceCapture{
  constructor({canvas,draw,onStatus,release}){Object.assign(this,{canvas,draw,onStatus,release});this.recorder=null;}
  async photo(){this.draw();return new Promise((resolve,reject)=>this.canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('图片编码失败')),'image/png'));}
- async record({duration,sample,speed=1}){
+ async record({duration,sample,speed=1,minimumFPS=0,scheduler='animation'}){
   if(this.recorder)throw new Error('正在录像');
   if(!Number.isFinite(duration)||duration<=0||!Number.isFinite(speed)||speed<=0||duration/speed>300)throw new Error('录像时长须在0—300秒内');
   this.cancelled=false;const mime=await verifyEncoder(this.canvas,this.onStatus);if(this.cancelled)throw new Error('录像已取消');
@@ -38,15 +38,17 @@ export class ReferenceCapture{
   try{recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:24000000});}catch(error){stream.getTracks().forEach(t=>t.stop());throw error;}
   this.recorder=recorder;
   return new Promise((resolve,reject)=>{
-   const chunks=[];let total=0,failed=null,frame,timer,start,last=-Infinity;
+   const chunks=[];let total=0,failed=null,frame,timer,start,last=-Infinity,frames=0;
+   const schedule=()=>scheduler==='timer'?setTimeout(()=>tick(performance.now()),16):requestAnimationFrame(tick);
+   const cancelFrame=()=>scheduler==='timer'?clearTimeout(frame):cancelAnimationFrame(frame);
    const stop=()=>{if(recorder.state!=='inactive')recorder.stop();};
    this.cancel=()=>{failed=new Error('录像已取消');stop();};
    const hidden=()=>{if(document.hidden){failed=new Error('页面进入后台，录像已取消，请保持页面可见');stop();}};
    recorder.ondataavailable=e=>{if(e.data.size){chunks.push(e.data);total+=e.data.size;if(total>128*1024**2){failed=new Error('录像超过128 MiB，请缩短编排');stop();}}};
    recorder.onerror=e=>{failed=e.error??new Error('视频编码失败');stop();};
-   recorder.onstop=()=>{cancelAnimationFrame(frame);clearTimeout(timer);document.removeEventListener('visibilitychange',hidden);stream.getTracks().forEach(t=>t.stop());this.cancel=null;this.recorder=null;const blob=new Blob(chunks,{type:mime});failed?reject(failed):blob.size?resolve({blob,extension:mime.startsWith('video/mp4')?'mp4':'webm'}):reject(new Error('录像为空，未下载'));};
-   const tick=now=>{try{const time=Math.min((now-start)/1000*speed,duration);if(now-last>=1000/30||time>=duration){sample(time);this.draw();track.requestFrame();last=now;}this.onStatus(`录像 ${((now-start)/1000).toFixed(1)} 秒 · ${mime.startsWith('video/mp4')?'MP4':'WebM'}`);if(time>=duration)stop();else frame=requestAnimationFrame(tick);}catch(error){failed=error;stop();}};
-   try{sample(0);this.draw();recorder.start(250);track.requestFrame();start=performance.now();document.addEventListener('visibilitychange',hidden);timer=setTimeout(()=>{failed=new Error('录像超时，未下载');stop();},(duration/speed+5)*1000);frame=requestAnimationFrame(tick);}catch(error){failed=error;if(recorder.state!=='inactive')stop();else{stream.getTracks().forEach(t=>t.stop());this.recorder=null;reject(error);}}
+   recorder.onstop=()=>{cancelFrame();clearTimeout(timer);document.removeEventListener('visibilitychange',hidden);stream.getTracks().forEach(t=>t.stop());this.cancel=null;this.recorder=null;const blob=new Blob(chunks,{type:mime});if(!failed&&minimumFPS>0&&frames<Math.max(2,duration/speed*minimumFPS))failed=new Error(`录像取样帧数不足（${frames}帧/${duration/speed}秒）`);failed?reject(failed):blob.size?resolve({blob,frames,extension:mime.startsWith('video/mp4')?'mp4':'webm'}):reject(new Error('录像为空，未下载'));};
+   const tick=now=>{try{const time=Math.min((now-start)/1000*speed,duration);if(now-last>=1000/30||time>=duration){sample(time);this.draw();track.requestFrame();frames++;last=now;}this.onStatus(`录像 ${((now-start)/1000).toFixed(1)} 秒 · ${mime.startsWith('video/mp4')?'MP4':'WebM'}`);if(time>=duration)stop();else frame=schedule();}catch(error){failed=error;stop();}};
+   try{sample(0);this.draw();recorder.start(250);track.requestFrame();frames++;start=performance.now();document.addEventListener('visibilitychange',hidden);timer=setTimeout(()=>{failed=new Error('录像超时，未下载');stop();},(duration/speed+5)*1000);frame=schedule();}catch(error){failed=error;if(recorder.state!=='inactive')stop();else{stream.getTracks().forEach(t=>t.stop());this.recorder=null;reject(error);}}
   });
  }
  stop(){if(this.recorder?.state==='recording')this.recorder.stop();else this.cancelled=true;}

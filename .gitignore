@@ -12,3 +12,6 @@ web/labs/motion/core/*-validator.generated.js
 desktop/storage/*.bundle.cjs
 desktop/updates/*.bundle.cjs
 desktop/licenses/
+# 命令协议校验器由build生成，不手改或提交生成代码。
+desktop/control/validators.generated.cjs
+web/labs/motion/core/control-validator.generated.js

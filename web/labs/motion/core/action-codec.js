@@ -1,12 +1,14 @@
 import * as THREE from 'three';
 import valid from './library-validator.generated.js';
 import {actionRange,makeCompositeClip} from './sequence-core.js';
+import {validateWorkspace} from './ai-workspace.js';
 // 动作编解码与校验不依赖界面或存储，保持已有库协议。
+export function actionFormatVersion(actions){const continuous=a=>a.items.some(i=>i.interpolation==='continuous')||a.clips.some(c=>c.recipe&&continuous(c.recipe));return actions.some(continuous)?3:actions.some(a=>a.clips.some(c=>c.recipe))?2:1;}
 export function encodeAction(items,id,name,root,depth=0){
  if(depth>8)throw new Error('合并动作嵌套不能超过8层');
  const clips=[],indices=new Map();
  const nodes=[];root?.traverse(node=>nodes.push(node));
- const saved=items.map(item=>{const row={kind:item.kind,name:item.name,transition:item.transition??0};if(item.duration!==undefined)row.duration=item.duration;
+ const saved=items.map(item=>{const row={kind:item.kind,name:item.name,transition:item.transition??0};if(item.duration!==undefined)row.duration=item.duration;if(item.interpolation!==undefined)row.interpolation=item.interpolation;
   if(item.kind==='action'){actionRange(item);if(!indices.has(item.clip)){indices.set(item.clip,clips.length);const json=item.clip.toJSON();if(item.clip.recipeItems)json.recipe=encodeAction(item.clip.recipeItems,'embedded',item.clip.name,root,depth+1);for(const track of json.tracks){const binding=THREE.PropertyBinding.parseTrackName(track.name),index=nodes.findIndex(node=>node.uuid===binding.nodeName);if(index>=0)track.nodeIndex=index;}clips.push(json);}row.clipIndex=indices.get(item.clip);if(item.in!==undefined)row.in=item.in;if(item.out!==undefined)row.out=item.out;}else row.pose=structuredClone(item.pose);
   return row;
  });
@@ -25,8 +27,11 @@ export function decodeAction(action,rootOrCount,depth=0){
 export function validateLibrary(data,key){
  if(!valid(data)||data.modelKey!==key)throw new Error('自定义动作库数据损坏或模型不匹配');
  if(data.version===1&&[...data.actions,...(data.thirdParty??[])].some(a=>a.clips.some(c=>c.recipe)))throw new Error('合并动作需要版本2的保存格式');
+ const continuous=action=>action.items.some(i=>i.interpolation==='continuous')||action.clips.some(c=>c.recipe&&continuous(c.recipe));
+ if(data.version<3&&[...data.actions,...(data.thirdParty??[])].some(continuous))throw new Error('连续姿势需要版本3的保存格式');
  if(new Set(data.actions.map(a=>a.id)).size!==data.actions.length||new Set(data.actions.map(a=>a.name)).size!==data.actions.length)throw new Error('自定义动作库存在重复条目');
  const poses=data.poses??[];
+ validateWorkspace(data.aiWorkspace,data.actions,poses);
  const external=data.thirdParty??[];
  if(new Set(external.map(a=>a.id)).size!==external.length||external.some(a=>a.items.length!==1||a.items[0].kind!=='action'))throw new Error('第三方动作库记录无效');
  if(new Set(poses.map(p=>p.id)).size!==poses.length||new Set(poses.map(p=>(p.id.startsWith('builtin:')?'default:':'custom:')+p.name)).size!==poses.length)throw new Error('姿势库存在重复条目');
