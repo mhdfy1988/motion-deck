@@ -37,7 +37,7 @@
 - `desktop/storage/library.cjs`：SQLite记录事务、SHA256文件验证、一致性快照、跨实例锁。
 - `desktop/storage/service.cjs`：设置指针、旧库迁移、搬迁、备份和恢复。
 - `desktop/storage/worker.cjs`/`client.cjs`：后台队列与固定RPC，构建为worker.bundle.cjs；不复制开发node_modules。
-- `desktop/preload.cjs`/`main.cjs`：固定桌面桥、主帧来源校验、受控目录选择、导出默认路径。
+- `desktop/preload.cjs`：原固定桌面桥；`desktop/ipc/register.cjs`/`settings.cjs`：主帧来源校验、受控目录/素材操作；`desktop/main.cjs`保留服务生命周期和唯一导出默认目录，新模块通过getter与回写共享它。
 - `web/labs/motion/platform/desktop-store.js`：File/Blob编解码、当前来源的旧IndexedDB只读迁移。
 - `web/labs/motion/ui/desktop-settings.js`：目录界面、危险操作复用站内确认。
 - [Node24 SQLite](https://nodejs.org/download/release/v24.14.0/docs/api/sqlite.html)：DatabaseSync与backup。Node24中驱动仍标记experimental，API隔离在适配层，固定运行时并通过实际Electron产物验收；未来替换驱动不能改变领域协议。

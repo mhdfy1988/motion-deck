@@ -1,0 +1,67 @@
+/* 工具横条与刻度/轨道分层，保持时间轴左右对齐及总高度预算。 */
+body:not(.advanced-tools) .timeline{background:#15181c;border-color:#34373d;padding:0;overflow:hidden}
+body:not(.advanced-tools) .timeline-head{padding:8px 20px;background:#202328;border-bottom:1px solid #353941}
+body:not(.advanced-tools) #timelineScroll{margin:0 20px;padding:12px 6px 8px}
+.timeline-zoom{display:flex;align-items:center;gap:3px;margin-left:auto;flex-shrink:0}
+.timeline-head .timeline-zoom button{min-height:28px;padding:3px 7px;font-size:11px}
+.timeline-head .timeline-zoom input{width:70px;height:16px;margin:0;accent-color:var(--accent)}
+.timeline-zoom output{min-width:42px;text-align:center;font:10px Consolas,monospace;color:var(--muted)}
+.timeline-head #timelineRemove{margin-left:0}
+#timeRuler{overflow:hidden}
+#timeRuler span.minor{height:5px;top:4px;border-color:#343b45;padding:0}
+#timeRuler span.major{height:10px;top:0}
+#timeRuler span:last-child{transform:none;border-right:0;border-left:1px solid #46515c;padding-right:0}
+/* 工具栏始终保留；禁用仅改变状态，不改变工具位置或页面高度。 */
+/* 落点反馈仅限插入位置，不给整个时间轴加选框或文字标签。 */
+body:not(.advanced-tools) #timelineScroll.drop-ready{background:transparent;outline:none}
+body:not(.advanced-tools) #timelineScroll.drop-ready #segments .empty{visibility:hidden}
+body:not(.advanced-tools) .timeline-drop.adding::before{content:'';width:0;height:0;left:-4px;bottom:100%;padding:0;background:transparent;border:5px solid transparent;border-top-color:var(--accent);border-bottom:0}
+#actionTitle,#total{display:none}
+#appendClips,.library .file-button[hidden]{display:none!important}
+#viewportPoseTools[hidden]{display:none!important}
+#resetPose[hidden],#body-translate[hidden],#body-rotate[hidden]{display:none!important}
+#exportMotion{margin-left:auto;min-height:30px;padding:5px 10px;font-size:12px}
+.player #capturePose{margin-left:auto}
+#motionExportDialog{width:min(460px,calc(100vw - 32px));max-height:calc(100dvh - 48px);padding:20px;background:#1b1d21;border:1px solid #353940;border-radius:8px;color:#e5e8ee}
+#motionExportDialog::backdrop{background:#0009}
+#exportModelName{font-size:12px;color:#969aa3;margin-bottom:14px}
+.export-tabs{display:flex;gap:6px;border-bottom:1px solid #343940;margin-bottom:12px}
+.export-tabs button{background:transparent;border:0;border-radius:0;font-size:12px;min-height:32px}
+.export-tabs button[aria-selected=true]{color:#8bc1ff;border-bottom:2px solid #72b7ff}
+#exportSearch{width:100%;background:#17191d;border:1px solid #353940;border-radius:5px;color:#e2e6ed;padding:8px 10px;font-size:12px}
+.export-select{display:flex;gap:6px;margin:8px 0}
+.export-select button{padding:3px 8px;min-height:26px;font-size:11px;background:transparent;border-color:transparent}
+#exportEntries{height:260px;max-height:35dvh;overflow:auto}
+#exportEntries label{display:flex;align-items:center;gap:10px;padding:8px 6px;font-size:12px;cursor:pointer;border-radius:4px}
+#exportEntries label:hover{background:#252c35}
+#exportEntries input{accent-color:#72b7ff;margin:0}
+#exportEntries span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#exportEntries small,#exportFormat,#exportCount{font-size:11px;color:#969eaa}
+#exportFormat{margin:12px 0}
+#exportError{padding:8px 10px;font-size:12px;background:#222d39;border-radius:4px;color:#c8d9ed}
+#motionExportDialog .dialog-actions{align-items:center}
+#exportCount{margin-right:auto}
+.pose-editing-disabled #editPose,.pose-editing-disabled #posePanel,.pose-editing-disabled .pose-edit-tools{display:none!important}
+.timeline-head #timelineUndo{margin-left:auto}
+body:not(.advanced-tools) .timeline-head .icon-button{color:#a7adba;min-height:32px;border-radius:5px}
+body:not(.advanced-tools) .timeline-head .icon-button:hover:not(:disabled){background:#2c3038;border-color:transparent;color:#f6f8fb}
+body:not(.advanced-tools) .timeline-head #saveAction{background:#315c87;border-color:#3c70a3;color:#eef6ff;min-height:30px;padding:5px 10px}
+body:not(.advanced-tools) .timeline-head #saveAction:disabled{background:#22252b;border-color:#343a43;color:#89919e;opacity:.65}
+body:not(.advanced-tools) #timelineAll,body:not(.advanced-tools) #timelineNone,body:not(.advanced-tools) #newAction{background:transparent;border:1px solid #363c45;border-radius:5px;font-size:11px;min-height:30px;padding:5px 10px;color:#b5bdca}
+body:not(.advanced-tools) #timelineAll{margin-left:6px}
+body:not(.advanced-tools) #timelineAll:hover:not(:disabled),body:not(.advanced-tools) #timelineNone:hover:not(:disabled),body:not(.advanced-tools) #newAction:hover:not(:disabled){background:#2b3038;border-color:#586577;color:#fff}
+body:not(.advanced-tools) #selectionCount{font-size:10px;color:#8791a0}
+body:not(.advanced-tools) #timeRuler{color:#7e8796}
+body:not(.advanced-tools) #seek::-webkit-slider-runnable-track{height:2px;background:#353c47}
+body:not(.advanced-tools) #seek::-webkit-slider-thumb{width:10px;height:10px;margin-top:-4px}
+body:not(.advanced-tools) #segments .empty{background:#181a1e;border-color:#343942;border-radius:5px}
+body:not(.advanced-tools) #timelineTrack #segments button{background:#252a32;color:#dce3ee;border:1px solid #414956;border-radius:4px}
+body:not(.advanced-tools) #timelineTrack #segments .pose{background:#252d39;border-style:dashed}
+/* 片段类型靠底纹，选中靠描边；不能让两种语义共用蓝色填充。 */
+body:not(.advanced-tools) #timelineTrack #segments .transition{background-color:#302d27;background-image:repeating-linear-gradient(135deg,transparent 0 7px,#c7ad7810 7px 9px);color:#e0d0ae;border-color:#756345}
+body:not(.advanced-tools) #timelineTrack #segments .selected{border-color:#82bdff}
+body:not(.advanced-tools) #segments .transition small{color:#b9aa8e}
+body:not(.advanced-tools) #segments button small{font:10px Consolas,monospace;color:#a0afc2;margin-top:2px}
+body:not(.advanced-tools) ::-webkit-scrollbar-thumb{background:#424953}
+body:not(.advanced-tools) #welcome{background:#121416}
+body:not(.advanced-tools) #welcome h1{font-size:26px;font-weight:600;letter-spacing:.5px}

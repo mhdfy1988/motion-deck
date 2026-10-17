@@ -37,6 +37,30 @@ test('默认界面的短片段不被留白撑宽，边缘与刻度共用零点�
  await page.screenshot({path:'output/acceptance/motion-short-spans-aligned.png'});
 });
 
+test('展示重建复用片段节点，组件销毁解绑并可重新挂载',async({page})=>{
+ await page.goto('/');await waitForModel(page,{actions:162});
+ const source=page.locator('#clips [data-clip-index]').first();await placeAction(page,source);
+ const first=await page.locator('#segments .action').first().elementHandle();
+ await placeAction(page,source);
+ expect(await first.evaluate(node=>node===document.querySelector('#segments .action'))).toBe(true);
+ // 独立组件只借用现有DOM；不修改工作台资料或手势控制器。
+ const result=await page.evaluate(async()=>{
+  const {createTimelineView}=await import('/labs/motion/ui/timeline-view.js');
+  const host=document.createElement('div');document.body.append(host);
+  host.innerHTML='<div id="segments"></div><div id="timelineScroll"></div><div id="timelineTrack"></div><div id="timeRuler"></div><div id="playhead"></div><input id="seek"><output id="total"></output><button id="timelineRemove"></button><button id="timelineAll"></button><button id="timelineNone"></button><span id="selectionCount"></span>';
+  const $=id=>host.querySelector('#'+id);let selected=0;
+  const options={getElement:$,getPlayback:()=>({total:2,time:.5,playing:false}),onSelect:()=>selected++};
+  const view=createTimelineView(options),model={duration:2,entries:[{key:'test',kind:'pose',start:0,duration:2,sourceIn:'',sourceOut:'',rawName:'测试',label:'姿势 · 测试',durationLabel:'2.00 s',title:'测试'}]};
+  view.render(model);view.layout();view.renderPlayback(0);view.renderSelection({selection:new Set(['test']),hasItems:true});
+  const button=$('segments').firstElementChild;button.click();view.render(model);
+  const stable=button===$('segments').firstElementChild,zoom=$('timelineZoomIn');zoom.click();const scale=$('timelineTrack').dataset.scale;
+  view.dispose();zoom.click();button.click();const disposed=$('timelineTrack').dataset.scale===scale&&host.querySelectorAll('.timeline-zoom').length===0&&selected===1;
+  const next=createTimelineView(options);next.layout();const reset=$('timelineTrack').dataset.scale;next.dispose();host.remove();
+  return {stable,disposed,scale,reset};
+ });
+ expect(result).toEqual({stable:true,disposed:true,scale:'125',reset:'100'});
+});
+
 test('比例稳定、缩放只改显示、适合全部显式执行',async({page})=>{
  await page.goto('/');await waitForModel(page,{actions:162});await expect(page.locator('#status')).toContainText('162 动作');
  const source=page.locator('#clips [data-clip-index]').first();

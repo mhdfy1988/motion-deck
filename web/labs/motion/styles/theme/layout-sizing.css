@@ -1,0 +1,60 @@
+/* 排版尺度统一：保留配色及面板结构，时间轴宽度、零点和采样完全不变。 */
+body:not(.advanced-tools){--sidebar-width:280px;--text-main:#f0f1f4;--text-secondary:#a9afb9;--muted:#a0a7b2;font-family:"Segoe UI","Microsoft YaHei UI",sans-serif;font-size:14px;line-height:1.5}
+body:not(.advanced-tools) :is(button,input,select){font-family:inherit;font-size:14px}
+body:not(.advanced-tools) :is(button,select):disabled{opacity:.42}
+body:not(.advanced-tools) main{grid-template-columns:var(--sidebar-width) minmax(0,1fr)}
+/* 顶栏分区共用素材栏宽度，竖线对齐主区域 8px 间隙的中心。 */
+body:not(.advanced-tools) .top{--titlebar-inset:20px;padding-left:var(--titlebar-inset)}
+body:not(.advanced-tools).desktop-client .top{--titlebar-inset:max(20px,env(titlebar-area-x,0px))}
+body:not(.advanced-tools) .top .titlebar-main{display:grid;grid-template-columns:calc(var(--sidebar-width) + 12px - var(--titlebar-inset)) 1px auto;gap:0;align-items:center}
+body:not(.advanced-tools) .top .titlebar-divider{width:1px}
+body:not(.advanced-tools) .top .model-control{margin-left:18px}
+.model-control>label{font-size:12px;color:#a9afb9;white-space:nowrap;app-region:no-drag;-webkit-app-region:no-drag}
+body:not(.advanced-tools) .library{padding:20px 16px 16px;gap:16px}
+body:not(.advanced-tools) .section-head{align-items:center}
+body:not(.advanced-tools) .section-head h2{font-size:16px;font-weight:600;letter-spacing:0;margin:0}
+body:not(.advanced-tools) #exportMotion{font-size:13px;min-height:32px;padding:5px 12px;color:var(--text-main)}
+body:not(.advanced-tools) .library-tabs button{font-size:13px;height:36px;min-height:36px;color:var(--text-secondary);font-weight:400}
+body:not(.advanced-tools) #librarySearch{font-size:13px;height:36px;padding:7px 12px}
+body:not(.advanced-tools) #librarySearch::placeholder{color:#959ca7}
+body:not(.advanced-tools) .library-group summary{font-size:13px;color:var(--text-secondary);padding:10px;letter-spacing:0}
+body:not(.advanced-tools) .library-group summary small{font-size:12px;color:#969eaa}
+body:not(.advanced-tools) .clips button{min-height:34px;padding:6px 10px;font-size:13px;font-weight:400;line-height:20px;color:var(--text-main)}
+body:not(.advanced-tools) .clips button small{font:12px/20px Consolas,monospace;color:var(--text-secondary)}
+body:not(.advanced-tools) .transition-library .motion-source-card{padding:10px 12px}
+body:not(.advanced-tools) .transition-library span{font-size:13px}
+body:not(.advanced-tools) .transition-library small{font-size:12px;color:var(--text-secondary)}
+body:not(.advanced-tools) #status{font-size:12px;color:var(--text-secondary)}
+body:not(.advanced-tools) .brand{font-size:18px}
+body:not(.advanced-tools) #replaceModel{font-size:13px;min-height:32px;width:176px}
+body:not(.advanced-tools) .view-head{height:54px}
+body:not(.advanced-tools) .view-head button,body:not(.advanced-tools) .toggle{font-size:13px;color:#c7ccd4}
+body:not(.advanced-tools) .toggle input{width:14px;height:14px}
+body:not(.advanced-tools) #viewPreset{font-size:13px;min-height:32px;width:184px;padding:5px 10px}
+body:not(.advanced-tools) .view-head .icon-button{width:36px;height:36px;padding:8px}
+body:not(.advanced-tools) .view-head .icon-button svg{width:20px;height:20px}
+body:not(.advanced-tools) .player{height:64px;gap:14px}
+body:not(.advanced-tools) #currentClip{font-size:13px;font-weight:400;color:var(--text-main)}
+body:not(.advanced-tools) #previewContext{font-size:12px;color:var(--text-secondary)}
+body:not(.advanced-tools) .player #capturePose{font-size:13px;min-height:32px;padding:5px 12px;color:var(--text-main)}
+body:not(.advanced-tools) .player #clock{font-size:12px;color:var(--text-secondary)}
+body:not(.advanced-tools) .speed-control{font-size:12px;color:var(--text-secondary)}
+body:not(.advanced-tools) .player .speed-buttons button{font:13px/22px Consolas,monospace;min-width:40px;min-height:30px;height:30px;color:var(--text-secondary)}
+body:not(.advanced-tools) .player .speed-buttons button[aria-pressed=true]{color:#cde5ff}
+body:not(.advanced-tools) .timeline-head{gap:10px;padding-block:10px}
+body:not(.advanced-tools) .timeline-head button{font-size:14px;min-height:36px;padding-block:6px;color:var(--text-main)}
+body:not(.advanced-tools) .timeline-head .timeline-edge-modes button{font-size:13px;min-height:30px;padding:4px 9px}
+body:not(.advanced-tools) .timeline-head .icon-button{width:36px;height:36px;padding:8px;color:#c7ccd4}
+body:not(.advanced-tools) .timeline-head .icon-button svg{width:20px;height:20px}
+body:not(.advanced-tools) .timeline-head :is(.selection-count,.timeline-zoom output){font-size:12px;color:var(--text-secondary)}
+body:not(.advanced-tools) .timeline-head .timeline-zoom button{font-size:12px;min-height:30px}
+body:not(.advanced-tools) #timeRuler span{font-size:12px;color:#a0a8b4}
+body:not(.advanced-tools) #timelineTrack #segments button{font-size:14px}
+body:not(.advanced-tools) #segments .empty{font-size:14px;color:#a0a8b4}
+#replaceModel::picker(select),#viewPreset::picker(select){font:13px/1.5 "Segoe UI","Microsoft YaHei UI",sans-serif}
+#replaceModel legend,#viewPreset legend{font-size:12px;color:#a0a8b4}
+#viewPreset option{font-size:13px}
+@media(max-width:1280px){body:not(.advanced-tools) .view-head{height:auto;min-height:54px}body:not(.advanced-tools) .view-head>div{flex-wrap:wrap;flex-shrink:1;justify-content:flex-end;gap:8px}}
+@media(max-width:1100px){body:not(.advanced-tools){--sidebar-width:232px}body:not(.advanced-tools) .library{padding-inline:12px}body:not(.advanced-tools) .timeline-head{gap:5px;padding-inline:12px}body:not(.advanced-tools) .timeline-head button{padding-inline:7px}body:not(.advanced-tools) .timeline-zoom input{width:54px}body:not(.advanced-tools) .view-head>div{gap:8px}body:not(.advanced-tools) .player{gap:10px}}
+@media(max-height:700px){body:not(.advanced-tools) .library{padding-block:12px;gap:8px}body:not(.advanced-tools) .library-tabs button{height:36px;min-height:36px}body:not(.advanced-tools) .library-group summary{padding-block:6px}body:not(.advanced-tools) .transition-library{padding-top:8px}body:not(.advanced-tools) .transition-library .motion-source-card{padding-block:8px}}
+@media(max-width:760px){body:not(.advanced-tools){--sidebar-width:180px}body:not(.advanced-tools) .brand{font-size:14px}body:not(.advanced-tools) .top .model-control{margin-left:10px;gap:6px}body:not(.advanced-tools) #replaceModel{width:112px;font-size:12px;min-height:30px}body:not(.advanced-tools) #status{font-size:11px}}

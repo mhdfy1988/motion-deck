@@ -1,8 +1,18 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {PerspectiveCamera,Euler} from 'three';
+import {PerspectiveCamera,OrthographicCamera,Euler,Vector3} from 'three';
 import {PointerLockControls} from 'three/addons/controls/PointerLockControls.js';
-import {stepFreeView} from '../../web/labs/motion/free-view.js';
+import {stepFreeView,stepFlyWheel} from '../../web/labs/motion/free-view.js';
+
+test('飞行滚轮沿视线往返平移、不改朝向/FOV，行/页归一与大输入有界',()=>{
+ const camera=new PerspectiveCamera(),target=new Vector3(1,1,0);camera.position.set(1,2,4);camera.lookAt(target);const before=camera.position.clone(),q=camera.quaternion.clone(),fov=camera.fov,direction=camera.getWorldDirection(new Vector3()),distance=camera.position.distanceTo(target),event={deltaY:-120,deltaMode:0};assert.equal(stepFlyWheel(camera,target,event,2,600),true);const delta=camera.position.clone().sub(before);assert.ok(delta.dot(direction)>0);assert.ok(delta.clone().cross(direction).length()<1e-10);assert.ok(Math.abs(camera.position.distanceTo(target)-distance)<1e-10);assert.ok(camera.quaternion.equals(q));assert.equal(camera.fov,fov);stepFlyWheel(camera,target,{...event,deltaY:120},2,600);assert.ok(camera.position.distanceTo(before)<1e-10);
+ const pixelCamera=camera.clone(),lineCamera=camera.clone(),pageCamera=camera.clone();stepFlyWheel(pixelCamera,target.clone(),{deltaY:160,deltaMode:0},2,600);stepFlyWheel(lineCamera,target.clone(),{deltaY:10,deltaMode:1},2,600);stepFlyWheel(pageCamera,target.clone(),{deltaY:160/600,deltaMode:2},2,600);assert.ok(pixelCamera.position.distanceTo(lineCamera.position)<1e-10);assert.ok(pixelCamera.position.distanceTo(pageCamera.position)<1e-10);const p=camera.position.clone();stepFlyWheel(camera,target,{deltaY:1e8,deltaMode:0},2,600);assert.ok(camera.position.distanceTo(p)<distance);
+});
+test('飞行滚轮忽略零/非法输入和正交相机',()=>{const camera=new PerspectiveCamera(),target=new Vector3();for(const event of [{deltaY:0,deltaMode:0},{deltaY:NaN,deltaMode:0},{deltaY:Infinity,deltaMode:0},{deltaY:1,deltaMode:4}])assert.equal(stepFlyWheel(camera,target,event,2,600),false);assert.equal(stepFlyWheel(new OrthographicCamera(),target,{deltaY:120,deltaMode:0},2,600),false);assert.deepEqual(camera.position.toArray(),[0,0,0]);});
+
+test('飞行前进沿真实视线且不依赖鼠标按住，升降仍为世界上下',()=>{
+ const camera=new PerspectiveCamera(),fps=new PointerLockControls(camera);camera.quaternion.setFromEuler(new Euler(-Math.PI/4,Math.PI/4,0,'YXZ'));const direction=camera.getWorldDirection(camera.position.clone()),q=camera.quaternion.clone();stepFreeView(fps,new Set(['KeyW']),.1,2,true);assert.ok(camera.position.distanceTo(direction.multiplyScalar(.12))<1e-10);assert.ok(camera.quaternion.equals(q));camera.position.set(0,0,0);stepFreeView(fps,new Set(['KeyE']),.1,2,true);assert.ok(Math.abs(camera.position.y-.12)<1e-10);assert.equal(camera.position.x,0);assert.equal(camera.position.z,0);const p=camera.position.clone();stepFreeView(fps,new Set(),.1,2,true);assert.ok(camera.position.equals(p));
+});
 test('自由观看移动沿相机朝向，升降与加速、对角线归一、停键与预算',()=>{
  const camera=new PerspectiveCamera(),fps=new PointerLockControls(camera);camera.quaternion.setFromEuler(new Euler(0,Math.PI/2,0));stepFreeView(fps,new Set(['KeyW']),.1,2);assert.ok(Math.abs(camera.position.x+.12)<1e-8);assert.ok(Math.abs(camera.position.z)<1e-8);camera.position.set(0,0,0);stepFreeView(fps,new Set(['KeyE','ShiftLeft']),.1,2);assert.ok(Math.abs(camera.position.y-.36)<1e-8);
  camera.position.set(0,0,0);stepFreeView(fps,new Set(['KeyW','KeyD','KeyE']),.1,2);assert.ok(Math.abs(camera.position.length()-.12)<1e-8);const before=camera.position.clone();stepFreeView(fps,new Set(),.1,2);assert.ok(camera.position.equals(before));fps.enabled=false;stepFreeView(fps,new Set(['KeyE']),.1,2);assert.ok(camera.position.equals(before));fps.enabled=true;camera.position.set(0,0,0);stepFreeView(fps,new Set(['KeyD']),10,2);assert.ok(Math.abs(camera.position.length()-.12)<1e-8);

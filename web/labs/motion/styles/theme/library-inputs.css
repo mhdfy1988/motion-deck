@@ -1,0 +1,45 @@
+@media(prefers-reduced-motion:reduce){body:not(.advanced-tools) button,body:not(.advanced-tools) select{transition:none}}
+#motionConfirmDialog{width:min(380px,calc(100vw - 32px));border:1px solid #3b424c;border-radius:8px;padding:22px;background:#1b1e23;color:#e1e6ec}#motionConfirmDialog::backdrop{background:#0009}#motionConfirmText{line-height:1.7;color:#a8b3c1;margin:0;font-size:13px}#motionContextMenu{position:fixed;z-index:50;min-width:150px;padding:5px;border:1px solid #3b424c;border-radius:6px;background:#20242a;box-shadow:0 8px 24px #0006}#motionContextMenu button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:9px 12px;color:#e1e6ec;font-size:13px}#motionContextMenu button:hover,#motionContextMenu button:focus-visible{background:#2a3b50}#motionContextMenu button:disabled{color:#6c7580}
+#clips .library-entry{position:relative;min-width:0}
+#clips .library-entry[hidden]{display:none}
+#clips .library-entry>button:not(.library-delete):not(.library-rename){width:100%;padding-right:68px}
+#clips .library-entry :is(.library-delete,.library-rename){position:absolute;right:5px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:26px;height:26px;min-height:26px;padding:5px;opacity:0;pointer-events:none;color:#969aa3;background:transparent;border:0}
+#clips .library-entry .library-rename{right:34px}
+#clips :is(.library-delete,.library-rename) svg{width:16px;height:16px}
+#clips .library-entry:hover :is(.library-delete,.library-rename),#clips .library-entry:focus-within :is(.library-delete,.library-rename){opacity:1;pointer-events:auto}
+#clips .library-entry :is(.library-delete,.library-rename):hover{color:#e9edf2;background:#353940}
+#clips :is(.library-delete,.library-rename):focus-visible{outline:1px solid #72b7ff;outline-offset:1px}
+@media(hover:none){#clips .library-entry :is(.library-delete,.library-rename){opacity:1;pointer-events:auto}}
+#libraryRenameDialog{width:min(360px,calc(100vw - 32px));padding:22px;border:1px solid #3b424c;border-radius:9px;background:#1b1e23;color:#e1e6ec}
+#libraryRenameDialog::backdrop{background:#0009}
+#libraryRenameTitle{font-size:16px;margin:0}
+#libraryRenameName{width:100%;box-sizing:border-box;margin-top:8px;padding:9px 10px;font:13px 'Segoe UI','Microsoft YaHei UI',sans-serif;color:#e1e6ec;background:#171a1e;border:1px solid #3b424c;border-radius:5px;outline:none}
+#libraryRenameName:focus-visible{border-color:#72b7ff;box-shadow:0 0 0 2px #72b7ff26}
+#libraryRenameForm>label{font-size:12px;color:#a8b3c1}
+#libraryRenameError{font-size:12px;color:#efa0a0;margin:10px 0}
+#desktopSettings{margin-left:16px;flex:none;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;min-height:34px;padding:7px;background:transparent;border-color:transparent;color:#b8c2d0}
+#desktopSettings svg{width:18px;height:18px}
+.speed-control{display:flex;align-items:center;gap:9px;flex-shrink:0;color:#8e95a2;font-size:11px}
+.speed-buttons{display:flex;gap:2px;padding:2px;border:1px solid #343b46;border-radius:6px;background:#15191e}
+.player .speed-buttons button,body:not(.advanced-tools) .player .speed-buttons button{width:auto;min-width:35px;min-height:24px;height:24px;padding:2px 5px;border:0;background:transparent;color:#909cab;font:11px Consolas,monospace;border-radius:4px}
+.player .speed-buttons button:hover,body:not(.advanced-tools) .player .speed-buttons button:hover{background:#303945;color:#e8f1fc}
+.player .speed-buttons button[aria-pressed=true],body:not(.advanced-tools) .player .speed-buttons button[aria-pressed=true]{background:#2d4057;color:#cde5ff}
+/* 使用浏览器可定制选择器，保留单一 value/change 链路和原生键盘语义。 */
+#replaceModel,#viewPreset,#replaceModel::picker(select),#viewPreset::picker(select){appearance:base-select}
+#replaceModel,#viewPreset{display:inline-flex;align-items:center;justify-content:space-between;gap:10px;white-space:nowrap;line-height:1.4}
+#replaceModel::picker-icon,#viewPreset::picker-icon{color:#98a4b5;font-size:10px;transition:rotate .15s}
+#replaceModel:open::picker-icon,#viewPreset:open::picker-icon{rotate:180deg}
+#replaceModel::picker(select),#viewPreset::picker(select){padding:8px;background:#202329;color:#dfe5ee;border:1px solid #3a414c;border-radius:8px;box-shadow:0 12px 30px #0007,0 2px 8px #0004;margin-top:7px;max-height:calc(100dvh - 140px);overflow:auto;font:12px/1.4 "DengXian","Microsoft YaHei UI",sans-serif}
+#replaceModel::picker(select){min-width:220px;max-width:min(320px,calc(100vw - 32px))}
+#viewPreset::picker(select){width:352px;max-width:calc(100vw - 32px);left:auto;right:anchor(right);top:calc(anchor(bottom) + 7px);margin-top:0}
+#replaceModel optgroup,#viewPreset optgroup{padding:0;margin:0;min-width:0;font-weight:400}
+#replaceModel legend,#viewPreset legend{padding:8px 9px 5px;color:#7f8b9c;font-size:10px;font-weight:500;letter-spacing:.3px}
+#replaceModel optgroup+optgroup,#viewPreset optgroup+optgroup{margin-top:8px;padding-top:5px;border-top:1px solid #343a44}
+#replaceModel option,#viewPreset option{display:flex;align-items:center;gap:8px;min-height:32px;padding:7px 10px;background:transparent;border:1px solid transparent;border-radius:5px;color:#c6d0df;font-weight:400;cursor:pointer;white-space:nowrap}
+#replaceModel option:hover,#viewPreset option:hover,#replaceModel option:focus-visible,#viewPreset option:focus-visible{background:#303945;color:#f0f5fc;outline:none}
+#replaceModel option:checked,#viewPreset option:checked{background:#26374a;border-color:#354e6b;color:#d7eaff}
+#replaceModel option::checkmark,#viewPreset option::checkmark{order:1;margin-left:auto;color:#79baff;font-size:12px}
+#replaceModel>option[value=import]{margin-top:7px;padding-top:9px;border-top:1px solid #343a44;border-radius:0 0 5px 5px;color:#95b9df}
+#viewPreset optgroup{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px}
+#viewPreset legend{grid-column:1/-1}
+#viewPreset option{min-width:0;padding-inline:9px}

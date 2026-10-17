@@ -27,18 +27,23 @@ test('A3 实际外部命令：两模型试摆、批量回滚、历史、PNG、�
   for(const [model,actions] of [['mesh2motion',162],['quaternius',117]]){
    if(model==='quaternius'){await page.locator('#replaceModel').selectOption(model);await waitForModel(page,{actions});}
    const library=await command({operation:'library.list',args:{limit:100}}),clip=library.result.entries.find(entry=>/Idle/i.test(entry.name))??library.result.entries[0];
-   expect((await write('pose.fromClip',{clipId:clip.id,time:Math.min(.2,clip.duration/2)})).ok).toBe(true);await expect(page.locator('#assistantPoseTools')).toBeVisible();
+   expect((await write('pose.fromClip',{clipId:clip.id,time:Math.min(.2,clip.duration/2)})).ok).toBe(true);await expect(page.locator('#assistantActivity')).toBeHidden();await expect(page.locator('body')).not.toHaveClass(/assistant-operating/);await expect(page.locator('#assistantPoseTools')).toHaveCount(0);
+   await page.locator('#desktopSettings').click();await page.locator('#desktopControlToggle').click();await expect(page.locator('#desktopControlToggle')).toHaveAttribute('aria-checked','false');await expect(page.locator('#assistantActivity')).toBeHidden();
+   await page.locator('#desktopControlToggle').click();await page.locator('#desktopControlWrite').click();await expect(page.locator('#desktopControlWrite')).toHaveAttribute('aria-checked','true');await page.locator('#closeDesktopSettings').click();expect((await read('session.inspect')).result.editingContext).toBe('pose-draft');
    const rigBefore=await command({operation:'rig.list',args:{limit:100}}),arm=rigBefore.result.entries.find(b=>/upperarm|arm|shoulder/i.test(b.name))??rigBefore.result.entries[3];
    const q=new THREE.Quaternion().fromArray(arm.quaternion).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),.45)).normalize().toArray();
    const invalid=await write('pose.setBones',{changes:[{id:arm.id,quaternion:q},{id:'node:99999',quaternion:q}]});expect(invalid.error.code).toBe('INVALID_ARGUMENT');expect((await command({operation:'rig.list',args:{limit:100}})).result.entries).toEqual(rigBefore.result.entries);
    const movedPosition=[arm.position[0]+.01,arm.position[1],arm.position[2]];
-   expect((await write('pose.setBones',{changes:[{id:arm.id,quaternion:arm.quaternion,position:movedPosition}]})).ok).toBe(true);
+   expect((await write('pose.setBones',{constraintMode:'natural',changes:[{id:arm.id,quaternion:arm.quaternion,position:movedPosition}]})).error.code).toBe('INVALID_ARGUMENT');
+   expect((await command({operation:'rig.list',args:{limit:100}})).result.entries).toEqual(rigBefore.result.entries);
+   expect((await write('pose.setBones',{constraintMode:'free',changes:[{id:arm.id,quaternion:arm.quaternion,position:movedPosition}]})).ok).toBe(true);
    expect((await command({operation:'rig.list',args:{limit:100}})).result.entries.find(b=>b.id===arm.id).position).toEqual(movedPosition);
    expect((await write('pose.undo')).ok).toBe(true);expect((await command({operation:'rig.list',args:{limit:100}})).result.entries).toEqual(rigBefore.result.entries);
-   const before=(await read('session.inspect')).result,id=randomUUID(),request={operation:'pose.setBones',args:{changes:[{id:arm.id,quaternion:q}]},modelKey:before.modelKey,expectedRevision:before.revision,requestId:id};const changed=await command(request);expect(changed.ok).toBe(true);expect(await command(request)).toEqual(changed);
+   const before=(await read('session.inspect')).result,id=randomUUID(),request={operation:'pose.setBones',args:{constraintMode:'free',changes:[{id:arm.id,quaternion:q}]},modelKey:before.modelKey,expectedRevision:before.revision,requestId:id};const changed=await command(request);expect(changed.ok).toBe(true);expect(await command(request)).toEqual(changed);
    expect((await write('pose.setBones',{changes:[{id:arm.id,quaternion:q}]},{expectedRevision:before.revision})).error.code).toBe('REVISION_CONFLICT');
    expect((await write('pose.undo')).ok).toBe(true);expect((await command({operation:'rig.list',args:{limit:100}})).result.entries).toEqual(rigBefore.result.entries);expect((await write('pose.redo')).ok).toBe(true);
-   const pictures=await write('view.capture',{views:['front','right','front-right']});expect(pictures.ok).toBe(true);
+   const pictures=await write('view.capture',{views:['front','right','front-right']});expect(pictures.ok).toBe(true);await expect(page.locator('#assistantActivity')).toBeHidden();
+   await expect(page.locator('body')).not.toHaveClass(/assistant-operating/);
    for(const file of pictures.result.files){const bytes=await readFile(file.path);expect(bytes.subarray(0,8).toString('hex')).toBe('89504e470d0a1a0a');expect(createHash('sha256').update(bytes).digest('hex')).toBe(file.sha256);expect(file.width).toBeGreaterThan(1000);const metadata=await sharp(bytes).metadata();expect(metadata.width).toBe(file.width);expect(metadata.height).toBe(file.height);await sharp(bytes).raw().toBuffer();}
    const rigAfter=await command({operation:'rig.list',args:{limit:100}});expect(rigAfter.result.entries.find(b=>b.id===arm.id).quaternion).toEqual(q);
    await client.evaluate(({BrowserWindow,dialog})=>{globalThis.a3DialogOriginal=dialog.showMessageBoxSync;globalThis.a3DialogMessages=[];dialog.showMessageBoxSync=(_window,options)=>{globalThis.a3DialogMessages.push(options.message);return 0;};BrowserWindow.getAllWindows()[0].close();});
@@ -48,7 +53,7 @@ test('A3 实际外部命令：两模型试摆、批量回滚、历史、PNG、�
    expect((await read('session.inspect')).result.editingContext).toBe('pose-draft');await client.evaluate(({dialog})=>{dialog.showMessageBoxSync=globalThis.a3DialogOriginal;});
    // 用户切换模型先确认；取消保持草稿，不能靠switch清掉未保存姿势。
    await page.removeLocatorHandler(page.locator('#motionConfirmDialog'));await handleConfirmation(page,false,true);await page.locator('#replaceModel').selectOption(model==='mesh2motion'?'quaternius':'mesh2motion');await page.locator('#replaceModel').click({trial:true});expect((await read('session.inspect')).result.editingContext).toBe('pose-draft');await page.removeLocatorHandler(page.locator('#motionConfirmDialog'));await handleConfirmation(page,true,false);
-   const saved=await write('pose.save',{name:'A3试摆-'+model,confirmed:true,role:'key',stage:'试摆验收'});expect(saved.ok).toBe(true);await expect(page.locator('#assistantPoseTools')).not.toBeVisible();
+   const saved=await write('pose.save',{name:'A3试摆-'+model,confirmed:true,role:'key',stage:'试摆验收'});expect(saved.ok).toBe(true);await expect(page.locator('#assistantActivity')).toBeHidden();
    proof.push({model,before,arm,q,pictures:saved.ok?pictures.result.files:[],saved:saved.result});
   }
   await client.close();client=await launch();page=await client.firstWindow();await client.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].showInactive());await waitForModel(page,{actions:117});await page.locator('#library-ai').click();await expect(page.locator('#clips [data-pose-id="'+proof.at(-1).saved.id+'"]')).toHaveCount(1);

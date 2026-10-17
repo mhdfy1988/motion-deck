@@ -21,7 +21,7 @@ export function answerControlQuery(workbench,query){
  'timeline.saveAction':()=>workbench.timeline.save({...query.args,assistant:true},expected),'preview.sequence':()=>workbench.preview(query.args,expected),
  'export.glb':()=>workbench.exportGLB(query.args,expected),
  'preview.setRootMotion':()=>workbench.setRootMotion(query.args,expected),
- 'pose.setBones':()=>workbench.setBones(query.args.changes,expected),
+ 'pose.setBones':()=>workbench.setBones(query.args.changes,expected,{constraintMode:query.args.constraintMode}),
  'pose.undo':()=>workbench.draftHistory('undo',expected),'pose.redo':()=>workbench.draftHistory('redo',expected),
  'pose.discard':()=>{workbench.discardDraft(expected);return {revision:workbench.inspect().revision};},
  'pose.save':()=>workbench.saveDraft({...query.args,assistant:true},expected),'view.capture':()=>workbench.captureViews(query.args.views,expected,query.args.options),

@@ -14,6 +14,12 @@ await mkdir(output,{recursive:true});
 // 使用显式暂存清单，打包源目录绝不指向整个仓库或开发node_modules。
 const stage=await mkdtemp(join(output,'stage-'));
 const pkg=JSON.parse(await readFile(join(root,'package.json'),'utf8'));
+// Electron官方npm包随版本附带校验表；仍由@electron/get校验缓存，不每次重取远端清单。
+const electronPackage=JSON.parse(await readFile(join(root,'node_modules/electron/package.json'),'utf8'));
+if(electronPackage.version!==pkg.devDependencies.electron)throw new Error('已安装Electron与锁定打包版本不一致，请先同步依赖');
+const electronChecksums=JSON.parse(await readFile(join(root,'node_modules/electron/checksums.json'),'utf8'));
+const electronArtifact=`electron-v${electronPackage.version}-win32-x64.zip`;
+if(!/^[a-f0-9]{64}$/.test(electronChecksums[electronArtifact]??''))throw new Error('Electron官方包缺少Windows x64校验值');
 const version=process.env.MOTIONDECK_BUILD_VERSION??pkg.version;if(!valid(version))throw new Error('构建版本无效');
 const productName=variant==='acceptance'?'MotionDeckAcceptance':'MotionDeck',appId=variant==='acceptance'?'dev.motiondeck.acceptance':'dev.motiondeck.desktop';
 await cp(join(root,'desktop'),join(stage,'desktop'),{recursive:true});
@@ -25,7 +31,7 @@ for(const resource of JSON.parse(await readFile(join(root,'fixtures/manifest.jso
 await cp(join(root,'fixtures/manifest.json'),join(stage,'fixtures/manifest.json'));
 for(const file of ['LICENSE','THIRD_PARTY_NOTICES.md'])await cp(join(root,file),join(stage,file));
 await writeFile(join(stage,'package.json'),JSON.stringify({name:variant==='acceptance'?'motiondeck-acceptance':'motion-deck',productName,version,license:'MIT',main:'desktop/main.cjs',description:pkg.description},null,2)+'\n','utf8');
-const paths=await packager({dir:stage,name:productName,platform:'win32',arch:'x64',electronVersion:pkg.devDependencies.electron,out:output,icon:join(root,'desktop/assets/motiondeck.ico'),overwrite:true,asar:{unpack:'**/desktop/control/protect-directory.ps1'},prune:false,win32metadata:{CompanyName:'MotionDeck',FileDescription:'MotionDeck 动作编排工具',ProductName:productName}});
+const paths=await packager({dir:stage,name:productName,platform:'win32',arch:'x64',electronVersion:pkg.devDependencies.electron,download:{checksums:{[electronArtifact]:electronChecksums[electronArtifact]}},out:output,icon:join(root,'desktop/assets/motiondeck.ico'),overwrite:true,asar:{unpack:'**/desktop/control/protect-directory.ps1'},prune:false,win32metadata:{CompanyName:'MotionDeck',FileDescription:'MotionDeck 动作编排工具',ProductName:productName}});
 const packageDir=paths[0],archive=join(packageDir,'resources/app.asar');
 // 技能保留在归档外，NSIS沿用整个免安装目录，用户可直接复制使用。
 const skills=await packageSkills(join(packageDir,'skills'));

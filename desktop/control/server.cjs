@@ -5,16 +5,18 @@ const path=require('node:path');
 const {request:validateRequest,reply:validateReply}=require('./validators.generated.cjs');
 const {verifyPrivatePath}=require('./private-directory.cjs');
 const {isRead,timeout}=require('./operation-policy.cjs');
+const {createAssistantSession}=require('./assistant-session.cjs');
 const MAX_BYTES=256*1024;
 const fail=(code,message)=>Object.assign(new Error(message),{code});
 
-function createControlServer({personal,dispatch}){
+function createControlServer({personal,dispatch,onAssistantChange=()=>{}}){
+ const assistant=createAssistantSession({onChange:onAssistantChange});
  const directory=path.join(personal,'control'),discovery=path.join(directory,'instance.json');
  let active=null,queue=Promise.resolve();
- const state=()=>({enabled:!!active,protocolVersion:1,access:active?.writeEnabled?'pose-write':'read-only',timelineWrite:!!active?.timelineEnabled,sessionId:active?.sessionId??null});
+ const state=()=>({enabled:!!active,protocolVersion:1,access:active?.writeEnabled?'pose-write':'read-only',timelineWrite:!!active?.timelineEnabled,sessionId:active?.sessionId??null,assistant:assistant.inspect()});
  const permission=(current,operation)=>['view.capture','view.captureSequence'].includes(operation)?(current.writeEnabled||current.timelineEnabled):operation.startsWith('workspace.')?(current.writeEnabled&&current.timelineEnabled):operation.startsWith('pose.')?current.writeEnabled:current.timelineEnabled;
  async function stop(){
-  const current=active;active=null;if(!current)return;
+  const current=active;active=null;assistant.clear();if(!current)return;
   for(const socket of current.sockets)socket.destroy();
   await new Promise(resolve=>current.server.close(resolve));
   await rm(discovery,{force:true});
@@ -43,12 +45,19 @@ function createControlServer({personal,dispatch}){
      socket.setTimeout(timeout(request.operation));
      const isWrite=!isRead(request.operation);
      if(isWrite&&!permission(current,request.operation))throw fail('WRITE_DISABLED','用户尚未允许此类操作');
-     const {token,protocolVersion,...query}=request,signature=JSON.stringify(query),previous=current.records.get(query.requestId);
+     const {token,protocolVersion,assistantSessionId,...query}=request,signature=JSON.stringify({...query,assistantSessionId}),previous=current.records.get(query.requestId);
      if(previous){if(previous.signature!==signature)throw fail('REQUEST_ID_CONFLICT','请求编号已用于其他内容');respond(socket,await previous.promise);return;}
      const record={signature,status:'pending',operation:query.operation};
      record.promise=(async()=>{
+      let leave;
       try{
        let reply;
+       if(query.operation.startsWith('assistant.')){
+        if(query.operation==='assistant.begin'&&!current.writeEnabled&&!current.timelineEnabled)throw fail('WRITE_DISABLED','请先授权姿势或编排操作');
+        const result=query.operation==='assistant.begin'?assistant.begin():query.operation==='assistant.end'?assistant.end(query.args.id):assistant.inspect();
+        reply={requestId:query.requestId,sessionId:current.sessionId,ok:true,revision:0,result};
+       }else {
+       if(assistantSessionId)leave=assistant.enter(assistantSessionId);
        if(query.operation==='request.status'){
         const target=current.records.get(query.args.requestId);reply={requestId:query.requestId,sessionId:current.sessionId,ok:true,revision:target?.reply?.revision??0,result:{status:target?.status??'unknown',...(target?.reply&&target.operation!=='request.status'?{reply:target.reply}:{})}};
        }else if(isWrite){
@@ -57,10 +66,11 @@ function createControlServer({personal,dispatch}){
         current.writeQueue=task.catch(()=>{});
         try{reply=await task;}finally{current.inFlight--;}
        }else reply=await dispatch(query);
+       }
        if(active!==current)throw fail('SESSION_CLOSED','会话已失效');
        if(!validateReply(reply)||reply.requestId!==query.requestId||reply.sessionId!==current.sessionId)throw fail('INVALID_RESPONSE','客户端查询响应无效');
        return reply;
-      }catch(error){return errorReply(query,error);}
+      }catch(error){return errorReply(query,error);}finally{leave?.();}
      })();
      current.records.set(query.requestId,record);
      if(current.records.size>256){const oldest=[...current.records].find(([,r])=>r.status==='done');if(oldest)current.records.delete(oldest[0]);}
@@ -79,8 +89,8 @@ function createControlServer({personal,dispatch}){
   return state();
  }
  function setEnabled(enabled){if(typeof enabled!=='boolean')return Promise.reject(fail('INVALID_ARGUMENT','启用参数无效'));const task=queue.then(()=>enabled?start():stop().then(state));queue=task.catch(()=>{});return task;}
- function setWriteEnabled(value){if(typeof value!=='boolean'||!active)throw fail('INVALID_ARGUMENT','请先启用命令控制');if(active.inFlight)throw fail('BUSY','姿势操作正在收尾');active.writeEnabled=value;return state();}
- function setTimelineEnabled(value){if(typeof value!=='boolean'||!active)throw fail('INVALID_ARGUMENT','请先启用命令控制');if(active.inFlight)throw fail('BUSY','操作正在收尾');active.timelineEnabled=value;return state();}
+ function setWriteEnabled(value){if(typeof value!=='boolean'||!active)throw fail('INVALID_ARGUMENT','请先启用命令控制');if(active.inFlight)throw fail('BUSY','姿势操作正在收尾');active.writeEnabled=value;if(!active.writeEnabled&&!active.timelineEnabled)assistant.clear();return state();}
+ function setTimelineEnabled(value){if(typeof value!=='boolean'||!active)throw fail('INVALID_ARGUMENT','请先启用命令控制');if(active.inFlight)throw fail('BUSY','操作正在收尾');active.timelineEnabled=value;if(!active.writeEnabled&&!active.timelineEnabled)assistant.clear();return state();}
  return {state,setEnabled,setWriteEnabled,setTimelineEnabled,hasPendingWrites:()=>!!active?.inFlight,close:()=>setEnabled(false)};
 }
 module.exports={createControlServer,MAX_BYTES};

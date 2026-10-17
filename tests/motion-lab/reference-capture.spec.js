@@ -3,7 +3,39 @@ import {test,expect} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import {placeAction} from './drag-source-helper.js';
+import {build} from 'esbuild';
 const bin=process.env.FFMPEG_BIN?process.env.FFMPEG_BIN+'/':'';
+
+test('共享拍摄工厂保留显式尺寸/相机，渲染失败恢复辅助物且资源只释放一次',async({page})=>{
+ const fixture=await build({stdin:{contents:"export {THREE} from './web/labs/motion/platform/three-adapter.js';export {createReferenceCaptureFactory} from './web/labs/motion/platform/reference-scene.js';",resolveDir:process.cwd()},bundle:true,format:'esm',write:false});
+ await page.route('**/media-factory-fixture.js',route=>route.fulfill({contentType:'application/javascript',body:fixture.outputFiles[0].text}));
+ await page.goto('/');await waitForModel(page,{actions:162});
+ const result=await page.evaluate(async()=>{
+  const {THREE,createReferenceCaptureFactory}=await import('/media-factory-fixture.js');
+  const scene=new THREE.Scene(),geometry=new THREE.BoxGeometry(),material=new THREE.MeshBasicMaterial({color:0xffffff}),root=new THREE.Mesh(geometry,material),grid=new THREE.Object3D(),helper=new THREE.Object3D();
+  scene.add(root,grid,helper);const camera=new THREE.PerspectiveCamera(38,1,.01,100),other=camera.clone();other.position.z=3;
+  const renderer=new THREE.WebGLRenderer();let releases=0,hiddenAtDraw=false;
+  const create=createReferenceCaptureFactory({scene,renderer,grid,getCamera:()=>camera,getRoot:()=>root,getHelper:()=>helper,onStatus:()=>{},onRelease:()=>releases++});
+  const before=camera.position.toArray(),flags=scene.children.map(node=>node.visible),capture=create({camera:other,width:96,height:64});
+  try{
+   root.onBeforeRender=()=>{hiddenAtDraw=!grid.visible&&!helper.visible;throw Error('模拟渲染失败');};
+   let failure='';try{await capture.photo();}catch(error){failure=error.message;}
+   const restored=JSON.stringify(scene.children.map(node=>node.visible))===JSON.stringify(flags);
+   root.onBeforeRender=()=>{};const bitmap=await createImageBitmap(await capture.photo());const dimensions=[bitmap.width,bitmap.height];bitmap.close();
+   capture.dispose();capture.dispose();return {failure,hiddenAtDraw,restored,dimensions,releases,cameraUnchanged:JSON.stringify(camera.position.toArray())===JSON.stringify(before)};
+  }finally{capture.dispose();renderer.dispose();renderer.forceContextLoss();geometry.dispose();material.dispose();}
+ });
+ expect(result).toEqual({failure:'模拟渲染失败',hiddenAtDraw:true,restored:true,dimensions:[96,64],releases:1,cameraUnchanged:true});
+});
+
+test('自动取景保持源/姿势/编排上下文、可见姿势和编辑版本',async({page})=>{
+ await page.goto('/');await waitForModel(page,{actions:162});
+ const snapshot=()=>page.evaluate(async()=>{const {workbench}=await import('/labs/motion/motion.bundle.js');return {state:workbench.inspect(),rig:workbench.rigList({limit:100}).entries};});
+ const fit=async()=>{const before=await snapshot();await page.locator('#fit').click();await expect(page.locator('#status')).toHaveText('取景已适配 · 镜头保持固定');expect(await snapshot()).toEqual(before);await expect(page.locator('#replaceModel')).toBeEnabled();};
+ await fit();await page.locator('#library-pose').click();await page.locator('#clips [data-pose-id]').first().click();await fit();
+ await page.locator('#library-actions').click();await placeAction(page,page.locator('#clips [data-clip-index]').first());await page.locator('#segments .action').first().click();await fit();
+ await page.screenshot({path:'output/acceptance/media-fit-preserved.png'});
+});
 test('真实PNG与视频下载：无界面/网格/骨架、完整编排与恢复，提前停止及错误保护',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.locator('#replaceModel').selectOption('mesh2motion');await waitForModel(page,{actions:162});await expect(page.locator('#status')).toContainText('162 动作');
  await page.locator('#green').check();await page.locator('#skeleton').check();

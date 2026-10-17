@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import {findLimbChains,LimbIK} from './pose-ik.js';
-import {capturePose,applyPose} from './core/sequence-core.js';
+import {findLimbChains,LimbIK} from '../../web/labs/motion/pose/pose-ik.js';
+import {capturePose,applyPose} from '../../web/labs/motion/core/sequence-core.js';
 export class PoseDrag{
   constructor({stage,camera,controls,getState,onEdit,onStatus}){Object.assign(this,{stage,camera,controls,getState,onEdit,onStatus});this.root=null;this.handles=[];this.drag=null;this.last=null;this.ray=new THREE.Raycaster();this.layer=document.createElement('div');this.layer.className='pose-handles';stage.append(this.layer);this.key=e=>{if(e.key==='Escape'&&this.drag){this.finish(true);e.preventDefault();}};window.addEventListener('keydown',this.key);}
   rebuild(root){this.finish(true);this.handles.forEach(h=>h.ik.dispose());this.handles=[];this.layer.replaceChildren();this.root=root;this.last=null;if(!root)return;
@@ -14,6 +14,6 @@ export class PoseDrag{
   move(e){if(!this.drag||e.pointerId!==this.drag.id)return;const hit=this.point(e);if(!hit||!this.drag.origin)return;const target=this.drag.start.clone().add(hit.sub(this.drag.origin)),h=this.drag.h;if(h.kind==='translate'){h.node.position.copy(h.node.parent.worldToLocal(target));h.node.updateWorldMatrix(true,true);}else if(h.kind==='pole')h.ik.movePole(target);else h.ik.move(target);this.onEdit(h.chain);this.update();}
   finish(cancel){if(!this.drag)return;const drag=this.drag;this.drag=null;if(cancel)applyPose(this.root,drag.before);else this.last={root:this.root,pose:drag.before};this.controls.enabled=drag.controlsEnabled;drag.h.button.classList.remove('dragging');if(drag.h.button.hasPointerCapture(drag.id))drag.h.button.releasePointerCapture(drag.id);this.onEdit(drag.h.chain);this.onStatus(cancel?'已取消调整':'姿势已调整，可保存');}
   undo(){if(this.last?.root!==this.root)return;applyPose(this.root,this.last.pose);this.last=null;this.onEdit();this.onStatus('已撤销上次拖动');}
-  update(){const state=this.getState();if(state.root!==this.root)this.rebuild(state.root);const visible=!!this.root&&!state.playing&&!state.busy&&document.getElementById('posePanel').open;this.layer.hidden=!visible;if(!visible)return;if(this.handles.length){const text=this.handles.some(h=>h.chain.constraint)?'拖动手脚、肘膝和骨盆 · 其他关节点旋转':'拖动手脚 · 点击关节旋转';this.help.textContent=text+(this.camera.isPerspectiveCamera?' · 右键 + WASD 自由观看':' · Esc 取消');}const box=this.stage.getBoundingClientRect();for(const h of this.handles){const world=h.chain.end.getWorldPosition(new THREE.Vector3()),p=world.clone().project(this.camera);h.button.hidden=p.z<-1||p.z>1||Math.abs(p.x)>1||Math.abs(p.y)>1;const offset=h.chain.name==='左脚'?22:h.chain.name==='右脚'?-22:0;h.button.style.left=`${(p.x+1)*box.width/2+offset}px`;h.button.style.top=`${(1-p.y)*box.height/2}px`;}}
+  update(){this.layer.hidden=true;}
   dispose(){this.finish(true);this.handles.forEach(h=>h.ik.dispose());window.removeEventListener('keydown',this.key);this.layer.remove();}
 }

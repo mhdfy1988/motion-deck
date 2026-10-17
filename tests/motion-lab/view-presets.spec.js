@@ -2,7 +2,7 @@ import {waitForModel} from './model-ready-helper.js';
 import {test,expect} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
-import {viewPresets} from '../../web/labs/motion/view-presets.js';
+import {viewPresets} from '../../web/labs/motion/platform/view-presets.js';
 const bin=process.env.FFMPEG_BIN?process.env.FFMPEG_BIN+'/':'';
 
 test('20个固定视图实际出图，切方向不改编排，短屏可达',async({page})=>{

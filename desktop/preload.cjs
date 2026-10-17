@@ -1,7 +1,13 @@
 const {contextBridge,ipcRenderer}=require('electron');
 // 只暴露固定业务操作，绝不暴露ipcRenderer、Node或任意文件路径读写。
 contextBridge.exposeInMainWorld('motionDeckDesktop',Object.freeze({
+ windowState:()=>ipcRenderer.invoke('motiondeck:window','state'),
+ minimizeWindow:()=>ipcRenderer.invoke('motiondeck:window','minimize'),
+ toggleMaximizeWindow:()=>ipcRenderer.invoke('motiondeck:window','maximize'),
+ closeWindow:()=>ipcRenderer.invoke('motiondeck:window','close'),
+ onWindowState:callback=>{const listener=(_event,value)=>callback(value);ipcRenderer.on('motiondeck:window-state',listener);return ()=>ipcRenderer.removeListener('motiondeck:window-state',listener);},
  controlState:()=>ipcRenderer.invoke('motiondeck:control','state'),
+ onAssistantState:callback=>{const listener=(_event,value)=>callback(value);ipcRenderer.on('motiondeck:assistant-state',listener);return ()=>ipcRenderer.removeListener('motiondeck:assistant-state',listener);},
  setControlEnabled:enabled=>ipcRenderer.invoke('motiondeck:control','enable',enabled),
  setControlWrite:enabled=>ipcRenderer.invoke('motiondeck:control','write',enabled),
  setControlTimeline:enabled=>ipcRenderer.invoke('motiondeck:control','timeline',enabled),

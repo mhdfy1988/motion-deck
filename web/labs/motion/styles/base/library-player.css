@@ -1,0 +1,43 @@
+/* 分类切换不重建动作引用，也不占用额外侧栏。 */
+.library-tabs{display:flex;flex-shrink:0;border-bottom:1px solid var(--line);gap:2px}
+.library-tabs button{flex:1;min-width:0;min-height:34px;padding:6px 0;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:var(--muted);font-size:11px;white-space:nowrap}
+.library-tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.library-group{flex-shrink:0;border-bottom:1px solid #2c333a;padding:3px 0 9px}
+.library-group summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none;padding:9px 6px;font-size:11px;color:#a5b3bf}
+.library-group summary::before{content:'›';font-size:15px;color:#788995;transform:rotate(0deg)}
+.library-group[open] summary::before{transform:rotate(90deg)}
+.library-group summary small{margin-left:auto;color:#73818c;font:10px Consolas,monospace}
+.library-group-body{display:flex;flex-direction:column;gap:3px}.library-group-body button{width:100%}
+.library-group-body .empty{padding:0 8px;font-size:11px}
+#clips button[hidden]{display:none}
+
+#modelName{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:11px;min-width:0}
+#replaceModel{display:inline-flex!important;width:235px;max-width:26vw;margin:0;min-width:0;padding:5px 8px;background:#1b2025;color:#cbd5dd;font-size:11px}
+.top #renameModel{display:inline-flex;align-items:center;justify-content:center;border:0;background:transparent;padding:4px;min-height:26px;margin-left:-14px;color:var(--muted)}
+.top #renameModel[hidden]{display:none}.top #renameModel svg{width:14px;height:14px}
+#renameModelDialog{width:340px;border:1px solid #414b54;border-radius:8px;padding:22px;background:#1b2025;color:var(--text)}
+#renameModelDialog::backdrop{background:#0009}#renameModelDialog label{font-size:12px;color:var(--muted)}
+#modelDisplayName{width:100%;margin-top:8px;padding:9px;background:#13171c;color:#eee;border:1px solid #414b54;border-radius:4px}
+.timeline-head #saveAction{min-height:30px;font-size:11px;flex-shrink:0;white-space:nowrap}
+.timeline-head #newAction{margin-right:2px}
+#actionTitle{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#saveActionDialog{width:340px;border:1px solid #414b54;border-radius:8px;padding:22px;background:#1b2025;color:var(--text)}
+#saveActionDialog::backdrop{background:#0009}
+.dialog-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.dialog-head h2{margin:0;font-size:16px;font-weight:500}
+.dialog-head button{border:0;background:transparent;padding:0;min-height:26px;font-size:22px;color:var(--muted)}
+#saveActionDialog label{font-size:12px;color:var(--muted)}
+#actionName{width:100%;margin-top:8px;padding:9px;background:#13171c;color:#eee;border:1px solid #414b54;border-radius:4px}
+.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:22px}
+.dialog-actions button{width:auto;min-width:70px;min-height:32px;font-size:12px}
+
+.resize-handle.resize-left{left:0;right:auto;border:0;box-shadow:inset 3px 0 #607688}
+#previewSeek{width:calc(100% - 40px);margin:0 20px;height:12px;accent-color:var(--accent);flex-shrink:0;cursor:pointer}
+/* 高级入口已有源动作滑条，避免重复显示并保持原视口几何。 */
+body.advanced-tools #previewSeek{display:none}
+body:not(.advanced-tools) .player #capturePose{width:auto;white-space:nowrap;font-size:11px;padding:4px 8px;border:1px solid #343e47;border-radius:4px}
+#savePoseDialog{width:340px;border:1px solid #414b54;border-radius:8px;padding:22px;background:#1b2025;color:#e8eaec}
+#savePoseDialog::backdrop{background:#0009}
+#savePoseDialog label{font-size:12px;color:var(--muted)}
+#poseName{width:100%;margin-top:8px;padding:9px;background:#13171c;color:#eee;border:1px solid #414b54;border-radius:4px}
+.resize-left:hover{box-shadow:inset 3px 0 var(--accent)}

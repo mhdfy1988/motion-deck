@@ -1,8 +1,8 @@
 import {OrthographicCamera,Vector3} from 'three';
 import {capturePose,applyPose,sampleSequence} from '../core/sequence-core.js';
-import {visibleModelBounds,measureMotionBounds,boundsSampleTimes} from '../motion-bounds.js';
-import {viewPreset} from '../view-presets.js';
-import {fitView} from '../view-camera.js';
+import {visibleModelBounds,measureMotionBounds,boundsSampleTimes} from './motion-bounds.js';
+import {viewPreset} from './view-presets.js';
+import {fitView} from './view-camera.js';
 
 // 命令媒体复用参考捕获和采样器；独立输出相机不改变用户相机及轨道控制器。
 export function createControlMedia({state,getCamera,createCapture,getBridge,sampleOutput=(sequence,time)=>sampleSequence(sequence,time,state.sampler)}){

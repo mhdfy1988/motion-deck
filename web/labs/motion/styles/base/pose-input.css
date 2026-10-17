@@ -1,0 +1,21 @@
+/* 身体点保持轻量，选中后才显示标准变换工具。 */
+.body-handles{position:absolute;inset:0;pointer-events:none}
+.body-handles[hidden]{display:none}
+.hand-editor{display:flex;align-items:center;gap:8px;border-left:1px solid #39414b;margin-left:4px;padding-left:10px;color:#a8d7f5;white-space:nowrap}
+.hand-editor[hidden]{display:none}
+.hand-editor button{font-size:12px;min-height:30px;padding:4px 10px}
+.finger-handle{cursor:grab}
+.finger-handle:active{cursor:grabbing}
+canvas.hand-edit-hover{cursor:pointer!important}
+.body-handle{position:absolute;transform:translate(-50%,-50%);width:16px;height:16px;min-height:0;padding:0;border:0;border-radius:50%;background:transparent;pointer-events:auto;box-shadow:none}
+.body-handle:before{content:none}
+.body-handle:hover,.body-handle.active{background:transparent;box-shadow:none}
+.body-handle:focus-visible{outline:1px solid #87cefa;outline-offset:1px}
+.body-handle:after{content:none}
+.pose-tools button.active{background:#243d4d;border-color:#8bd3ff;color:#9edbff}
+.trim-fields{display:flex;gap:10px}.trim-fields[hidden]{display:none}.trim-fields label{flex:1;min-width:0}
+#sourceSeek{width:100%;accent-color:var(--accent);margin:8px 0}
+.settings>.pose-tools{margin:8px 0 12px}.settings>.pose-tools button{flex:1;font-size:12px}
+#quickSequence{width:100%;margin-top:8px;font-size:12px}
+#posePanel>summary{font-size:14px;color:#c5d2dd;padding:4px 0}
+.settings label[hidden]{display:none}

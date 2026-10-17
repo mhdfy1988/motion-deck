@@ -1,4 +1,4 @@
-import {readFile,stat} from 'node:fs/promises';
+import {readFile,readdir,stat} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import {join,basename} from 'node:path';
 import config from '../playwright.config.js';
@@ -12,11 +12,13 @@ export function validateLocalReport(report,minimum,required){
  return start;
 }
 export async function assertLocalAcceptance(root){
- const specs=[['local-web.json',63,config.testMatch],['local-desktop.json',21,['client.spec.js','directories.spec.js','updates.spec.js','chrome.spec.js','startup-shutdown.spec.js','timeline-controls.spec.js','workbench-operations.spec.js','control-command.spec.js','pose-command.spec.js','timeline-command.spec.js','dev-auto-control.spec.js','review-command.spec.js','root-motion-command.spec.js','library-rename.spec.js','library-clipboard.spec.js','ai-workspace.spec.js']]];
- let earliest=Infinity;
+ const desktopFiles=(await readdir(join(root,'tests/desktop'))).filter(name=>name.endsWith('.spec.js'));
+ const specs=[['local-web.json',138,config.testMatch],['local-desktop.json',31,desktopFiles]];
+ let earliest=Infinity;const counts={};
  for(const [file,minimum,required] of specs){
   const report=JSON.parse(await readFile(join(root,'output/acceptance',file),'utf8'));
   const start=validateLocalReport(report,minimum,required);
+  counts[file]=report.stats.expected;
   earliest=Math.min(earliest,start);
  }
  // NUL分隔保留中文、空格及引号，不把Git展示用转义文本当作真实路径。
@@ -24,5 +26,5 @@ export async function assertLocalAcceptance(root){
  for(const path of paths)if((await stat(join(root,path))).mtimeMs>earliest)throw new Error('验收后实现或测试已变更，需重跑：'+path);
  const archive=join(root,'output/desktop/MotionDeck-win32-x64/resources/app.asar');
  if((await stat(archive)).mtimeMs>earliest)throw new Error('验收后客户端已重新打包，需重跑');
- return {web:63,desktop:21};
+ return {web:counts['local-web.json'],desktop:counts['local-desktop.json']};
 }

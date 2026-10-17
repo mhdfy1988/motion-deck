@@ -1,0 +1,64 @@
+/* 深色底板上的独立面板：留缝划分区域，编排工具栏归属底部面板。 */
+body:not(.advanced-tools) main{padding:8px;gap:8px;background:#0c0e10}
+body:not(.advanced-tools) .library,body:not(.advanced-tools) .viewport,body:not(.advanced-tools) .timeline{border:1px solid #2b2e33;border-radius:8px}
+body:not(.advanced-tools) .viewport{overflow:hidden;background:#121416}
+.brand{display:inline-flex;align-items:center;gap:9px;white-space:nowrap}
+.brand-mark{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;flex-shrink:0;color:#72b7ff}
+.brand-mark svg{width:21px;height:21px}
+.titlebar-divider{height:22px;border-left:1px solid #353940;flex-shrink:0}
+.model-control{display:flex;align-items:center;gap:8px;min-width:0}
+body:not(.advanced-tools) .top .titlebar-main{gap:18px;flex-shrink:0}
+body:not(.advanced-tools) .brand{color:#e8edf5;font-size:16px;font-weight:650;letter-spacing:.15px}
+body:not(.advanced-tools) #status{color:#8b909a;min-width:0;max-width:none;flex:1;text-align:right;font-size:11px}
+body:not(.advanced-tools) #replaceModel{background:#22252a;border-color:#353940;color:#d7dde6;min-height:30px;width:176px;font-size:12px;padding:4px 10px}
+body:not(.advanced-tools) .top :is(#desktopSettings,#replaceModel):hover:not(:disabled){background:#343b46;border-color:#687c95;color:#fff}
+body:not(.advanced-tools) .top :is(#desktopSettings,#replaceModel):active:not(:disabled){background:#29425c;border-color:#72b7ff;color:#fff}
+@media(max-width:760px){body:not(.advanced-tools) .top{gap:12px}body:not(.advanced-tools) .top .titlebar-main{gap:12px}body:not(.advanced-tools) .brand{font-size:14px;gap:7px}body:not(.advanced-tools) #replaceModel{width:132px}}
+body:not(.advanced-tools) .library{background:#1b1d21;border-color:#2b2e33}
+body:not(.advanced-tools) .section-head{padding:0 8px}
+
+body:not(.advanced-tools) #clipCount{color:#8b9099;font-variant-numeric:tabular-nums}
+body:not(.advanced-tools) #appendClips{border-color:#363a42;color:#c3c7d0;background:#22252a;padding:5px 9px;min-height:28px}
+body:not(.advanced-tools) #appendClips:hover:not(:disabled){background:#2b2f35;border-color:#545c67;color:#fff}
+body:not(.advanced-tools) .library-tabs{gap:8px;border-bottom:1px solid #2b2e33}
+body:not(.advanced-tools) .library-tabs button{color:#9197a1;border-radius:0}
+body:not(.advanced-tools) .library-tabs button[aria-selected=true]{color:#e7edf7;border-bottom:2px solid var(--accent)}
+body:not(.advanced-tools) .library-tabs button:hover{color:#f5f6fa;background:transparent}
+body:not(.advanced-tools) .library-group{border-color:#2a2d32;padding:0 0 4px}
+body:not(.advanced-tools) .library-group summary{padding:6px 8px;color:#9ca2ad;letter-spacing:.2px}
+body:not(.advanced-tools) .library-group summary::before{color:#7b828e}
+body:not(.advanced-tools) .library-group summary small{color:#727a86}
+body:not(.advanced-tools) .clips{padding-right:3px;gap:2px}
+body:not(.advanced-tools) .library-group-body{gap:2px}
+body:not(.advanced-tools) .clips button{color:#d7dbe2;background:transparent;border-color:transparent;border-radius:5px}
+body:not(.advanced-tools) .clips button:hover{background:#26292f;border-color:transparent;color:#fff}
+body:not(.advanced-tools) .clips button.active{background:#253244;border-color:#354c68;color:#f0f6ff;box-shadow:inset 2px 0 var(--accent)}
+body:not(.advanced-tools) .clips button small{font:10px Consolas,monospace;color:#828b98}
+body:not(.advanced-tools) .clips button.active small{color:#b0c8e5}
+body:not(.advanced-tools) .transition-library{border-color:#2b2e33;padding-top:14px}
+body:not(.advanced-tools) .transition-library .motion-source-card{background:#22262c;border:1px solid #363c45;border-radius:5px;padding:12px}
+body:not(.advanced-tools) .transition-library .motion-source-card:hover[aria-disabled=false]{border-color:#6c93bd;background:#263140}
+body:not(.advanced-tools) .transition-library span{color:#d5dde8}
+body:not(.advanced-tools) .transition-library small{color:#8995a5}
+body:not(.advanced-tools) .view-head,body:not(.advanced-tools) .player{background:#191c20}
+body:not(.advanced-tools) .view-head{padding:8px 20px}
+body:not(.advanced-tools) .view-head>span{color:#737b87;font-size:11px}
+body:not(.advanced-tools) .view-head button{font-size:11px;color:#a5abb6;padding:4px 8px}
+body:not(.advanced-tools) .view-head button:hover:not(:disabled){background:#25282e;border-color:transparent;color:#f2f4f8}
+body:not(.advanced-tools) .view-head>div{gap:12px}
+body:not(.advanced-tools) .toggle{color:#9298a3;gap:5px}
+
+body:not(.advanced-tools) .player{border-color:#2b2e33}
+body:not(.advanced-tools) .player #play{background:transparent;color:#dce2eb;border-radius:5px;width:34px;min-height:34px;padding:7px}
+body:not(.advanced-tools) .player #play:hover:not(:disabled){background:#272b32;border-color:transparent;color:#fff}
+body:not(.advanced-tools) .player #restart{color:#a2a9b5}
+body:not(.advanced-tools) .player #restart:hover:not(:disabled){background:#272b32;color:#fff}
+body:not(.advanced-tools) #currentClip{color:#e1e5ed;padding-left:5px}
+body:not(.advanced-tools) .player #capturePose{background:#22262c;border-color:#363c45;color:#c3ccd9}
+body:not(.advanced-tools) .player #capturePose:hover:not(:disabled){background:#2c323b;color:#fff;border-color:#505e70}
+body:not(.advanced-tools) .player label{font-size:11px;color:#8e95a2}
+body:not(.advanced-tools) .player select{background:#22262c;border-color:#363c45;font-size:11px;min-height:30px;padding:4px 8px}
+body:not(.advanced-tools) .player #clock{color:#939eaf}
+body:not(.advanced-tools) #previewSeek{appearance:none;-webkit-appearance:none;background:transparent;height:12px}
+body:not(.advanced-tools) #previewSeek::-webkit-slider-runnable-track{height:2px;background:#343a43;border-radius:2px}
+body:not(.advanced-tools) #previewSeek::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-top:-3px}

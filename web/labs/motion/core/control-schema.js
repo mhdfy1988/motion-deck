@@ -1,4 +1,4 @@
-export const READ_OPERATIONS=['session.inspect','model.inspect','rig.list','library.list','request.status','timeline.inspect','sequence.sample','workspace.list'];
+export const READ_OPERATIONS=['session.inspect','model.inspect','rig.list','library.list','request.status','timeline.inspect','sequence.sample','workspace.list','assistant.begin','assistant.end','assistant.inspect'];
 export const WRITE_OPERATIONS=['pose.fromClip','pose.fromLibrary','pose.fromSequence','pose.setRootTransform','pose.setBones','pose.undo','pose.redo','pose.discard','pose.save','view.capture','view.captureSequence','timeline.insertPoseAt','timeline.append','timeline.move','timeline.remove','timeline.resize','timeline.trim','timeline.transition','timeline.undo','timeline.redo','timeline.saveAction','preview.sequence','preview.setRootMotion','export.glb','export.video'];
 const propertyObject=(properties,required=Object.keys(properties))=>({type:'object',additionalProperties:false,properties,required});
 const time={type:'number',minimum:0,maximum:100000},range={times:{type:'array',minItems:1,maxItems:600,items:time},start:time,end:time,step:{type:'number',exclusiveMinimum:0,maximum:100000}};
@@ -6,6 +6,9 @@ const views={type:'array',minItems:1,maxItems:3,uniqueItems:true,items:{enum:['f
 const options=propertyObject({width:{type:'integer',minimum:320,maximum:1920},height:{type:'integer',minimum:240,maximum:1080},framing:{enum:['motion','pose','current']},ground:{type:'boolean'},skeleton:{type:'boolean'}},[]);
 export const mediaManifestSchema=propertyObject({modelKey:{type:'string',pattern:'^[a-f0-9]{64}$'},revision:{type:'integer',minimum:0},options,frames:{type:'array',minItems:1,maxItems:24,items:propertyObject({path:{type:'string',maxLength:2000},width:{type:'integer',minimum:2,maximum:4096},height:{type:'integer',minimum:2,maximum:4096},bytes:{type:'integer',minimum:24,maximum:20971520},sha256:{type:'string',pattern:'^[a-f0-9]{64}$'},view:views.items,time})}});
 const argumentSchemas={
+ 'assistant.begin':propertyObject({}),
+ 'assistant.end':propertyObject({id:{type:'string',pattern:'^[a-f0-9-]{36}$'}}),
+ 'assistant.inspect':propertyObject({}),
  'workspace.create':propertyObject({name:{type:'string',minLength:1,maxLength:80}}),
  'workspace.activate':propertyObject({taskId:{type:'string',minLength:1,maxLength:80}}),
  'workspace.update':propertyObject({taskId:{type:'string',minLength:1,maxLength:80},assetId:{type:'string',minLength:1,maxLength:300},role:{enum:['temporary','key','result']},stage:{type:'string',maxLength:80},iteration:{type:'integer',minimum:1,maximum:10000},state:{enum:['active','superseded']},protected:{const:true}},['taskId','assetId']),
@@ -31,7 +34,7 @@ const argumentSchemas={
  'preview.sequence':propertyObject({time:{type:'number',minimum:0,maximum:100000},playing:{type:'boolean'}}),
  'export.glb':propertyObject({name:{type:'string',minLength:1,maxLength:80},confirmed:{const:true},rootMotion:propertyObject({horizontal:{type:'boolean'},vertical:{type:'boolean'}})},['name','confirmed']),
  'pose.fromClip':propertyObject({clipId:{type:'string',minLength:1,maxLength:300},time:{type:'number',minimum:0}}),
- 'pose.setBones':propertyObject({changes:{type:'array',minItems:1,maxItems:256,items:propertyObject({id:{type:'string',pattern:'^node:[0-9]+$'},quaternion:{type:'array',minItems:4,maxItems:4,items:{type:'number',minimum:-1,maximum:1}},position:{type:'array',minItems:3,maxItems:3,items:{type:'number',minimum:-100,maximum:100}}},['id','quaternion'])}}),
+ 'pose.setBones':propertyObject({changes:{type:'array',minItems:1,maxItems:256,items:propertyObject({id:{type:'string',pattern:'^node:[0-9]+$'},quaternion:{type:'array',minItems:4,maxItems:4,items:{type:'number',minimum:-1,maximum:1}},position:{type:'array',minItems:3,maxItems:3,items:{type:'number',minimum:-100,maximum:100}}},['id','quaternion'])},constraintMode:{enum:['natural','free']}},['changes']),
  'pose.undo':propertyObject({}),'pose.redo':propertyObject({}),'pose.discard':propertyObject({}),
  'pose.save':propertyObject({name:{type:'string',minLength:1,maxLength:80},confirmed:{const:true}}),
  'view.capture':propertyObject({views,options},['views']),
@@ -49,7 +52,7 @@ export const querySchema={type:'object',additionalProperties:false,required:['re
  {if:{properties:{operation:{const:'request.status'}}},then:{properties:{args:{type:'object',required:['requestId'],additionalProperties:false,properties:{requestId:id}}}}},
  ...Object.entries(argumentSchemas).map(([operation,args])=>({if:{properties:{operation:{const:operation}}},then:{...(WRITE_OPERATIONS.includes(operation)||operation==='sequence.sample'?{required:['modelKey','expectedRevision']}:{}),properties:{args}}})),
 ]};
-export const requestSchema={...querySchema,required:[...querySchema.required,'protocolVersion','token'],properties:{...querySchema.properties,protocolVersion:{const:1},token:{type:'string',pattern:'^[a-f0-9]{64}$'}}};
+export const requestSchema={...querySchema,required:[...querySchema.required,'protocolVersion','token'],properties:{...querySchema.properties,assistantSessionId:{type:'string',pattern:'^[a-f0-9-]{36}$'},protocolVersion:{const:1},token:{type:'string',pattern:'^[a-f0-9]{64}$'}}};
 export const replySchema={
  type:'object',additionalProperties:false,required:['requestId','sessionId','ok'],
  properties:{requestId:id,sessionId:id,ok:{type:'boolean'},revision:{type:'integer',minimum:0},result:{type:'object'},error:{type:'object',additionalProperties:false,required:['code','message'],properties:{code:{type:'string',maxLength:80},message:{type:'string',maxLength:300}}}},

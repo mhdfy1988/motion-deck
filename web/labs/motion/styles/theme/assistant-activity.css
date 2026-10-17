@@ -1,0 +1,23 @@
+.top:has(#assistantActivity){position:relative}
+.assistant-pose-tools{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:10001;display:flex;flex:none;align-items:center;gap:10px;padding:7px 15px;border:1px solid #74bfff;border-radius:18px;background:#163955;color:#e0f3ff;box-shadow:0 0 16px #56b4ff55,inset 0 0 12px #67baff18;font-size:13px;line-height:18px;font-weight:600;white-space:nowrap;pointer-events:none;user-select:none}
+.assistant-pose-tools[hidden]{display:none}
+.assistant-pose-tools{overflow:hidden;isolation:isolate;animation:assistant-pill-glow 2s ease-in-out infinite}
+.assistant-pose-tools>span{position:relative;z-index:1}
+.assistant-pose-tools::before{content:"";position:absolute;inset:-30px auto -30px -65%;width:45%;background:linear-gradient(100deg,transparent,#80caff55,transparent);transform:skewX(-18deg);pointer-events:none;animation:assistant-pill-sweep 2.8s ease-in-out infinite}
+.assistant-activity-dot{width:13px;height:13px;flex:none;border:2px solid #75c5ff55;border-top-color:#e2f7ff;border-right-color:#8dd7ff;border-radius:50%;box-shadow:0 0 9px #6cc7ff66;animation:assistant-spinner 1s linear infinite}
+@property --assistant-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+body.assistant-operating::after{content:"";position:fixed;inset:3px;z-index:10000;border:2px solid #63baff;border-radius:9px;box-shadow:inset 0 0 25px #319fff45,0 0 14px #56b4ff88;pointer-events:none;animation:assistant-activity-breathe 2s ease-in-out infinite}
+body.assistant-operating::before{content:"";position:fixed;inset:3px;z-index:10001;padding:3px;border-radius:9px;background:conic-gradient(from var(--assistant-angle),#3e94ed44 0deg,#65c7ff 55deg,#e0faff 78deg,#65c7ff 95deg,#3e94ed44 140deg,#3e94ed44 210deg,#77cbff 260deg,#dcf7ff 280deg,#3e94ed44 325deg);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask-composite:exclude;pointer-events:none;animation:assistant-orbit 3s linear infinite}
+@keyframes assistant-orbit{to{--assistant-angle:360deg}}
+@keyframes assistant-spinner{to{transform:rotate(360deg)}}
+@keyframes assistant-activity-breathe{0%,100%{opacity:.65}50%{opacity:1}}
+@keyframes assistant-pill-sweep{0%,15%{left:-65%}75%,100%{left:130%}}
+@keyframes assistant-pill-glow{0%,100%{box-shadow:0 0 14px #56b4ff55,inset 0 0 12px #67baff18}50%{box-shadow:0 0 26px #56b4ff99,inset 0 0 16px #67baff33}}
+body.assistant-waiting::after{border-color:#63baff;box-shadow:inset 0 0 20px #319fff35,0 0 12px #56b4ff66;animation-duration:4s}
+body.assistant-waiting::before{animation-duration:8s;opacity:.8}
+body.assistant-waiting .assistant-pose-tools{background:#163955;border-color:#74bfff;color:#e0f3ff;box-shadow:0 0 13px #56b4ff44,inset 0 0 10px #67baff18}
+body.assistant-waiting .assistant-activity-dot{width:8px;height:8px;margin:2.5px;border:0;background:#8dd7ff;box-shadow:0 0 8px #6cc7ff77;animation:none}
+body.assistant-waiting .assistant-pose-tools{animation-duration:4s}
+body.assistant-waiting .assistant-pose-tools::before{animation-duration:5s}
+@media(max-width:1200px){.assistant-pose-tools{left:calc(50% + 90px)}}
+@media(prefers-reduced-motion:reduce){body.assistant-operating::after,body.assistant-operating::before,.assistant-activity-dot,.assistant-pose-tools,body.assistant-waiting .assistant-pose-tools,.assistant-pose-tools::before{animation:none}body.assistant-operating::after{opacity:1}.assistant-pose-tools::before{display:none}}

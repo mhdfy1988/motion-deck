@@ -4,6 +4,20 @@ import {handleConfirmation} from './confirm-helper.js';
 import {resolve} from 'node:path';
 import {placeAction} from './drag-source-helper.js';
 
+test('高级素材追加保留原校验与持久化，不开放普通界面导入',async({page})=>{
+ await page.goto('/labs/motion/index.html?tools=1');await waitForModel(page,{actions:162});
+ const pack=resolve('fixtures/poses/MakeHumanPoses.glb');
+ await page.locator('#modelFiles').setInputFiles(pack);await waitForModel(page,{actions:99});
+ await page.locator('#poseFiles').setInputFiles(pack);await expect(page.locator('#status')).toContainText('已导入 99');
+ const read=()=>page.evaluate(async()=>{const {workbench}=await import('/labs/motion/motion.bundle.js');return workbench.libraryList({scope:'custom',kind:'pose',limit:100});});
+ expect((await read()).entries).toHaveLength(99);
+ await page.reload();await waitForModel(page,{actions:99});expect((await read()).entries).toHaveLength(99);
+ await page.locator('#poseFiles').setInputFiles(resolve('fixtures/RobotExpressive.glb'));await expect(page.locator('#error')).toBeVisible();expect((await read()).entries).toHaveLength(99);
+ await page.locator('#animationFiles').setInputFiles(pack);await expect(page.locator('#status')).toContainText('已追加 99');await expect(page.locator('#source option')).toHaveCount(198);
+ await page.reload();await waitForModel(page,{actions:198});expect((await read()).entries).toHaveLength(99);
+ await page.goto('/');await waitForModel(page,{actions:198});await expect(page.locator('#animationFiles').locator('..')).toBeHidden();await expect(page.locator('#appendClips')).toBeHidden();
+});
+
 test('按来源精确删除旧测试人偶，默认库与外部素材不受影响',async({page})=>{
  await page.goto('/');await page.locator('#replaceModel').selectOption('quaternius');await waitForModel(page,{actions:117});await expect(page.locator('#status')).toContainText('117 动作');
  const oldKey='a'.repeat(64);await page.evaluate(async oldKey=>{const {getImage,putImages}=await import('/labs/motion/platform/indexeddb-store.js'),catalog=await getImage('motion-model-catalog-v1');catalog.data.models.push({key:oldKey,name:'旧姿势人偶',builtinId:'makehuman'});await putImages([catalog,{id:'motion-library-v1:'+oldKey,kind:'motion-library',data:{test:true}},{id:'test-unrelated',blob:new Blob(['保留'])},{id:'motion-library-last-v1',kind:'motion-library-pointer',modelKey:oldKey}]);},oldKey);

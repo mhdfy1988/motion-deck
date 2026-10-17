@@ -3,12 +3,12 @@ import {resolve,join,dirname,relative,isAbsolute} from 'node:path';
 import {createHash} from 'node:crypto';
 import {pathToFileURL} from 'node:url';
 import {valid} from 'semver';
-import {querySchema,READ_OPERATIONS,WRITE_OPERATIONS} from '../web/labs/motion/core/control-schema.js';
+import {querySchema,requestSchema,READ_OPERATIONS,WRITE_OPERATIONS} from '../web/labs/motion/core/control-schema.js';
 
 const root=resolve(import.meta.dirname,'..');
 export const skillFiles=['SKILL.md','LICENSE','references/command-guide.md','references/command-schema.json','references/jump-acceptance.md','references/tempo-review.md','references/mesh2motion-practice.md'];
 // 协议快照由客户端唯一协议定义生成，不手写第二套命令参数。
-export const skillSchema=()=>JSON.stringify({format:'motiondeck-skill-commands',protocolVersion:1,operations:{read:READ_OPERATIONS,write:WRITE_OPERATIONS},query:querySchema},null,2)+'\n';
+export const skillSchema=()=>JSON.stringify({format:'motiondeck-skill-commands',protocolVersion:1,operations:{read:READ_OPERATIONS,write:WRITE_OPERATIONS},transport:{assistantSessionId:requestSchema.properties.assistantSessionId},query:querySchema},null,2)+'\n';
 
 export async function packageSkills(destination,{source=join(root,'skills')}={}){
  const skill='motiondeck-director',base=join(source,skill),entry=await readFile(join(base,'SKILL.md'),'utf8');

@@ -20,7 +20,7 @@ export function createPoseDraft(root,modelKey,before){
  const initial=capturePose(root);
  return {modelKey,before,pose:structuredClone(initial),undo:[],redo:[],dirty:true};
 }
-export function setDraftBones(root,bones,nodeMap,draft,changes){
+export function setDraftBones(root,bones,nodeMap,draft,changes,project=null){
  if(!Array.isArray(changes)||!changes.length||changes.length>256)throw invalid('骨骼修改数量必须为1到256');
  const candidate=structuredClone(draft.pose),ids=new Set(),allowed=new Set(bones.map(b=>nodeMap.get(b)));
  for(const change of changes){
@@ -31,8 +31,9 @@ export function setDraftBones(root,bones,nodeMap,draft,changes){
   if(change.position!==undefined&&(!Array.isArray(change.position)||change.position.length!==3||!change.position.every(v=>Number.isFinite(v)&&Math.abs(v)<=100)))throw invalid('局部位置必须为有效模型坐标：'+change.id);
   ids.add(index);candidate[index].q=q.slice();if(change.position!==undefined)candidate[index].p=change.position.slice();
  }
+ const constraints=project?project(candidate,changes):null;
  commitPose(root,draft,candidate);
- return {changedBones:changes.length};
+ return {changedBones:changes.length,...(constraints?{constraints}:{})};
 }
 export function travelDraftHistory(root,draft,direction){
  const from=direction==='undo'?draft.undo:draft.redo,to=direction==='undo'?draft.redo:draft.undo;

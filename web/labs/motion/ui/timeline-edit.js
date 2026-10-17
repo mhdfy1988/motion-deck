@@ -1,11 +1,16 @@
 // 时间轴只负责手势，片段修改仍交给宿主统一处理。
 export function bindTimelineEdit({container,scroll,track,select,resize,move,remove,refresh,scale,snapshot,restore,begin,end,selected,library,sourceCard,transitionSource,prepareInsert,canInsert,insert,canEdit=()=>true}){
- let drag=null,external=null,suppressClick=false;
+ let drag=null,external=null,suppressClick=false,suppressTimer=null,disposed=false;
+ const listeners=[],copies=new Set(),animations=new Set();
+ // 记录本实例的监听及捕获选项，销毁后允许在同一组DOM上重新绑定。
+ function listen(target,type,handler,capture=false){const options={capture};target.addEventListener(type,handler,options);listeners.push(()=>target.removeEventListener(type,handler,options));}
+ function removeCopy(copy){if(!copy)return;copies.delete(copy);copy.remove();}
+ function suppressAfterGesture(moved){clearTimeout(suppressTimer);suppressTimer=null;suppressClick=moved&&!disposed;if(suppressClick)suppressTimer=setTimeout(()=>{suppressClick=false;suppressTimer=null;},0);}
  let edgeMode='trim';
  const tools=document.createElement('div');tools.className='timeline-duration-tools';tools.hidden=true;
  const modes=document.createElement('div');modes.className='timeline-edge-modes';modes.setAttribute('role','group');modes.setAttribute('aria-label','边缘拖动模式');
  for(const [value,text,tip] of [['trim','裁剪','拖动边缘裁掉部分动作'],['duration','变速','拖动边缘调整速度，保留完整源范围']]){
-  const button=document.createElement('button');button.type='button';button.textContent=text;button.dataset.mode=value;button.title=tip;button.onclick=()=>{if(drag||!canEdit())return;edgeMode=value;syncTools();};modes.append(button);
+  const button=document.createElement('button');button.type='button';button.textContent=text;button.dataset.mode=value;button.title=tip;listen(button,'click',()=>{if(drag||!canEdit())return;edgeMode=value;syncTools();});modes.append(button);
  }
  tools.append(modes);container.closest('.timeline').querySelector('.timeline-head').prepend(tools);
  function syncTools(){
@@ -18,15 +23,16 @@ export function bindTimelineEdit({container,scroll,track,select,resize,move,remo
  const toolsObserver=new MutationObserver(syncTools);
  toolsObserver.observe(container,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});syncTools();
  const marker=document.createElement('div');marker.className='timeline-drop';marker.hidden=true;track.append(marker);
- function clearPreview(){document.querySelectorAll('.timeline-swap-preview').forEach(n=>n.remove());container.querySelectorAll('.swap-target').forEach(b=>b.classList.remove('swap-target'));}
- function floatingCopy(button,className){const copy=button.cloneNode(true),rect=button.getBoundingClientRect();copy.className=className;copy.removeAttribute('id');copy.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));copy.removeAttribute('aria-pressed');copy.setAttribute('aria-hidden','true');copy.querySelectorAll('.resize-handle').forEach(n=>n.remove());Object.assign(copy.style,{width:`${rect.width}px`,height:`${rect.height}px`,left:`${rect.left}px`,top:`${rect.top}px`,flexBasis:'auto'});document.body.append(copy);return copy;}
+ function clearPreview(){for(const copy of copies)if(copy.classList.contains('timeline-swap-preview'))removeCopy(copy);container.querySelectorAll('.swap-target').forEach(b=>b.classList.remove('swap-target'));}
+ function floatingCopy(button,className){const copy=button.cloneNode(true),rect=button.getBoundingClientRect();copy.className=className;copy.removeAttribute('id');copy.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));copy.removeAttribute('aria-pressed');copy.setAttribute('aria-hidden','true');copy.querySelectorAll('.resize-handle').forEach(n=>n.remove());Object.assign(copy.style,{width:`${rect.width}px`,height:`${rect.height}px`,left:`${rect.left}px`,top:`${rect.top}px`,flexBasis:'auto'});document.body.append(copy);copies.add(copy);return copy;}
  function externalStart(event){
-  const button=event.target.closest('[data-clip-index],[data-custom-id],[data-pose-id],#addAction,#transitionSource');if(!button||event.button!==0||drag||external)return;
-  document.activeElement?.blur();const item=prepareInsert(button);if(!item)return;
+  const button=event.target.closest('[data-clip-index],[data-custom-id],[data-pose-id],#addAction,#transitionSource');if(!button||event.button!==0||drag||external||!canEdit())return;
+  document.activeElement?.blur();if(!canEdit())return;const item=prepareInsert(button);if(!item)return;
   external={button,item,x:event.clientX,y:event.clientY,pointerId:event.pointerId,offset:event.clientX-button.getBoundingClientRect().left,moved:false,valid:false};button.setPointerCapture(event.pointerId);
  }
  function externalMove(event){
   if(!external||event.pointerId!==external.pointerId)return;
+  if(!canEdit()){externalFinish(true);return;}
   if(!external.moved&&Math.hypot(event.clientX-external.x,event.clientY-external.y)<5)return;
   if(!external.moved){external.ghost=floatingCopy(external.button,'timeline-drag-ghost');external.button.classList.add('library-drag-source');external.moved=true;}
   const ghost=external.ghost.getBoundingClientRect();external.ghost.style.left=`${Math.max(8,Math.min(event.clientX-external.offset,innerWidth-ghost.width-8))}px`;external.ghost.style.top=`${Math.max(8,Math.min(event.clientY-25,innerHeight-ghost.height-8))}px`;
@@ -42,15 +48,15 @@ export function bindTimelineEdit({container,scroll,track,select,resize,move,remo
   marker.style.left=`${edge-track.getBoundingClientRect().left}px`;marker.classList.add('adding');marker.classList.toggle('transition-placement',external.item.kind==='transition');
  }
  function externalFinish(cancel=false){
-  if(!external)return;const current=external;external=null;current.ghost?.remove();current.button.classList.remove('library-drag-source');scroll.classList.remove('drop-ready');marker.hidden=true;marker.classList.remove('adding','transition-placement');
-  if(current.moved&&!cancel&&current.valid)insert(current.item,current.target,current.after);
+  if(!external)return;const current=external;external=null;removeCopy(current.ghost);current.button.classList.remove('library-drag-source');scroll.classList.remove('drop-ready');marker.hidden=true;marker.classList.remove('adding','transition-placement');
+  if(current.moved&&!cancel&&current.valid&&canEdit()&&canInsert(current.item,current.target,current.after))insert(current.item,current.target,current.after);
   if(current.button.hasPointerCapture(current.pointerId))current.button.releasePointerCapture(current.pointerId);
-  suppressClick=current.moved;setTimeout(()=>{suppressClick=false;},0);
+  suppressAfterGesture(current.moved);
  }
  const preventSourceClick=event=>{if(suppressClick){event.preventDefault();event.stopImmediatePropagation();}};
- for(const source of [library,sourceCard,transitionSource]){source.addEventListener('pointerdown',externalStart);source.addEventListener('click',preventSourceClick,true);source.addEventListener('lostpointercapture',()=>externalFinish(true));}
- document.addEventListener('pointermove',externalMove);const externalUp=()=>externalFinish(),externalCancel=()=>externalFinish(true);
- document.addEventListener('pointerup',externalUp);document.addEventListener('pointercancel',externalCancel);library.addEventListener('lostpointercapture',externalCancel);sourceCard.addEventListener('lostpointercapture',externalCancel);
+ const externalUp=()=>externalFinish(),externalCancel=()=>externalFinish(true);
+ for(const source of [library,sourceCard,transitionSource]){listen(source,'pointerdown',externalStart);listen(source,'click',preventSourceClick,true);listen(source,'lostpointercapture',externalCancel);}
+ listen(document,'pointermove',externalMove);listen(document,'pointerup',externalUp);listen(document,'pointercancel',externalCancel);
  function lift(event){
   drag.sources=[...container.querySelectorAll('button.action,button.pose')].filter(b=>selected(b.dataset.key));
   drag.sources.forEach(b=>b.classList.add('drag-source'));
@@ -59,18 +65,18 @@ export function bindTimelineEdit({container,scroll,track,select,resize,move,remo
  }
  function finish(cancel=false){
   if(!drag)return;
-  const current=drag,positions=new Map([...container.children].map(b=>[b.dataset.key,b.getBoundingClientRect()]));drag=null;document.body.classList.remove('timeline-resizing');marker.hidden=true;container.classList.remove('editing');clearPreview();current.ghost?.remove();container.querySelectorAll('.drag-source').forEach(b=>b.classList.remove('drag-source'));current.button.classList.remove('dragging');
+  const current=drag,positions=new Map([...container.children].map(b=>[b.dataset.key,b.getBoundingClientRect()]));drag=null;document.body.classList.remove('timeline-resizing');marker.hidden=true;container.classList.remove('editing');clearPreview();removeCopy(current.ghost);container.querySelectorAll('.drag-source').forEach(b=>b.classList.remove('drag-source'));current.button.classList.remove('dragging');
   if(current.resize){if(cancel)restore(current.key,current.snapshot);scale(null);refresh();}
   else if(current.moved&&!cancel&&current.target)move(current.key,current.target,current.after,current.swap);
-  if(!current.moved&&!current.modified&&!current.resize)select(current.button,{},false);
+  if(!disposed&&!current.moved&&!current.modified&&!current.resize)select(current.button,{},false);
   end();
   // 动画使用独立视觉副本，真实片段坐标始终是最终位置，避免下一次拖动命中漂移。
-  if(current.moved&&!cancel&&!current.resize)for(const button of container.children){const old=positions.get(button.dataset.key),next=button.getBoundingClientRect();if(old&&Math.abs(old.left-next.left)>1){const copy=floatingCopy(button,'timeline-settle');const animation=copy.animate([{transform:`translateX(${old.left-next.left}px)`,opacity:.9},{transform:'translateX(0)',opacity:0}],{duration:220,easing:'ease-out'});animation.onfinish=()=>copy.remove();animation.oncancel=()=>copy.remove();}}
+  if(current.moved&&!cancel&&!current.resize)for(const button of container.children){const old=positions.get(button.dataset.key),next=button.getBoundingClientRect();if(old&&Math.abs(old.left-next.left)>1){const copy=floatingCopy(button,'timeline-settle');const animation=copy.animate([{transform:`translateX(${old.left-next.left}px)`,opacity:.9},{transform:'translateX(0)',opacity:0}],{duration:220,easing:'ease-out'});animations.add(animation);const release=()=>{animations.delete(animation);removeCopy(copy);};animation.onfinish=release;animation.oncancel=release;}}
   if(current.button.hasPointerCapture(current.pointerId))current.button.releasePointerCapture(current.pointerId);
-  suppressClick=current.moved;setTimeout(()=>{suppressClick=false;},0);
+  suppressAfterGesture(current.moved);
  }
- container.addEventListener('click',event=>{if(suppressClick){event.preventDefault();event.stopImmediatePropagation();}},true);
- container.addEventListener('pointerdown',event=>{
+ listen(container,'click',event=>{if(suppressClick){event.preventDefault();event.stopImmediatePropagation();}},true);
+ listen(container,'pointerdown',event=>{
   const button=event.target.closest('button[data-key]');if(!button||event.button!==0||drag||!canEdit())return;
   // 先提交旧输入，再切换片段，防止失焦事件写到新选择。
   document.activeElement?.blur();select(button,event,true);const isResize=!!event.target.closest('.resize-handle');
@@ -78,12 +84,12 @@ export function bindTimelineEdit({container,scroll,track,select,resize,move,remo
   // 过渡附属于后一个动作，不允许单独挪动。
   if(!isResize&&button.classList.contains('transition'))return;
   const pps=track.clientWidth/Number(document.getElementById('seek').max);
-  document.querySelectorAll('.timeline-settle').forEach(n=>n.remove());begin();drag={button,key:button.dataset.key,offset:event.clientX-button.getBoundingClientRect().left,modified:event.ctrlKey||event.metaKey||event.shiftKey,resize:isResize,side:event.target.closest('.resize-left')?'left':'right',resizeMode:event.altKey?'duration':edgeMode,snapshot:snapshot(button.dataset.key),duration:Number(button.dataset.duration),x:event.clientX,scroll:scroll.scrollLeft,pps,pointerId:event.pointerId,moved:false};
+  for(const animation of animations)animation.cancel();for(const copy of copies)if(copy.classList.contains('timeline-settle'))removeCopy(copy);begin();drag={button,key:button.dataset.key,offset:event.clientX-button.getBoundingClientRect().left,modified:event.ctrlKey||event.metaKey||event.shiftKey,resize:isResize,side:event.target.closest('.resize-left')?'left':'right',resizeMode:event.altKey?'duration':edgeMode,snapshot:snapshot(button.dataset.key),duration:Number(button.dataset.duration),x:event.clientX,scroll:scroll.scrollLeft,pps,pointerId:event.pointerId,moved:false};
   // 捕获目标是片段按钮，按下即固定调整光标，避免被按钮的抓手覆盖。
   if(isResize)document.body.classList.add('timeline-resizing');
   button.setPointerCapture(event.pointerId);event.preventDefault();if(isResize)scale(pps);
  });
- container.addEventListener('pointermove',event=>{
+ listen(container,'pointermove',event=>{
   if(!drag||event.pointerId!==drag.pointerId)return;
   const bounds=scroll.getBoundingClientRect();if(event.clientX>bounds.right-25)scroll.scrollLeft+=15;else if(event.clientX<bounds.left+25)scroll.scrollLeft-=15;
   const delta=event.clientX-drag.x+scroll.scrollLeft-drag.scroll;if(Math.abs(delta)<4&&!drag.moved)return;
@@ -102,10 +108,17 @@ export function bindTimelineEdit({container,scroll,track,select,resize,move,remo
   }else drag.ghost.classList.remove('invalid');
   marker.style.left=`${(drag.after?rect.right:rect.left)-track.getBoundingClientRect().left}px`;marker.hidden=drag.swap;
  });
- container.addEventListener('pointerup',()=>finish());container.addEventListener('pointercancel',()=>finish(true));container.addEventListener('lostpointercapture',()=>finish(true));
- container.addEventListener('keydown',event=>{
+ listen(container,'pointerup',()=>finish());listen(container,'pointercancel',()=>finish(true));listen(container,'lostpointercapture',()=>finish(true));
+ listen(container,'keydown',event=>{
   if(event.key==='Delete'||event.key==='Backspace'){event.preventDefault();finish(true);remove();}
  });
- const escape=event=>{if(event.key==='Escape'){finish(true);externalFinish(true);}};window.addEventListener('keydown',escape);
- return ()=>{toolsObserver.disconnect();tools.remove();finish(true);externalFinish(true);window.removeEventListener('keydown',escape);document.removeEventListener('pointermove',externalMove);document.removeEventListener('pointerup',externalUp);document.removeEventListener('pointercancel',externalCancel);};
+ const escape=event=>{if(event.key==='Escape'){finish(true);externalFinish(true);}};listen(window,'keydown',escape);
+ return ()=>{
+  if(disposed)return;disposed=true;
+  // 先停止监听，避免释放指针捕获时再次进入旧手势；未完成调整仍按原流程回滚。
+  toolsObserver.disconnect();for(const unlisten of listeners)unlisten();listeners.length=0;
+  finish(true);externalFinish(true);suppressAfterGesture(false);
+  for(const animation of animations)animation.cancel();animations.clear();for(const copy of copies)removeCopy(copy);
+  clearPreview();marker.remove();tools.remove();delete container.dataset.edgeMode;
+ };
 }

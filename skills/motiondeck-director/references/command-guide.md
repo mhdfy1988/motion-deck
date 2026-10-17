@@ -14,7 +14,16 @@ PowerShell调用示例（将占位路径替换为实际路径）：
 
 启动器复用Electron内置运行时，不需要单独安装Node；它只发送命令，不启动GUI。不把安装目录误当个人数据目录。所有命令返回JSON；`ok:false`或非零退出码不能算成功。
 
-复杂参数保存为UTF-8 JSON，通过`--request "<请求文件绝对路径>"`发送；与`--operation`二选一。请求文件只接受`operation`、`args`、可选`requestId`、`modelKey`、`expectedRevision`。启动器自动处理会话和认证，不能手填`token/sessionId/protocolVersion`。
+复杂参数保存为UTF-8 JSON，通过`--request "<请求文件绝对路径>"`发送；与`--operation`二选一。请求文件只接受`operation`、`args`、可选`requestId`、`modelKey`、`expectedRevision`、`assistantSessionId`。启动器自动处理认证会话，不能手填`token/sessionId/protocolVersion`；协作编号不是认证令牌。
+
+## 无心跳协作会话
+
+1. 已有姿势或编排任一授权时发送`{"operation":"assistant.begin","args":{}}`，记录返回`result.id`；不需要modelKey/revision，不增加任何编辑权限。
+2. 后续正常请求顶层加入`"assistantSessionId":"<返回的协作编号>"`，原modelKey/expectedRevision与权限检查不变。命令处理中显示“AI助手正在操作”，间隔显示“等待AI”，没有心跳进程。
+3. `{"operation":"assistant.inspect","args":{}}`查询协作状态，不携带协作编号、不续期；返回idle/waiting/operating。空闲10分钟自动结束，正在执行的命令受原命令预算控制，完成后重新计空闲时间。
+4. 完成或放弃发送`{"operation":"assistant.end","args":{"id":"<协作编号>"}}`；执行中结束返回BUSY。关闭命令控制、撤销全部编辑授权、刷新或退出都会清除会话，不删草稿或已保存素材。
+
+ASSISTANT_SESSION_EXPIRED时先检查现场，再显式开始新会话；不要换请求编号盲目重放保存/导出。开始请求重试沿用原requestId并用inspect核对编号仍有效。旧客户端不支持这些新增接口时不可承诺持续协作提示；不带编号的旧命令保留原行为，不延长协作会话。
 
 例如从当前编排取帧，JSON如下，其中模型与版本必须替换为刚查询到的值：
 
@@ -30,6 +39,7 @@ PowerShell调用示例（将占位路径替换为实际路径）：
 
 - 连接与素材：`session.inspect`、`model.inspect`、`rig.list`、`library.list`、`workspace.list`、`timeline.inspect`；分页读取`total`，使用真实ID。
 - 试摆：`pose.fromClip/fromLibrary/fromSequence` → `pose.setBones/setRootTransform` → 检查 → `pose.save`；`pose.undo/redo/discard`仅作用于草稿。骨骼四元数是局部绝对值，不是增量。
+- 关节约束（新构建）：`session.inspect.jointConstraints`报告模式、标定配置与现有超限关节，`rig.list.entries[].jointLimit`报告参考四元数、关节坐标系、弯曲/扭转轴及角度范围（度）。`pose.setBones`可加`constraintMode:'natural'`或`'free'`，省略沿当前模式；普通制作显式natural，未标定骨架拒绝natural，不猜轴。结果`constraints.applied`含每骨实际四元数、status和clamped；angles是受限后关节坐标角（度），不是原始Euler。free仅覆盖该请求，不改变界面模式。根整体变换不受人体范围约束；自然模式不允许更改非根/非骨盆局部位置来拉长骨骼。手指等未管理关节status=unmanaged，不代表已有人体约束。
 - 编排：`timeline.append/move/remove/resize/trim/transition`，修帧用`timeline.insertPoseAt`，撤销/重做用`timeline.undo/redo`，成品用`timeline.saveAction`保存。
 - 检查：`preview.sequence`定位；`sequence.sample`查轨迹；`view.capture/captureSequence`保存带时间和视角的图片；`export.video`看连续节奏，`export.glb`导出模型动画。截图/导出需要写入权限，不能只因不会改姿势就当成只读命令。
 - 位移策略：`preview.setRootMotion`分别控制水平/纵向整体位移，默认全保留；取姿势仍是原始制作源。

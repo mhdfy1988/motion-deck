@@ -34,6 +34,8 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
       - run: npm run build
       - run: npm run assets:verify
       # 真实Windows ACL子进程与求解器测试不争用冷启动资源，保留原10秒安全预算。

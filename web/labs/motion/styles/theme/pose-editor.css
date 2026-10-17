@@ -1,0 +1,44 @@
+/* 默认工作台视觉层：中性黑灰、清晰排版、少量蓝色，不改变时间轴或拖放几何。 */
+#stage canvas:focus{outline:none}
+/* 相机控件会写入内联cursor:auto，仅人物交互状态覆盖。 */
+#stage canvas.body-move-hover{cursor:pointer!important}
+#stage canvas.body-move-hover.dragging{cursor:grabbing!important}
+.body-handle.draggable{border-radius:4px;cursor:grab;touch-action:none}
+.body-handle.draggable.dragging{cursor:grabbing;background:transparent}
+.free-view-hint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:5;padding:6px 10px;border-radius:5px;background:#1b1d21;color:#aeb9c9;font-size:11px;white-space:nowrap;pointer-events:none}
+.free-view-hint[hidden]{display:none}
+body:not(.advanced-tools) #posePanel>label:has(#bodyPart){display:none}
+.pose-workspace{display:flex;flex:1;min-height:0;min-width:0}
+.pose-scene{display:flex;flex:1;flex-direction:column;min-width:0;min-height:0}
+#viewportPoseTools{display:flex;flex-direction:column;flex-shrink:0;width:clamp(208px,20vw,248px);min-height:0;padding:0;background:#191c20;border:0;border-left:1px solid #303337;border-radius:0}
+.pose-editor-heading{flex-shrink:0;margin:0;padding:16px;font-size:14px;font-weight:600;border-bottom:1px solid #2b3037}
+#poseEditorContent{flex:1;min-height:0;overflow:auto;padding:16px}
+.pose-tool-section{margin:0 0 22px}
+.pose-tool-section h3{margin:0 0 9px;color:#9da8b5;font-size:12px;font-weight:400}
+
+
+
+#editPose[aria-pressed="true"]{background:#294765;border-color:#42688a;color:#d8edff}
+body.pose-editing .viewport>.player{gap:8px;padding-left:12px;padding-right:12px}
+body.pose-editing .viewport #currentClip{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.pose-editing .viewport #previewContext{display:none}
+@media(max-width:1200px){body.pose-editing .viewport .speed-control>span{display:none}body.pose-editing .viewport .speed-control{gap:4px}body.pose-editing .viewport #clock{font-size:11px}}
+#viewportPoseTools button{white-space:nowrap;font-size:11px;min-height:30px;padding:5px 10px;border:1px solid transparent;border-radius:4px;background:transparent;color:#c5cbd5}
+#viewportPoseTools button:hover:not(:disabled){background:#2b3038}
+.body-tool-switch{display:flex;align-items:center;gap:2px}
+#viewportPoseTools .body-tool-switch{display:block;min-width:0}
+#viewportPoseTools .joint-limit-mode{margin-left:0}
+#viewportPoseTools .joint-limit-status{display:inline-block;margin:0 0 14px;padding:4px 7px}
+#viewportPoseTools .joint-limit-status[hidden]{display:none}
+@media(max-height:700px){.pose-editor-heading{padding:8px 12px}#poseEditorContent{padding:10px 12px}.pose-tool-section{margin-bottom:8px}.pose-tool-section h3{margin-bottom:4px}#viewportPoseTools .joint-limit-status{margin-bottom:8px}#viewportPoseTools .pose-edit-tools{padding-top:6px}}
+body.pose-editing #stage{min-height:120px}
+.body-tool-switch[hidden]{display:none}
+#viewportPoseTools .body-tool-switch button[aria-pressed="true"]{color:#bce5ff}
+#viewportPoseTools .icon-button{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:6px}
+#viewportPoseTools .pose-edit-tools{display:none;align-items:center;gap:8px;padding:12px 0 0;border-top:1px solid #303337}
+body.pose-editing #viewportPoseTools .pose-edit-tools{display:flex}
+body.pose-editing .player #editPose{background:#253244;color:#c5e1ff;border-color:#354c68}
+body:not(.pose-editing) #viewportPoseTools{display:none}
+body:not(.has-model) #viewportPoseTools{display:none}
+body:not(.advanced-tools) .settings{display:none}
+body:not(.advanced-tools) #posePanel>:is(summary,.hint,.pose-tools,#savePose,#addPose),body:not(.advanced-tools) #posePanel>label:has(#poses){display:none}

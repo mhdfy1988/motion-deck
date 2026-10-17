@@ -24,12 +24,12 @@ const output=await mkdtemp(join(baseOutput,'run-'));
 const personal=join(output,'personal');await mkdir(personal);
 const env={...process.env,MOTIONDECK_DATA_DIR:personal,MOTIONDECK_DEV_AUTO_CONTROL:'1'};
 delete env.ELECTRON_RUN_AS_NODE;
-const calls=[],coverage=new Set();let client;
+const calls=[],coverage=new Set();let client,assistantSessionId;
 async function command(operation,args={}){
  const bound=WRITE_OPERATIONS.includes(operation)||operation==='sequence.sample';
  const state=bound?await sendQuery(personal,{operation:'session.inspect'}):null;
  if(state)assert.equal(state.ok,true,JSON.stringify(state));
- const request={operation,args,requestId:randomUUID(),...(bound?{modelKey:state.result.modelKey,expectedRevision:state.revision}:{})};
+ const request={operation,args,requestId:randomUUID(),...(assistantSessionId&&!operation.startsWith('assistant.')?{assistantSessionId}:{}),...(bound?{modelKey:state.result.modelKey,expectedRevision:state.revision}:{})};
  // 不含令牌；记录可复核的实际请求与结果，不输出整份骨架到终端。
  const reply=await sendQuery(personal,request);calls.push({request,reply});
  assert.equal(reply.ok,true,JSON.stringify(reply));coverage.add(operation);return reply.result;
@@ -40,6 +40,7 @@ try{
  const deadline=Date.now()+30000;
  for(;;){try{const s=await command('session.inspect');if(s.status==='ready'&&s.modelKey)break;}catch(error){if(Date.now()>deadline)throw error;}if(Date.now()>deadline)throw new Error('模型就绪超时');await new Promise(r=>setTimeout(r,500));}
  const initial=await command('session.inspect');assert.equal(initial.draft,null);assert.equal(initial.counts.items,0);
+ assistantSessionId=(await command('assistant.begin')).id;assert.equal((await command('assistant.inspect')).status,'waiting');
  const model=await command('model.inspect'),rig=await pages('rig.list'),library=await pages('library.list');
  const clip=library.find(x=>x.kind==='action'&&x.name==='Idle_A');assert(clip,'教学示例需要Mesh2Motion的Idle_A站立底姿，不以其他待机静默代替');
  await command('pose.fromClip',{clipId:clip.id,time:0});
@@ -96,10 +97,12 @@ try{
  const ffmpeg=process.env.FFMPEG_BIN?join(process.env.FFMPEG_BIN,'ffmpeg.exe'):'ffmpeg.exe';
  const hashes=execFileSync(ffmpeg,['-v','error','-i',video.file.path,'-f','framemd5','-'],{encoding:'utf8'}).split('\n').filter(l=>l&&!l.startsWith('#')).map(l=>l.split(',').at(-1).trim());
  assert(new Set(hashes).size>3,'视频必须存在动态画面');
+ await command('assistant.end',{id:assistantSessionId});assistantSessionId=null;
  const missing=[...READ_OPERATIONS,...WRITE_OPERATIONS].filter(op=>!coverage.has(op));assert.deepEqual(missing,[]);
  await writeFile(join(output,'proof.json'),JSON.stringify({testedAt:new Date().toISOString(),exe,personal,covered:[...coverage],calls,single,batch,video,glb,saved,samples,media},null,2),'utf8');
  console.log(JSON.stringify({covered:coverage.size,proof:join(output,'proof.json'),images:batch.files.length,video:video.file.path,glb:glbPath}));
 }finally{
+ if(client&&assistantSessionId)await command('assistant.end',{id:assistantSessionId}).catch(error=>console.error('结束教学协作失败',error.code??'ERROR'));
  await writeFile(join(output,'calls.json'),JSON.stringify(calls,null,2),'utf8');
  if(client)await client.close();
 }

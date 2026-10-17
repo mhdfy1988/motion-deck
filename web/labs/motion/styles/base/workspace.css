@@ -1,0 +1,48 @@
+/* 简版工作台：没有模型时不展示空壳编辑器。 */
+/* 首次直接进入编排器；加载过程也保留界面和状态。 */
+#welcome{height:calc(100dvh - 68px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;background:#13171c}
+#welcome h1{font-size:28px;font-weight:500;letter-spacing:2px;margin:24px 0 8px}
+#welcome p{font-size:13px;color:var(--muted);margin:0 0 30px}
+#welcome>div:not(.welcome-mark){display:flex;gap:12px}
+#welcome button{width:160px;height:42px;border-radius:5px;font-size:13px}
+#welcome small{color:#66717b;font-size:11px;margin-top:22px}
+body.has-model #welcome,body.advanced-tools #welcome{display:none}
+body:not(.advanced-tools) main{grid-template-columns:248px minmax(0,1fr);grid-template-rows:minmax(0,1fr) 190px;min-height:0}
+body:not(.advanced-tools) .settings,body:not(.advanced-tools) .library>.file-button,body:not(.advanced-tools) .library-bottom,body:not(.advanced-tools) #addTransition{display:none}
+body:not(.advanced-tools) .library{padding:18px 14px 14px;overflow:hidden;gap:12px;background:#191d22}
+body:not(.advanced-tools) .section-head{align-items:center;padding:0 6px}
+body:not(.advanced-tools) .section-head h2{margin:0;font-size:13px;font-weight:600}
+body:not(.advanced-tools) #clipCount{font:11px Consolas,monospace;color:#73818c}
+.section-head{align-items:center;gap:8px}
+.section-head h2{margin:0}
+.section-head #clipCount{margin-right:auto}
+#appendClips,#replaceModel{min-height:28px;font-size:11px;padding:3px 8px;background:transparent;border-color:#343e47;border-radius:4px;color:#a5b0ba;white-space:nowrap}
+#replaceModel{margin-left:4px}
+body:not(.has-model):not(.advanced-tools) #replaceModel{display:none}
+body:not(.advanced-tools) .clips{flex:1 1 0;min-height:0;overflow:auto;gap:3px;padding-right:4px}
+body:not(.advanced-tools) .clips button{flex-shrink:0;min-height:38px;padding:8px 10px;border:1px solid transparent;background:transparent;border-radius:4px;font-size:12px}
+body:not(.advanced-tools) .clips button:hover{background:#252e36;border-color:#3d4c58}
+body:not(.advanced-tools) .clips button.active{background:#243743;border-color:#496c82}
+body:not(.advanced-tools) .clips button small{font-size:10px;color:#7c8a96;font-family:Consolas,monospace}
+body:not(.advanced-tools) .transition-library{margin:0;padding-top:12px}
+body:not(.advanced-tools) .transition-library .motion-source-card{background:#202b33;border:1px dashed #4c6779;padding:10px 12px}
+body:not(.advanced-tools) .transition-library span{font-size:12px}
+body:not(.advanced-tools) .view-head{height:46px;border-bottom:0;background:#13171c;padding:8px 20px}
+body:not(.advanced-tools) .view-head>span{max-width:40%;font-size:11px;color:#6e7e89}
+body:not(.advanced-tools) .view-head button{background:transparent;border-color:transparent;color:#a3b0ba}
+body:not(.advanced-tools) .toggle{font-size:11px}
+body:not(.advanced-tools) .player{height:56px;background:#13171c;padding:10px 20px;gap:12px}
+body:not(.advanced-tools) .player button{width:34px;min-height:34px;padding:7px;border-color:transparent;background:transparent}
+body:not(.advanced-tools) .timeline{padding:12px 20px;background:#191d22}
+body:not(.advanced-tools) .timeline-head h2{font-size:12px}
+body:not(.advanced-tools) #total{flex:1;font:11px Consolas,monospace}
+body:not(.advanced-tools) .timeline-head .primary{font-size:12px;border-radius:4px;min-height:32px}
+body:not(.advanced-tools) #segments .empty{display:flex;align-items:center;justify-content:center;width:100%;border:1px dashed #34414b;border-radius:4px;color:#71818f;font-size:12px}
+body:not(.advanced-tools) .badge{display:none}
+body:not(.advanced-tools) .top{height:52px;padding:0 20px;background:#171b20}
+body:not(.advanced-tools) .brand{font-size:14px;color:#a2b0bb}
+body:not(.advanced-tools) .top strong{font-size:13px;font-weight:500}
+body:not(.advanced-tools) #status{font-size:11px}
+body:not(.advanced-tools) main,body:not(.advanced-tools) #welcome{height:calc(100dvh - 52px)}
+body:not(.advanced-tools) ::-webkit-scrollbar{width:5px;height:5px}body:not(.advanced-tools) ::-webkit-scrollbar-thumb{background:#43515d;border-radius:4px}
+@media(max-width:1000px){body:not(.advanced-tools) main{grid-template-columns:210px minmax(0,1fr)}}

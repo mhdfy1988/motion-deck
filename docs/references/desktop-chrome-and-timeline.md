@@ -1,5 +1,11 @@
 # 顶栏、安装目录与时间轴对齐依据
 
+## 2026-10-15 窗口按钮调整（当前开发实现，未发布）
+
+- 用户明确授权替换原生按钮以控制悬浮面积与颜色。使用hidden标题栏、关闭titleBarOverlay；桌面专用desktop-chrome.js创建36×30圆角按钮，右侧留空，普通悬浮淡灰、关闭悬浮暗红，不带光晕。下文原生按钮记录属于历史实现。
+- 主进程motiondeck:window仅接受state/minimize/maximize/close，沿用主窗口、主框架和来源URL检查；preload只暴露固定方法，不暴露任意IPC。close调用BrowserWindow.close，不跳过未保存草稿和执行中事务保护；maximize/unmaximize事件更新图标和名称。
+- 依据：[Electron窗口拖动区](https://www.electronjs.org/docs/latest/tutorial/custom-window-interactions)要求按钮位于no-drag区域；主进程复用BrowserWindow的minimize/maximize/unmaximize/close，不手写系统消息。右侧预留150px，不再读取已关闭的原生叠加安全区。
+
 2026-10-14 用户确认的范围：安装选盘保留应用子目录、桌面快捷方式、两条顶栏合并、更新移到设置、片段边缘对齐时间刻度。只改 MotionDeck，现已收口并公开 v0.1.1 未签名测试版，不替换正式安装及个人资料。
 
 ## 固定入口与官方依据

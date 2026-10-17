@@ -1,6 +1,6 @@
 {
   "name": "motion-deck",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "license": "MIT",
   "private": true,
   "engines": {
@@ -18,6 +18,10 @@
     "prestart": "npm run build",
     "start": "node scripts/start-desktop-dev.mjs",
     "test": "node --test tests/web/*.test.mjs",
+    "check:structure": "node scripts/audit-module-structure.mjs",
+    "lint": "eslint web/labs/motion desktop --max-warnings 0",
+    "format:check": "prettier --check web/labs/motion/motion.js web/labs/motion/application/workbench-operations.js web/labs/motion/pose/body-controls.js desktop/main.cjs web/labs/motion/application/workbench-queries.js web/labs/motion/application/workbench-pose-operations.js web/labs/motion/application/workbench-media-operations.js web/labs/motion/application/workbench-library-operations.js desktop/ipc/register.cjs desktop/ipc/window.cjs desktop/ipc/control.cjs desktop/ipc/updates.cjs desktop/ipc/settings.cjs",
+    "format": "prettier --write web/labs/motion/motion.js web/labs/motion/application/workbench-operations.js web/labs/motion/pose/body-controls.js desktop/main.cjs web/labs/motion/application/workbench-queries.js web/labs/motion/application/workbench-pose-operations.js web/labs/motion/application/workbench-media-operations.js web/labs/motion/application/workbench-library-operations.js desktop/ipc/register.cjs desktop/ipc/window.cjs desktop/ipc/control.cjs desktop/ipc/updates.cjs desktop/ipc/settings.cjs",
     "test:e2e": "playwright test --config playwright.config.js",
     "assets:verify": "node scripts/verify-assets.mjs",
     "predesktop:dev": "npm run build",
@@ -26,7 +30,9 @@
     "desktop:pack": "node scripts/package-desktop.mjs",
     "predesktop:installer": "npm run build",
     "desktop:installer": "node scripts/package-installer.mjs",
-    "desktop:test": "playwright test --config playwright.desktop.config.js"
+    "desktop:test": "playwright test --config playwright.desktop.config.js",
+    "predesktop:test:source": "npm run build",
+    "desktop:test:source": "playwright test --config playwright.desktop-source.config.js"
   },
   "devDependencies": {
     "@electron/packager": "20.3.0",
@@ -37,8 +43,11 @@
     "electron-builder": "26.15.3",
     "electron-updater": "6.8.9",
     "esbuild": "0.25.12",
+    "eslint": "10.13.0",
+    "globals": "17.13.0",
     "lucide-static": "1.52.0",
     "png-to-ico": "3.0.2",
+    "prettier": "3.9.10",
     "proper-lockfile": "4.1.2",
     "semver": "7.8.5",
     "sharp": "0.35.5",

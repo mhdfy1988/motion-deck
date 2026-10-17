@@ -3,7 +3,7 @@ import {mkdir,mkdtemp} from 'node:fs/promises';
 import {resolve,join} from 'node:path';
 import {createRequire} from 'node:module';
 
-test('合并深色标题栏保留系统按钮安全区，更新入口仅在设置中',async()=>{
+test('自定义紧凑窗口按钮、安全区及关闭保护，更新入口仅在设置中',async()=>{
  const root=resolve('.');await mkdir(join(root,'output/desktop-tests'),{recursive:true});
  const dataDir=await mkdtemp(join(root,'output/desktop-tests/chrome-'));
  const executablePath=process.env.MOTIONDECK_PACKAGED_EXE??createRequire(import.meta.url)('electron');
@@ -43,12 +43,28 @@ test('合并深色标题栏保留系统按钮安全区，更新入口仅在设�
   expect(await page.locator('.top').evaluate(n=>getComputedStyle(n).getPropertyValue('app-region'))).toBe('drag');
   expect(await page.locator('#replaceModel').evaluate(n=>getComputedStyle(n).getPropertyValue('app-region'))).toBe('no-drag');
   const overlay=await page.evaluate(()=>({visible:navigator.windowControlsOverlay.visible,rect:navigator.windowControlsOverlay.getTitlebarAreaRect().toJSON()}));
-  expect(overlay.visible).toBe(true);
-  const settings=await page.locator('#desktopSettings').boundingBox();expect(settings.x+settings.width).toBeLessThanOrEqual(overlay.rect.x+overlay.rect.width);
+  expect(overlay.visible).toBe(false);
+  const settings=await page.locator('#desktopSettings').boundingBox(),controls=await page.locator('.window-controls').boundingBox();expect(settings.x+settings.width).toBeLessThan(controls.x);
+  for(const id of ['windowMinimize','windowMaximize','windowClose']){
+   const button=page.locator('#'+id);await expect(button).toHaveCSS('width','36px');await expect(button).toHaveCSS('height','30px');await expect(button).toHaveCSS('border-radius','6px');await expect(button).toHaveCSS('box-shadow','none');
+   expect(await button.evaluate(el=>getComputedStyle(el).getPropertyValue('app-region'))).toBe('no-drag');
+   const color=id==='windowClose'?'rgb(112, 52, 61)':'rgba(255, 255, 255, 0.07)';
+   await expect.poll(async()=>{await button.hover();return button.evaluate(el=>getComputedStyle(el).backgroundColor);}).toBe(color);
+  }
   // 原生最大化和恢复后，模型选择和设置仍留在窗口按钮安全区内。
-  await client.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].maximize());
+  await page.locator('#windowMaximize').click();
   await expect.poll(()=>client.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].isMaximized())).toBe(true);
-  await client.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].unmaximize());
+  await expect(page.locator('#windowMaximize')).toHaveAttribute('aria-label','还原');
+  await page.locator('#windowMaximize').click();
+  await expect.poll(()=>client.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].isMaximized())).toBe(false);
+  await expect(page.locator('#windowMaximize')).toHaveAttribute('aria-label','最大化');
+  await page.locator('#windowMinimize').click();await expect.poll(()=>client.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].isMinimized())).toBe(true);
+  await client.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].restore());
+  await page.evaluate(()=>motionDeckDesktop.controlDraftState(true));
+  await client.evaluate(({dialog})=>{globalThis.closePrompts=[];dialog.showMessageBoxSync=(_win,options)=>{closePrompts.push(options.message);return 0;};});
+  await page.locator('#windowClose').click();expect(await client.evaluate(()=>closePrompts)).toEqual(['助手姿势尚未保存，放弃并关闭？']);
+  expect(await client.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().length)).toBe(1);
+  await page.evaluate(()=>motionDeckDesktop.controlDraftState(false));
   await page.locator('#desktopSettings').click();await expect(page.locator('#desktopSettingsDialog')).toBeVisible();
   const directoryRows=await page.locator('.directory-row').evaluateAll(rows=>rows.map(row=>{const path=row.querySelector('.directory-path'),button=row.querySelector('button');return {height:row.getBoundingClientRect().height,pathHeight:path.getBoundingClientRect().height,path:path.textContent,title:path.title,buttonHeight:button.getBoundingClientRect().height,buttonX:button.getBoundingClientRect().x};}));expect(directoryRows).toHaveLength(6);expect(directoryRows.every(row=>row.height<=64&&row.pathHeight===18&&row.path===row.title&&row.buttonHeight===30)).toBe(true);expect(new Set(directoryRows.map(row=>row.buttonX)).size).toBe(1);
   await expect(page.locator('#desktopSettingsDialog #desktopUpdateSection')).toBeVisible();await expect(page.locator('#desktopUpdateDialog')).toHaveCount(0);
@@ -57,5 +73,7 @@ test('合并深色标题栏保留系统按钮安全区，更新入口仅在设�
   await expect(page.locator('#desktopUpdateSection h3,#updateReleasePage,.update-security')).toHaveCount(0);expect((await page.locator('#desktopUpdateSection').boundingBox()).height).toBeLessThanOrEqual(40);await expect(page.locator('#desktopUpdateSection button:visible')).toHaveCount(1);
   await page.locator('#closeDesktopSettings').click();
   await page.screenshot({path:'output/acceptance/motion-merged-titlebar.png'});
+  await page.locator('#windowClose').hover();await page.screenshot({path:'output/acceptance/motion-window-close-hover.png'});
+  await page.locator('#windowClose').click();await expect.poll(()=>client.windows().length).toBe(0);
  }finally{await client.close();}
 });

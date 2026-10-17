@@ -1,8 +1,8 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {Box3,Vector3,PerspectiveCamera,OrthographicCamera} from 'three';
-import {fitView,resizeView} from '../../web/labs/motion/view-camera.js';
-import {viewPresets,viewPreset,framingDirections} from '../../web/labs/motion/view-presets.js';
+import {fitView,resizeView} from '../../web/labs/motion/platform/view-camera.js';
+import {viewPresets,viewPreset,framingDirections} from '../../web/labs/motion/platform/view-presets.js';
 const box=new Box3(new Vector3(-.5,0,-.3),new Vector3(.5,2,.3));
 test('20个正交方向唯一，组内取景尺度不变，等角三轴投影长度一致',()=>{
  assert.equal(viewPresets.length,21);assert.equal(new Set(viewPresets.map(p=>p.id)).size,21);assert.throws(()=>viewPreset('invalid'),/未知视角/);

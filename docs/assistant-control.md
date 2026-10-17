@@ -35,7 +35,7 @@ AI工作区扩展：助手命令保存按制作任务记录来源，任务索引
 
 主进程不维护第二份骨架，只负责连接、认证、生命周期和受控文件能力。切模型、取帧、改姿势、改编排、撤销/重做等界面写入必须走同一事务入口；未适配的操作先使命令失败，不允许绕过版本计数。播放帧和相机移动不逐帧增加编辑版本，姿势写入前暂停播放。
 
-`application/workbench-operations.js`负责共享查询/取样/草稿事务；`application/pose-draft.js`已新增完整节点快照、批量旋转与100步历史。`core/control-schema.js`、`application/control-queries.js`采用固定协议与映射，A3扩展授权操作，不动态索引工作台方法。`desktop/control/`管理管道、认证、去重与截图文件，`scripts/motion-command.mjs`为外部入口。
+`application/workbench-operations.js`是唯一版本、节点映射与预览事务门面，内部委托workbench-queries、workbench-pose-operations、workbench-media-operations、workbench-library-operations处理查询、姿势、命令媒体与素材维护；公开方法和调用协议不变。`application/pose-draft.js`继续持有完整节点快照、批量旋转与100步历史，不复制到新模块。`core/control-schema.js`、`application/control-queries.js`采用固定协议与映射，A3扩展授权操作，不动态索引工作台方法。`desktop/control/`管理管道、认证、去重与截图文件，`scripts/motion-command.mjs`为外部入口。
 
 A1 内部 API 为 `inspect/modelInspect/rigList/libraryList`、`source/sequence/pose/custom`、`fromClip/discardDraft/captureCurrent`。它们不是已可执行的命令协议；预览函数保留界面兼容语义，`fromClip` 才需要模型身份与版本。源动作 ID 当前为模型/会话内的索引加原名（第三方动作优先已有 libraryId），不能当跨模型全局 ID；A2 协议必须保留模型与会话作用域。
 

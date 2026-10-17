@@ -10,7 +10,10 @@
       "request.status",
       "timeline.inspect",
       "sequence.sample",
-      "workspace.list"
+      "workspace.list",
+      "assistant.begin",
+      "assistant.end",
+      "assistant.inspect"
     ],
     "write": [
       "pose.fromClip",
@@ -44,6 +47,12 @@
       "workspace.cleanup",
       "workspace.restore"
     ]
+  },
+  "transport": {
+    "assistantSessionId": {
+      "type": "string",
+      "pattern": "^[a-f0-9-]{36}$"
+    }
   },
   "query": {
     "type": "object",
@@ -81,6 +90,9 @@
           "timeline.inspect",
           "sequence.sample",
           "workspace.list",
+          "assistant.begin",
+          "assistant.end",
+          "assistant.inspect",
           "pose.fromClip",
           "pose.fromLibrary",
           "pose.fromSequence",
@@ -295,6 +307,70 @@
                   "pattern": "^[a-zA-Z0-9-]{1,80}$"
                 }
               }
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "assistant.begin"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {},
+              "required": []
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "assistant.end"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9-]{36}$"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "operation": {
+              "const": "assistant.inspect"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "args": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {},
+              "required": []
             }
           }
         }
@@ -1462,6 +1538,12 @@
                       "quaternion"
                     ]
                   }
+                },
+                "constraintMode": {
+                  "enum": [
+                    "natural",
+                    "free"
+                  ]
                 }
               },
               "required": [

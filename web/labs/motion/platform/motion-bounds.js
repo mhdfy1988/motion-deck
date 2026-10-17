@@ -1,5 +1,5 @@
 import {Box3,Vector3} from 'three';
-import {capturePose,applyPose} from './core/sequence-core.js';
+import {capturePose,applyPose} from '../core/sequence-core.js';
 
 // 以参考视频30fps及动画关键时刻采样；明确限制计算量，不静默退回绑定姿势。
 export function boundsSampleTimes(duration,extra=[],maxSamples=2400){

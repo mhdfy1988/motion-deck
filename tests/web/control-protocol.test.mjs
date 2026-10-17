@@ -42,10 +42,17 @@ test('Windows真实管道/ACL：分片、认证、过期、去重、状态与禁
   const timeline={...request,requestId:'timeline-command',operation:'timeline.undo',modelKey:'a'.repeat(64),expectedRevision:1};
   server.setWriteEnabled(true);assert.equal((await raw(info,timeline)).error.code,'WRITE_DISABLED');server.setWriteEnabled(false);server.setTimelineEnabled(true);assert.equal(server.state().timelineWrite,true);assert.equal((await raw(info,timeline)).ok,true);assert.equal((await raw(info,{...write,requestId:'pose-denied'})).error.code,'WRITE_DISABLED');server.setTimelineEnabled(false);
   const status=await sendQuery(personal,{operation:'request.status',args:{requestId:'test-query'}});assert.equal(status.result.status,'done');
+  assert.equal((await sendQuery(personal,{operation:'assistant.begin'})).error.code,'WRITE_DISABLED');server.setWriteEnabled(true);
+  const begin=await sendQuery(personal,{operation:'assistant.begin'});assert.equal(begin.result.status,'waiting');const assistantSessionId=begin.result.id;
+  assert.equal((await sendQuery(personal,{operation:'model.inspect',assistantSessionId})).ok,true);assert.equal(server.state().assistant.status,'waiting');
+  assert.equal((await sendQuery(personal,{operation:'assistant.end',args:{id:assistantSessionId}})).ok,true);
+  assert.equal((await sendQuery(personal,{operation:'model.inspect',assistantSessionId})).error.code,'ASSISTANT_SESSION_EXPIRED');
+  await sendQuery(personal,{operation:'assistant.begin'});server.setWriteEnabled(false);assert.equal(server.state().assistant.status,'idle');
+  server.setWriteEnabled(true);await sendQuery(personal,{operation:'assistant.begin'});
   const env=Object.fromEntries(Object.entries(process.env).filter(([key])=>key.toUpperCase()!=='PSMODULEPATH'));
   await promisify(execFile)(join(process.env.SystemRoot,'System32/WindowsPowerShell/v1.0/powershell.exe'),['-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File',resolve('tests/helpers/control-acl-tamper.ps1'),'-Directory',join(personal,'control')],{env,windowsHide:true});
   await assert.rejects(readConnection(personal),{code:'AUTH_FAILED'});
-  await server.setEnabled(false);assert.equal(server.state().enabled,false);await assert.rejects(readFile(join(personal,'control/instance.json')),{code:'ENOENT'});
+  await server.setEnabled(false);assert.equal(server.state().enabled,false);assert.equal(server.state().assistant.status,'idle');await assert.rejects(readFile(join(personal,'control/instance.json')),{code:'ENOENT'});
  }finally{await server.close();}
 });
 

@@ -1,6 +1,6 @@
 # 桌面客户端运行与打包
 
-2026-10-15。Windows x64，Electron44.7.0；当前准备发布客户端`0.2.0`未签名测试版，技能独立为`0.1.0`。正式用户安装不由发布流程自动替换，历史验证记录不代替本次完整回归。
+2026-10-17。Windows x64，Electron44.7.0；已发布记录为客户端`0.2.0`、技能`0.1.0`。本次用户已授权发布`0.3.0`未签名测试版、随包技能`0.2.1`，当前处于构建及完整验收阶段，公开状态以当前计划与发布结果为准。正式安装不自动替换，历史验证记录不代替新产物完整回归。
 
 ## 使用免安装目录
 
@@ -31,7 +31,7 @@ start自动先构建，再启动Electron。`npm.cmd run desktop:dev`为同等开
 
 仓库`skills/motiondeck-director/`是技能权威源，不在构建时读取开发者的个人技能目录。打包将显式清单复制到EXE旁的`skills/`，不放进ASAR；安装器沿用该完整目录。`skills/使用说明.md`说明整目录复制方法，`skills/manifest.json`记录技能版本及每个文件的SHA-256。不会自动安装到用户的AI工具中。
 
-技能独立使用语义化版本，唯一版本源为`SKILL.md`的`metadata.version`；当前为`0.1.0`，不随客户端版本机械递增。后续技能行为、工作流或命令参考改变时检查并调整技能版本；仅打包器改动无需升技能版本。协议变化后运行`node scripts/package-skills.mjs --refresh-schema`，审查生成差异及使用说明，再同步已安装的开发技能。打包发现失效引用、本机绝对路径、非法版本或命令快照过期会失败，不静默分发旧内容。
+技能独立使用语义化版本，唯一版本源为`SKILL.md`的`metadata.version`；当前源码为`0.2.1`，不随客户端版本机械递增。后续技能行为、工作流或命令参考改变时检查并调整技能版本；仅打包器改动无需升技能版本。协议变化后运行`node scripts/package-skills.mjs --refresh-schema`，审查生成差异及使用说明，再同步已安装的开发技能。打包发现失效引用、本机绝对路径、非法版本或命令快照过期会失败，不静默分发旧内容。
 
 分发验收需检查免安装目录及隔离NSIS实际安装目录中的技能、版本和文件哈希；只检查暂存目录不能证明安装包包含技能。安装目录随程序升级替换，用户复制到AI工具的技能由用户自行更新。源文件测试为`node --test tests/web/skill-distribution.test.mjs`，不替代发布前完整本地回归。自客户端v0.2.0随包提供，实际发布状态见当前计划。
 
@@ -43,6 +43,8 @@ npm.cmd run desktop:test
 ```
 
 打包先构建和核对18份资源。Packager20使用命名导出packager；只复制显式运行文件与manifest资源到独立暂存目录，不向打包输入复制开发node_modules、测试、缓存或用户资料。源代码和资源进入ASAR，暂存目录保留在忽略的output/desktop/stage-*内，不自动清理用户资料或其他输出。再次打包前关闭该目录启动的客户端。
+
+Electron下载校验使用已安装官方`electron`包的`checksums.json`传给`@electron/get`的`checksums`选项，先确认已安装版本与锁定版本一致，再确认目标校验值有效。缓存ZIP仍由下载器进行SHA256验证，不设置`unsafelyDisableChecksums`。依据为固定依赖`@electron/get/dist/index.js`的`validateArtifact`及`@electron/packager/dist/download.js`的选项透传；这避免仅因每次强制联网重取SHASUMS清单而阻断离线缓存构建，不改变版本或安装更新校验。
 
 桌面测试用独立临时数据目录，会显示不抢焦点的测试窗口进行真实录制。测试指定另存为目的地，但不伪造下载内容；核对Electron DownloadItem完成状态和磁盘文件，GLB/PNG回读、视频FFmpeg解码。导出视频保持当前视口比例，不承诺固定1920×1080。
 
@@ -57,6 +59,7 @@ npm.cmd run desktop:test
 - nodeIntegration关闭、contextIsolation和sandbox开启；仅提供固定业务桌面桥，校验主帧来源，不提供任意脚本、IPC或文件读写。
 - 内部资源只允许GET/HEAD，拒绝目录穿越、其他主机和外部窗口/导航；CSP保持，不绕过浏览器安全限制。
 - 不请求摄像头、麦克风等设备权限，录像沿用自有Canvas捕获。
+- 鼠标锁定仅为自有本机主窗口的聚焦主页面开放pointerLock，主进程check/request均走permission-policy.cjs；子框架、其他WebContents、其他来源、未聚焦/隐藏窗口及所有设备权限继续拒绝。相机锁鼠须用真实桌面包检查，不以网页通过代替；证据见references/camera-trackball.md。
 - 首版提供当前用户NSIS安装器、GitHub更新源和受控更新，保留免安装包；无代码签名。`npm.cmd run desktop:installer`只构建不上传，正式发布需版本、许可、实际安装升级与远端门禁。详见[安装与更新](install-and-update.md)。
 - 打包/本地测试通过不等于发布完成。按用户决定，当前 GitHub 自动只跑构建、素材和领域检查；完整网页、真实客户端及 NSIS 升级以本地报告门禁为准，重型 CI 仅手动触发，不部署云端网页。发布前仍须当前提交基础 CI 成功。
 

@@ -1,0 +1,23 @@
+#recordingIndicator{display:inline-flex;align-items:center;gap:6px;color:#e7b2b2;font:11px Consolas,monospace;white-space:nowrap}
+#recordingIndicator[hidden]{display:none}
+#recordingIndicator::before{content:'';width:6px;height:6px;border-radius:50%;background:#ef6464}
+.view-head #recordVideo.recording{color:#ef8585;background:#332226}
+.view-head #recordVideo.recording svg{fill:currentColor;width:14px;height:14px}
+.view-head .icon-button svg{width:17px;height:17px}
+#librarySearch{width:100%;min-height:30px;flex-shrink:0;padding:6px 10px;background:#17191d;border:1px solid #353940;border-radius:5px;color:#dce2eb;font-family:inherit;font-size:12px;outline:none}
+#librarySearch:focus{border-color:#72b7ff}
+#librarySearch::placeholder{color:#7e8590}
+.library-group[hidden]{display:none}
+#previewContext{flex-shrink:0;font-size:10px;color:#969aa3;border-right:1px solid #353940;padding-right:10px}
+body:not(.advanced-tools) #modelName,body:not(.advanced-tools) #clipCount,body:not(.advanced-tools) #side{display:none}
+body:not(.advanced-tools) .view-head{justify-content:flex-end}
+#viewPreset{width:172px;flex-shrink:0;margin:0;font-size:11px;min-height:28px;padding:4px 8px;background:#22252a;border:1px solid #353940;color:#dce2eb}
+.view-head button,.view-head .toggle{white-space:nowrap;flex-shrink:0}
+body.advanced-tools #viewPreset{display:none}
+body:not(.advanced-tools) .view-head .icon-button{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:6px}
+body:not(.advanced-tools) .view-head .icon-button svg{width:17px;height:17px}
+body:not(.advanced-tools){--accent:#72b7ff;--line:#2b2e33;--muted:#969aa3;color:#ebedf2;background:#121416;font-family:"DengXian","Microsoft YaHei UI",sans-serif;-webkit-font-smoothing:antialiased}
+body:not(.advanced-tools) button,body:not(.advanced-tools) select{transition:background-color .12s,border-color .12s,color .12s;border-radius:5px}
+body:not(.advanced-tools) button:focus-visible,body:not(.advanced-tools) select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+body:not(.advanced-tools) button:disabled,body:not(.advanced-tools) select:disabled{opacity:.35}
+body:not(.advanced-tools) .top{background:#191b1f;border-color:#2a2d32}
