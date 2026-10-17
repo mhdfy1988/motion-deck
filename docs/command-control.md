@@ -4,7 +4,7 @@
 
 设置中的三项权限使用固定名称的滑动开关：“命令控制”控制总入口，“姿势操作”“编排操作”分别授权。总入口关闭时下级禁用且撤销现有权限；开启下级仍需站内确认，取消不会改变状态，权限仍仅限本次会话。可用键盘聚焦并按空格切换，界面状态通过role=switch与aria-checked表达，不依赖动态按钮文案。
 
-按实际任务学习，先看[姿势、动作制作与检查手册](motion-authoring-guide.md)：从试摆到编排、过渡修帧、节奏/接触验收，附38条命令的参数示例与隔离实操脚本。本页保持协议、权限与边界的权威说明。
+按实际任务学习，先看[姿势、动作制作与检查手册](motion-authoring-guide.md)：从试摆到编排、过渡修帧、节奏/接触验收，附制作/检查参数示例与隔离实操脚本。v0.3.0共41条命令，包含3条协作会话命令；本页保持协议、权限与边界的权威说明。
 
 ## AI工作区（v0.2.0）
 
@@ -31,7 +31,7 @@ horizontal控制世界X/Z，vertical控制世界Y；关闭后唯一骨架根在�
 
 `export.glb`可选`rootMotion:{horizontal,vertical}`，省略继承当前策略；显式覆盖仅本次导出，不改预览，返回结果包含实际策略。普通素材导出弹窗提供同样开关，多个动作分别以自己的第0秒为基准。静态姿势不做位移过滤；pose.fromClip/fromSequence与保存姿势仍使用原始取样，避免反写素材。该功能不包含游戏高度控制、触地约束或提取外部位移曲线。
 
-A1–A4纳入v0.2.0，实际发布状态见当前计划；旧v0.1.1不包含命令入口。客户端提供MotionDeck-command.cmd，复用内置运行时；开发脚本仍可使用Node.js24。无需MCP或云端服务，不包含人体约束、脚底固定或物理跳跃轨迹。
+A1–A4命令入口自v0.2.0提供，旧v0.1.1不包含。客户端提供MotionDeck-command.cmd，复用内置运行时；开发脚本仍可使用Node.js24。v0.3.0新增关节约束与协作会话，无需MCP或云端服务；不提供自动脚底固定或物理跳跃轨迹。
 
 ## 动作检查与过渡修帧（v0.2.0）
 
@@ -116,7 +116,7 @@ node scripts/motion-command.mjs --data-dir "$env:APPDATA\MotionDeck" --operation
 | 操作 | args | 行为 |
 | --- | --- | --- |
 | `pose.fromClip` | `clipId`, `time`（秒） | 从当前模型动作取帧，暂停播放并建立完整草稿；不清编排 |
-| `pose.setBones` | `changes:[{id,quaternion,position?}],constraintMode?` | 1–256根骨骼局部绝对旋转，四元数 `[x,y,z,w]`，单位长度误差≤1e-5。未发布构建可选natural/free，省略沿当前模式；返回constraints.applied实际旋转、clamped和标定状态。局部位置每分量绝对值≤100，自然模式仅根/骨盆可改变位置，不拉骨长；重复/未知骨骼或非法数整批拒绝。不自动固定脚底 |
+| `pose.setBones` | `changes:[{id,quaternion,position?}],constraintMode?` | 1–256根骨骼局部绝对旋转，四元数 `[x,y,z,w]`，单位长度误差≤1e-5。v0.3.0可选natural/free，省略沿当前模式；返回constraints.applied实际旋转、clamped和标定状态。局部位置每分量绝对值≤100，自然模式仅根/骨盆可改变位置，不拉骨长；重复/未知骨骼或非法数整批拒绝。不自动固定脚底 |
 | `pose.undo` / `pose.redo` | `{}` | 一次批量修改对应一步深拷贝姿势历史，最多100步 |
 | `pose.discard` | `{}` | 放弃草稿，恢复进入前姿势/预览上下文，不自动播放 |
 | `pose.save` | `name`, `confirmed:true` | 通过原库事务追加姿势，最多80字；同名自定义拒绝，不覆盖默认库；失败草稿/历史保留 |
@@ -132,7 +132,7 @@ node scripts/motion-command.mjs --data-dir "$env:APPDATA\MotionDeck" --operation
 
 助手内部撤销/重做/保存/放弃浮条已移除，原命令、Ctrl+Z/Y及普通保存姿势入口保留；草稿、授权与协作指示是独立状态。未保存切模型/关闭/刷新仍需确认，关闭命令控制不删除草稿。崩溃/强制杀进程不会恢复未保存草稿。
 
-### 无心跳协作会话（新增、未发布）
+### 无心跳协作会话（v0.3.0）
 
 - `assistant.begin({})`：需姿势/编排任一种授权，不需模型/版本；返回`id`、`status:'waiting'`、`expiresAt`，不授予新权限。已有会话返回ASSISTANT_SESSION_BUSY，不冒认另一轮制作。
 - 后续请求顶层携带`assistantSessionId`（通过CLI请求文件，不是args或认证sessionId）。主进程在实际请求/写队列期间显示operating，完成或失败回到waiting，并从完成时重新计空闲10分钟。编辑仍检查原授权及modelKey/expectedRevision；编号无效/过期返回ASSISTANT_SESSION_EXPIRED，不执行请求。

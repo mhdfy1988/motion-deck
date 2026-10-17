@@ -1,20 +1,20 @@
 # MotionDeck 当前计划
 
-2026-10-17。源码整理、异常修复及首轮播放优化已收口；用户随后明确授权测试、打包、提交推送并发布v0.3.0，版本和GitHub账号已确认。当前按下方REL清单推进，不把候选包当成已公开发布。身体/手部编辑共用原工作台和历史，当前仅人物中心观察，开发技能0.2.1；正式安装及资料不替换、不清理，A5/A6不自动推进。整理阶段最后记录的用户预览为pose-exit-label-preview，本次没有代替用户放弃草稿或重启该窗口。
+2026-10-17。按用户授权完成测试、打包、提交推送及v0.3.0未签名测试版公开发布，随包技能0.2.1。身体/手部编辑共用原工作台和历史，当前仅人物中心观察；正式安装及资料未替换、未清理，A5/A6未推进。整理阶段最后记录的用户预览为pose-exit-label-preview，本次没有代替用户放弃草稿或重启该窗口。
 
 ## 当前指针
 
-- 当前进行中：按用户2026-10-17授权测试、打包、提交推送并发布v0.3.0未签名测试版，账号mhdfy1988，仓库mhdfy1988/motion-deck。
-- 当前下一项：完整304领域、138网页（5.8分钟）、31真实桌面（23.7分钟）全部通过；报告新鲜度/文件覆盖门禁、发布元数据及diff检查均通过。现在收口文档并提交推送，等待当前提交基础CI后发布并匿名下载验证。
-- 当前最近完成：首轮304项完整领域测试零失败/跳过，lint/格式/build及18素材校验通过。暂存新文件时发现workspace.css文件尾空行并清理，三个产物已全部重建；最终正式安装器125028128字节，SHA256为be9a596e9e7be596e5fd9f6600d618d37ddffbaaefb72a32031c3f56314fd978，更新元数据及校验清单匹配。中止前33项网页结果不用于最终放行，完整重跑中。远端main起点0e06d486，账号mhdfy1988；尚未提交或发布。
+- 当前状态：REL1–REL5全部完成；v0.3.0已公开发布，账号mhdfy1988，仓库mhdfy1988/motion-deck。
+- 当前下一项：本轮无剩余开发或发布任务，发布后文档已同步。是否升级用户正式安装由用户决定，不自动执行。
+- 当前最近完成：304领域、138网页（5.8分钟）、31真实桌面（23.7分钟）全部通过，完整报告门禁与发布元数据通过；发布提交d90c073已推送main且基础CI成功。四附件匿名下载哈希一致，隔离旧客户端从真实GitHub源识别0.3.0。最终安装器125028128字节，SHA256为be9a596e9e7be596e5fd9f6600d618d37ddffbaaefb72a32031c3f56314fd978。记录见verification及output/acceptance/published-release-proof.json。
 
 ## 当前任务列表（实时）
 
 - [x] REL1 冻结0.3.0版本/更新日志、修正门禁计数并确认隔离测试环境；账号与远端起点已核对
 - [x] REL2 基础与完整领域检查、正式/验收/升级产物构建
 - [x] REL3 完整网页和真实产物桌面/迁移/升级验收，保存新鲜JSON报告
-- [ ] REL4 收口发布文档、提交并推送，等待当前提交基础CI成功
-- [ ] REL5 发布v0.3.0及四个附件，匿名下载哈希与真实公开更新源验证
+- [x] REL4 收口发布文档、提交并推送，等待当前提交基础CI成功
+- [x] REL5 发布v0.3.0及四个附件，匿名下载哈希与真实公开更新源验证
 
 本次验收环境：FFMPEG_BIN为output/ci-ffmpeg-check/ffmpeg-8.1.2-essentials_build/bin，归档SHA256已核对；正式EXE为output/desktop/MotionDeck-win32-x64/MotionDeck.exe，自动授权验收EXE为output/release-acceptance/MotionDeckAcceptance-win32-x64/MotionDeckAcceptance.exe；迁移旧EXE为output/legacy-desktop/MotionDeck-win32-x64/MotionDeck.exe；升级旧/新安装器分别为output/update-acceptance/old/installer/MotionDeckAcceptance-0.0.1-setup-x64.exe与new/installer/MotionDeckAcceptance-0.0.2-setup-x64.exe。网页端口8904、桌面workers=1，所有测试资料在output隔离，不混用两种发行身份。
 
